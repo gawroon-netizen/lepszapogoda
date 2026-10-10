@@ -1,0 +1,3486 @@
+{
+ "period": "2026-07-01..2026-09-30",
+ "models": [
+  "ecmwf_ifs025",
+  "ecmwf_aifs025_single",
+  "icon_seamless",
+  "gfs_seamless",
+  "meteofrance_seamless"
+ ],
+ "precip_alignment": {
+  "corr": {
+   "-1": 0.09631381883084875,
+   "0": 0.6565311629822226
+  },
+  "shift": 0
+ },
+ "stations": 57,
+ "wins_per_month": {
+  "07": {
+   "icon_seamless": 26,
+   "gfs_seamless": 14,
+   "ecmwf_aifs025_single": 3,
+   "ecmwf_ifs025": 13
+  },
+  "08": {
+   "gfs_seamless": 7,
+   "icon_seamless": 21,
+   "meteofrance_seamless": 3,
+   "ecmwf_aifs025_single": 18,
+   "ecmwf_ifs025": 8
+  },
+  "09": {
+   "ecmwf_aifs025_single": 11,
+   "icon_seamless": 9,
+   "ecmwf_ifs025": 20,
+   "meteofrance_seamless": 2,
+   "gfs_seamless": 15
+  }
+ },
+ "mean_score_per_month": {
+  "07": {
+   "ecmwf_ifs025": 59.8,
+   "ecmwf_aifs025_single": 39.1,
+   "icon_seamless": 64.1,
+   "gfs_seamless": 55.2,
+   "meteofrance_seamless": 36.8
+  },
+  "08": {
+   "ecmwf_ifs025": 53.4,
+   "ecmwf_aifs025_single": 55.6,
+   "icon_seamless": 64.5,
+   "gfs_seamless": 52.6,
+   "meteofrance_seamless": 37.1
+  },
+  "09": {
+   "ecmwf_ifs025": 58.6,
+   "ecmwf_aifs025_single": 45.9,
+   "icon_seamless": 52.6,
+   "gfs_seamless": 51.0,
+   "meteofrance_seamless": 41.6
+  }
+ },
+ "stability": {
+  "same_winner_next_month": 0.31,
+  "pairs": 113,
+  "mean_rank_corr_next_month": 0.383,
+  "chance_same_winner": 0.2
+ },
+ "raw_metrics_sep": {
+  "lead1": {
+   "ecmwf_ifs025": {
+    "temp_mae": 1.361,
+    "tmax_bias": -0.945,
+    "tmin_bias": 1.031,
+    "precip_mae": 1.309,
+    "precip_bias": 0.216,
+    "precip_ets": 0.517,
+    "sun_mae": 3.909,
+    "sun_bias": 3.866
+   },
+   "ecmwf_aifs025_single": {
+    "temp_mae": 1.417,
+    "tmax_bias": -1.008,
+    "tmin_bias": 1.151,
+    "precip_mae": 1.256,
+    "precip_bias": 0.395,
+    "precip_ets": 0.426,
+    "sun_mae": 3.988,
+    "sun_bias": 3.93
+   },
+   "icon_seamless": {
+    "temp_mae": 1.21,
+    "tmax_bias": -0.959,
+    "tmin_bias": 0.933,
+    "precip_mae": 1.243,
+    "precip_bias": -0.14,
+    "precip_ets": 0.477,
+    "sun_mae": 2.467,
+    "sun_bias": 2.075
+   },
+   "gfs_seamless": {
+    "temp_mae": 1.449,
+    "tmax_bias": -0.281,
+    "tmin_bias": 1.317,
+    "precip_mae": 1.224,
+    "precip_bias": -0.241,
+    "precip_ets": 0.479,
+    "sun_mae": 4.14,
+    "sun_bias": 4.107
+   },
+   "meteofrance_seamless": {
+    "temp_mae": 1.432,
+    "tmax_bias": -0.824,
+    "tmin_bias": 1.415,
+    "precip_mae": 1.359,
+    "precip_bias": -0.06,
+    "precip_ets": 0.478,
+    "sun_mae": 2.672,
+    "sun_bias": 2.366
+   }
+  },
+  "lead3": {
+   "ecmwf_ifs025": {
+    "temp_mae": 1.51,
+    "tmax_bias": -0.89,
+    "tmin_bias": 1.072,
+    "precip_mae": 1.742,
+    "precip_bias": 0.502,
+    "precip_ets": 0.385,
+    "sun_mae": 3.937,
+    "sun_bias": 3.788
+   },
+   "ecmwf_aifs025_single": {
+    "temp_mae": 1.596,
+    "tmax_bias": -1.2,
+    "tmin_bias": 1.274,
+    "precip_mae": 1.634,
+    "precip_bias": 0.587,
+    "precip_ets": 0.332,
+    "sun_mae": 4.174,
+    "sun_bias": 4.019
+   },
+   "icon_seamless": {
+    "temp_mae": 1.522,
+    "tmax_bias": -1.03,
+    "tmin_bias": 1.002,
+    "precip_mae": 2.045,
+    "precip_bias": 0.355,
+    "precip_ets": 0.341,
+    "sun_mae": 3.033,
+    "sun_bias": 2.317
+   },
+   "gfs_seamless": {
+    "temp_mae": 1.602,
+    "tmax_bias": -0.088,
+    "tmin_bias": 1.16,
+    "precip_mae": 1.528,
+    "precip_bias": -0.403,
+    "precip_ets": 0.35,
+    "sun_mae": 4.371,
+    "sun_bias": 4.28
+   },
+   "meteofrance_seamless": {
+    "temp_mae": 1.656,
+    "tmax_bias": -0.674,
+    "tmin_bias": 1.58,
+    "precip_mae": 1.728,
+    "precip_bias": -0.077,
+    "precip_ets": 0.34,
+    "sun_mae": 2.911,
+    "sun_bias": 2.259
+   }
+  }
+ },
+ "per_station": {
+  "349190600": {
+   "name": "BIELSKO-BIAŁA",
+   "lat": 49.8,
+   "lon": 19.0,
+   "elev": 399.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "icon_seamless",
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "ecmwf_aifs025_single",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 65.3,
+      "ecmwf_aifs025_single": 56.7,
+      "icon_seamless": 68.3,
+      "gfs_seamless": 61.3,
+      "meteofrance_seamless": 33.3
+     }
+    },
+    "08": {
+     "ranking": [
+      "gfs_seamless",
+      "icon_seamless",
+      "ecmwf_aifs025_single",
+      "ecmwf_ifs025",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 53.3,
+      "ecmwf_aifs025_single": 58.3,
+      "icon_seamless": 59.3,
+      "gfs_seamless": 83.3,
+      "meteofrance_seamless": 36.3
+     }
+    },
+    "09": {
+     "ranking": [
+      "ecmwf_aifs025_single",
+      "icon_seamless",
+      "ecmwf_ifs025",
+      "meteofrance_seamless",
+      "gfs_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 53.0,
+      "ecmwf_aifs025_single": 60.7,
+      "icon_seamless": 55.0,
+      "gfs_seamless": 38.0,
+      "meteofrance_seamless": 45.3
+     }
+    }
+   }
+  },
+  "349190625": {
+   "name": "ZAKOPANE",
+   "lat": 49.3,
+   "lon": 19.967,
+   "elev": 857.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "gfs_seamless",
+      "icon_seamless",
+      "meteofrance_seamless",
+      "ecmwf_ifs025",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 42.3,
+      "ecmwf_aifs025_single": 15.0,
+      "icon_seamless": 72.0,
+      "gfs_seamless": 78.3,
+      "meteofrance_seamless": 69.3
+     }
+    },
+    "08": {
+     "ranking": [
+      "icon_seamless",
+      "gfs_seamless",
+      "meteofrance_seamless",
+      "ecmwf_ifs025",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 45.7,
+      "ecmwf_aifs025_single": 15.3,
+      "icon_seamless": 74.7,
+      "gfs_seamless": 72.7,
+      "meteofrance_seamless": 63.0
+     }
+    },
+    "09": {
+     "ranking": [
+      "icon_seamless",
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 63.7,
+      "ecmwf_aifs025_single": 32.7,
+      "icon_seamless": 79.7,
+      "gfs_seamless": 60.0,
+      "meteofrance_seamless": 56.7
+     }
+    }
+   }
+  },
+  "349190650": {
+   "name": "KASPROWY WIERCH",
+   "lat": 49.233,
+   "lon": 19.983,
+   "elev": 1989.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "gfs_seamless",
+      "meteofrance_seamless",
+      "ecmwf_ifs025",
+      "icon_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 65.7,
+      "ecmwf_aifs025_single": 13.3,
+      "icon_seamless": 62.0,
+      "gfs_seamless": 82.7,
+      "meteofrance_seamless": 66.7
+     }
+    },
+    "08": {
+     "ranking": [
+      "meteofrance_seamless",
+      "gfs_seamless",
+      "icon_seamless",
+      "ecmwf_ifs025",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 55.0,
+      "ecmwf_aifs025_single": 18.3,
+      "icon_seamless": 63.7,
+      "gfs_seamless": 72.0,
+      "meteofrance_seamless": 73.0
+     }
+    },
+    "09": {
+     "ranking": [
+      "ecmwf_ifs025",
+      "meteofrance_seamless",
+      "icon_seamless",
+      "gfs_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 87.7,
+      "ecmwf_aifs025_single": 41.0,
+      "icon_seamless": 56.0,
+      "gfs_seamless": 44.7,
+      "meteofrance_seamless": 66.7
+     }
+    }
+   }
+  },
+  "349200660": {
+   "name": "NOWY SĄCZ",
+   "lat": 49.617,
+   "lon": 20.7,
+   "elev": 295.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "icon_seamless",
+      "gfs_seamless",
+      "ecmwf_ifs025",
+      "ecmwf_aifs025_single",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 57.3,
+      "ecmwf_aifs025_single": 32.0,
+      "icon_seamless": 76.0,
+      "gfs_seamless": 73.3,
+      "meteofrance_seamless": 23.3
+     }
+    },
+    "08": {
+     "ranking": [
+      "icon_seamless",
+      "gfs_seamless",
+      "ecmwf_ifs025",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 35.7,
+      "ecmwf_aifs025_single": 25.7,
+      "icon_seamless": 77.7,
+      "gfs_seamless": 71.3,
+      "meteofrance_seamless": 28.0
+     }
+    },
+    "09": {
+     "ranking": [
+      "icon_seamless",
+      "ecmwf_aifs025_single",
+      "gfs_seamless",
+      "meteofrance_seamless",
+      "ecmwf_ifs025"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 19.3,
+      "ecmwf_aifs025_single": 44.7,
+      "icon_seamless": 75.0,
+      "gfs_seamless": 37.0,
+      "meteofrance_seamless": 35.3
+     }
+    }
+   }
+  },
+  "349210670": {
+   "name": "KROSNO",
+   "lat": 49.7,
+   "lon": 21.767,
+   "elev": 329.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "icon_seamless",
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 73.7,
+      "ecmwf_aifs025_single": 21.3,
+      "icon_seamless": 76.0,
+      "gfs_seamless": 39.3,
+      "meteofrance_seamless": 39.0
+     }
+    },
+    "08": {
+     "ranking": [
+      "icon_seamless",
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "ecmwf_aifs025_single",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 60.7,
+      "ecmwf_aifs025_single": 55.3,
+      "icon_seamless": 67.3,
+      "gfs_seamless": 60.3,
+      "meteofrance_seamless": 47.3
+     }
+    },
+    "09": {
+     "ranking": [
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "icon_seamless",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 83.7,
+      "ecmwf_aifs025_single": 16.0,
+      "icon_seamless": 47.7,
+      "gfs_seamless": 55.0,
+      "meteofrance_seamless": 40.7
+     }
+    }
+   }
+  },
+  "349220690": {
+   "name": "LESKO",
+   "lat": 49.467,
+   "lon": 22.35,
+   "elev": 422.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "icon_seamless",
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 67.3,
+      "ecmwf_aifs025_single": 10.7,
+      "icon_seamless": 74.0,
+      "gfs_seamless": 48.3,
+      "meteofrance_seamless": 30.0
+     }
+    },
+    "08": {
+     "ranking": [
+      "icon_seamless",
+      "gfs_seamless",
+      "ecmwf_aifs025_single",
+      "ecmwf_ifs025",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 41.0,
+      "ecmwf_aifs025_single": 41.3,
+      "icon_seamless": 73.7,
+      "gfs_seamless": 48.3,
+      "meteofrance_seamless": 31.0
+     }
+    },
+    "09": {
+     "ranking": [
+      "ecmwf_ifs025",
+      "icon_seamless",
+      "meteofrance_seamless",
+      "gfs_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 72.7,
+      "ecmwf_aifs025_single": 2.0,
+      "icon_seamless": 67.0,
+      "gfs_seamless": 43.0,
+      "meteofrance_seamless": 64.0
+     }
+    }
+   }
+  },
+  "350150500": {
+   "name": "JELENIA GÓRA",
+   "lat": 50.9,
+   "lon": 15.8,
+   "elev": 344.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "icon_seamless",
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "ecmwf_aifs025_single",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 55.3,
+      "ecmwf_aifs025_single": 34.7,
+      "icon_seamless": 85.7,
+      "gfs_seamless": 48.7,
+      "meteofrance_seamless": 24.0
+     }
+    },
+    "08": {
+     "ranking": [
+      "icon_seamless",
+      "gfs_seamless",
+      "ecmwf_ifs025",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 40.0,
+      "ecmwf_aifs025_single": 28.0,
+      "icon_seamless": 63.0,
+      "gfs_seamless": 56.3,
+      "meteofrance_seamless": 36.3
+     }
+    },
+    "09": {
+     "ranking": [
+      "ecmwf_ifs025",
+      "icon_seamless",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single",
+      "gfs_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 86.0,
+      "ecmwf_aifs025_single": 33.7,
+      "icon_seamless": 57.3,
+      "gfs_seamless": 28.0,
+      "meteofrance_seamless": 42.0
+     }
+    }
+   }
+  },
+  "350150510": {
+   "name": "ŚNIEŻKA",
+   "lat": 50.733,
+   "lon": 15.733,
+   "elev": 1613.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "ecmwf_aifs025_single",
+      "ecmwf_ifs025",
+      "meteofrance_seamless",
+      "icon_seamless",
+      "gfs_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 65.3,
+      "ecmwf_aifs025_single": 82.7,
+      "icon_seamless": 40.0,
+      "gfs_seamless": 25.7,
+      "meteofrance_seamless": 46.0
+     }
+    },
+    "08": {
+     "ranking": [
+      "meteofrance_seamless",
+      "icon_seamless",
+      "ecmwf_aifs025_single",
+      "gfs_seamless",
+      "ecmwf_ifs025"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 26.0,
+      "ecmwf_aifs025_single": 46.7,
+      "icon_seamless": 69.3,
+      "gfs_seamless": 43.3,
+      "meteofrance_seamless": 84.0
+     }
+    },
+    "09": {
+     "ranking": [
+      "ecmwf_ifs025",
+      "icon_seamless",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single",
+      "gfs_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 63.3,
+      "ecmwf_aifs025_single": 38.3,
+      "icon_seamless": 52.3,
+      "gfs_seamless": 31.0,
+      "meteofrance_seamless": 43.0
+     }
+    }
+   }
+  },
+  "350160520": {
+   "name": "KŁODZKO",
+   "lat": 50.433,
+   "lon": 16.617,
+   "elev": 357.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "icon_seamless",
+      "gfs_seamless",
+      "ecmwf_ifs025",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 46.3,
+      "ecmwf_aifs025_single": 26.0,
+      "icon_seamless": 75.7,
+      "gfs_seamless": 52.7,
+      "meteofrance_seamless": 45.0
+     }
+    },
+    "08": {
+     "ranking": [
+      "icon_seamless",
+      "ecmwf_aifs025_single",
+      "gfs_seamless",
+      "meteofrance_seamless",
+      "ecmwf_ifs025"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 29.7,
+      "ecmwf_aifs025_single": 48.3,
+      "icon_seamless": 92.7,
+      "gfs_seamless": 38.0,
+      "meteofrance_seamless": 34.3
+     }
+    },
+    "09": {
+     "ranking": [
+      "icon_seamless",
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "ecmwf_aifs025_single",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 44.7,
+      "ecmwf_aifs025_single": 43.7,
+      "icon_seamless": 48.7,
+      "gfs_seamless": 44.7,
+      "meteofrance_seamless": 24.3
+     }
+    }
+   }
+  },
+  "350170530": {
+   "name": "OPOLE",
+   "lat": 50.617,
+   "lon": 17.967,
+   "elev": 163.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "gfs_seamless",
+      "ecmwf_ifs025",
+      "icon_seamless",
+      "ecmwf_aifs025_single",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 60.3,
+      "ecmwf_aifs025_single": 52.0,
+      "icon_seamless": 54.7,
+      "gfs_seamless": 61.7,
+      "meteofrance_seamless": 32.7
+     }
+    },
+    "08": {
+     "ranking": [
+      "ecmwf_aifs025_single",
+      "gfs_seamless",
+      "ecmwf_ifs025",
+      "icon_seamless",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 59.3,
+      "ecmwf_aifs025_single": 73.7,
+      "icon_seamless": 55.7,
+      "gfs_seamless": 63.7,
+      "meteofrance_seamless": 12.0
+     }
+    },
+    "09": {
+     "ranking": [
+      "ecmwf_ifs025",
+      "ecmwf_aifs025_single",
+      "icon_seamless",
+      "meteofrance_seamless",
+      "gfs_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 78.0,
+      "ecmwf_aifs025_single": 66.0,
+      "icon_seamless": 52.7,
+      "gfs_seamless": 10.3,
+      "meteofrance_seamless": 29.7
+     }
+    }
+   }
+  },
+  "350180540": {
+   "name": "RACIBÓRZ",
+   "lat": 50.05,
+   "lon": 18.2,
+   "elev": 206.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "gfs_seamless",
+      "ecmwf_ifs025",
+      "icon_seamless",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 53.0,
+      "ecmwf_aifs025_single": 47.0,
+      "icon_seamless": 51.3,
+      "gfs_seamless": 67.0,
+      "meteofrance_seamless": 50.7
+     }
+    },
+    "08": {
+     "ranking": [
+      "icon_seamless",
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "ecmwf_aifs025_single",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 69.7,
+      "ecmwf_aifs025_single": 36.3,
+      "icon_seamless": 86.0,
+      "gfs_seamless": 49.3,
+      "meteofrance_seamless": 20.7
+     }
+    },
+    "09": {
+     "ranking": [
+      "ecmwf_ifs025",
+      "icon_seamless",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single",
+      "gfs_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 72.0,
+      "ecmwf_aifs025_single": 41.3,
+      "icon_seamless": 71.7,
+      "gfs_seamless": 27.0,
+      "meteofrance_seamless": 51.3
+     }
+    }
+   }
+  },
+  "350190550": {
+   "name": "CZĘSTOCHOWA",
+   "lat": 50.817,
+   "lon": 19.1,
+   "elev": 295.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "gfs_seamless",
+      "ecmwf_ifs025",
+      "icon_seamless",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 68.3,
+      "ecmwf_aifs025_single": 19.7,
+      "icon_seamless": 61.0,
+      "gfs_seamless": 74.7,
+      "meteofrance_seamless": 24.0
+     }
+    },
+    "08": {
+     "ranking": [
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "icon_seamless",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 71.7,
+      "ecmwf_aifs025_single": 41.0,
+      "icon_seamless": 48.0,
+      "gfs_seamless": 55.0,
+      "meteofrance_seamless": 41.7
+     }
+    },
+    "09": {
+     "ranking": [
+      "ecmwf_aifs025_single",
+      "ecmwf_ifs025",
+      "meteofrance_seamless",
+      "icon_seamless",
+      "gfs_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 73.7,
+      "ecmwf_aifs025_single": 85.7,
+      "icon_seamless": 32.7,
+      "gfs_seamless": 28.3,
+      "meteofrance_seamless": 35.7
+     }
+    }
+   }
+  },
+  "350190560": {
+   "name": "KATOWICE-MUCHOWIEC",
+   "lat": 50.233,
+   "lon": 19.033,
+   "elev": 284.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "gfs_seamless",
+      "icon_seamless",
+      "ecmwf_ifs025",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 58.3,
+      "ecmwf_aifs025_single": 23.7,
+      "icon_seamless": 60.7,
+      "gfs_seamless": 80.7,
+      "meteofrance_seamless": 32.3
+     }
+    },
+    "08": {
+     "ranking": [
+      "gfs_seamless",
+      "ecmwf_ifs025",
+      "icon_seamless",
+      "ecmwf_aifs025_single",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 60.7,
+      "ecmwf_aifs025_single": 48.7,
+      "icon_seamless": 57.0,
+      "gfs_seamless": 83.7,
+      "meteofrance_seamless": 19.3
+     }
+    },
+    "09": {
+     "ranking": [
+      "ecmwf_aifs025_single",
+      "meteofrance_seamless",
+      "icon_seamless",
+      "ecmwf_ifs025",
+      "gfs_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 35.3,
+      "ecmwf_aifs025_single": 84.0,
+      "icon_seamless": 36.0,
+      "gfs_seamless": 29.0,
+      "meteofrance_seamless": 44.3
+     }
+    }
+   }
+  },
+  "350190566": {
+   "name": "KRAKÓW-BALICE",
+   "lat": 50.078,
+   "lon": 19.785,
+   "elev": 241.1,
+   "windows": {
+    "07": {
+     "ranking": [
+      "gfs_seamless",
+      "ecmwf_ifs025",
+      "icon_seamless",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 60.0,
+      "ecmwf_aifs025_single": 25.7,
+      "icon_seamless": 59.7,
+      "gfs_seamless": 85.3,
+      "meteofrance_seamless": 36.3
+     }
+    },
+    "08": {
+     "ranking": [
+      "gfs_seamless",
+      "icon_seamless",
+      "ecmwf_ifs025",
+      "ecmwf_aifs025_single",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 64.0,
+      "ecmwf_aifs025_single": 62.0,
+      "icon_seamless": 83.3,
+      "gfs_seamless": 85.3,
+      "meteofrance_seamless": 4.3
+     }
+    },
+    "09": {
+     "ranking": [
+      "icon_seamless",
+      "gfs_seamless",
+      "ecmwf_ifs025",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 52.3,
+      "ecmwf_aifs025_single": 9.7,
+      "icon_seamless": 84.3,
+      "gfs_seamless": 66.7,
+      "meteofrance_seamless": 35.0
+     }
+    }
+   }
+  },
+  "350200570": {
+   "name": "KIELCE-SUKÓW",
+   "lat": 50.817,
+   "lon": 20.7,
+   "elev": 261.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "icon_seamless",
+      "gfs_seamless",
+      "meteofrance_seamless",
+      "ecmwf_ifs025",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 51.7,
+      "ecmwf_aifs025_single": 15.7,
+      "icon_seamless": 67.3,
+      "gfs_seamless": 57.0,
+      "meteofrance_seamless": 52.3
+     }
+    },
+    "08": {
+     "ranking": [
+      "ecmwf_ifs025",
+      "ecmwf_aifs025_single",
+      "icon_seamless",
+      "meteofrance_seamless",
+      "gfs_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 60.0,
+      "ecmwf_aifs025_single": 57.0,
+      "icon_seamless": 47.3,
+      "gfs_seamless": 31.3,
+      "meteofrance_seamless": 35.0
+     }
+    },
+    "09": {
+     "ranking": [
+      "ecmwf_aifs025_single",
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "icon_seamless",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 57.0,
+      "ecmwf_aifs025_single": 59.0,
+      "icon_seamless": 45.0,
+      "gfs_seamless": 47.3,
+      "meteofrance_seamless": 29.0
+     }
+    }
+   }
+  },
+  "350200575": {
+   "name": "TARNÓW",
+   "lat": 50.033,
+   "lon": 20.983,
+   "elev": 209.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "ecmwf_ifs025",
+      "ecmwf_aifs025_single",
+      "gfs_seamless",
+      "icon_seamless",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 78.0,
+      "ecmwf_aifs025_single": 61.3,
+      "icon_seamless": 53.0,
+      "gfs_seamless": 57.7,
+      "meteofrance_seamless": 3.0
+     }
+    },
+    "08": {
+     "ranking": [
+      "icon_seamless",
+      "ecmwf_ifs025",
+      "ecmwf_aifs025_single",
+      "gfs_seamless",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 55.0,
+      "ecmwf_aifs025_single": 55.0,
+      "icon_seamless": 65.0,
+      "gfs_seamless": 54.0,
+      "meteofrance_seamless": 38.0
+     }
+    },
+    "09": {
+     "ranking": [
+      "icon_seamless",
+      "ecmwf_aifs025_single",
+      "meteofrance_seamless",
+      "ecmwf_ifs025",
+      "gfs_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 41.7,
+      "ecmwf_aifs025_single": 55.7,
+      "icon_seamless": 64.3,
+      "gfs_seamless": 21.0,
+      "meteofrance_seamless": 45.3
+     }
+    }
+   }
+  },
+  "350210585": {
+   "name": "SANDOMIERZ",
+   "lat": 50.7,
+   "lon": 21.717,
+   "elev": 218.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "ecmwf_ifs025",
+      "icon_seamless",
+      "ecmwf_aifs025_single",
+      "gfs_seamless",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 69.3,
+      "ecmwf_aifs025_single": 52.0,
+      "icon_seamless": 52.7,
+      "gfs_seamless": 47.7,
+      "meteofrance_seamless": 38.7
+     }
+    },
+    "08": {
+     "ranking": [
+      "ecmwf_aifs025_single",
+      "ecmwf_ifs025",
+      "icon_seamless",
+      "meteofrance_seamless",
+      "gfs_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 59.0,
+      "ecmwf_aifs025_single": 81.7,
+      "icon_seamless": 54.3,
+      "gfs_seamless": 52.3,
+      "meteofrance_seamless": 54.0
+     }
+    },
+    "09": {
+     "ranking": [
+      "ecmwf_aifs025_single",
+      "ecmwf_ifs025",
+      "icon_seamless",
+      "gfs_seamless",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 55.0,
+      "ecmwf_aifs025_single": 69.3,
+      "icon_seamless": 40.3,
+      "gfs_seamless": 37.7,
+      "meteofrance_seamless": 35.0
+     }
+    }
+   }
+  },
+  "350220580": {
+   "name": "RZESZÓW-JASIONKA",
+   "lat": 50.11,
+   "lon": 22.019,
+   "elev": 205.7,
+   "windows": {
+    "07": {
+     "ranking": [
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "meteofrance_seamless",
+      "icon_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 80.0,
+      "ecmwf_aifs025_single": 21.7,
+      "icon_seamless": 33.7,
+      "gfs_seamless": 72.7,
+      "meteofrance_seamless": 41.7
+     }
+    },
+    "08": {
+     "ranking": [
+      "gfs_seamless",
+      "ecmwf_aifs025_single",
+      "icon_seamless",
+      "meteofrance_seamless",
+      "ecmwf_ifs025"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 43.7,
+      "ecmwf_aifs025_single": 69.3,
+      "icon_seamless": 63.0,
+      "gfs_seamless": 69.7,
+      "meteofrance_seamless": 53.0
+     }
+    },
+    "09": {
+     "ranking": [
+      "ecmwf_ifs025",
+      "icon_seamless",
+      "meteofrance_seamless",
+      "gfs_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 67.7,
+      "ecmwf_aifs025_single": 41.7,
+      "icon_seamless": 58.7,
+      "gfs_seamless": 44.7,
+      "meteofrance_seamless": 50.3
+     }
+    }
+   }
+  },
+  "350230595": {
+   "name": "ZAMOŚĆ",
+   "lat": 50.7,
+   "lon": 23.25,
+   "elev": 213.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "icon_seamless",
+      "gfs_seamless",
+      "ecmwf_aifs025_single",
+      "ecmwf_ifs025",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 40.0,
+      "ecmwf_aifs025_single": 50.0,
+      "icon_seamless": 83.3,
+      "gfs_seamless": 63.3,
+      "meteofrance_seamless": 19.0
+     }
+    },
+    "08": {
+     "ranking": [
+      "ecmwf_aifs025_single",
+      "icon_seamless",
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 47.0,
+      "ecmwf_aifs025_single": 78.7,
+      "icon_seamless": 73.3,
+      "gfs_seamless": 43.7,
+      "meteofrance_seamless": 37.7
+     }
+    },
+    "09": {
+     "ranking": [
+      "ecmwf_aifs025_single",
+      "icon_seamless",
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 43.0,
+      "ecmwf_aifs025_single": 82.7,
+      "icon_seamless": 65.3,
+      "gfs_seamless": 37.3,
+      "meteofrance_seamless": 37.0
+     }
+    }
+   }
+  },
+  "351150400": {
+   "name": "ZIELONA GÓRA",
+   "lat": 51.933,
+   "lon": 15.533,
+   "elev": 192.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "icon_seamless",
+      "ecmwf_aifs025_single",
+      "ecmwf_ifs025",
+      "meteofrance_seamless",
+      "gfs_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 44.3,
+      "ecmwf_aifs025_single": 65.0,
+      "icon_seamless": 69.0,
+      "gfs_seamless": 27.3,
+      "meteofrance_seamless": 32.0
+     }
+    },
+    "08": {
+     "ranking": [
+      "ecmwf_aifs025_single",
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "icon_seamless",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 53.3,
+      "ecmwf_aifs025_single": 97.7,
+      "icon_seamless": 39.3,
+      "gfs_seamless": 41.0,
+      "meteofrance_seamless": 39.3
+     }
+    },
+    "09": {
+     "ranking": [
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single",
+      "icon_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 74.3,
+      "ecmwf_aifs025_single": 33.7,
+      "icon_seamless": 24.3,
+      "gfs_seamless": 69.0,
+      "meteofrance_seamless": 68.7
+     }
+    }
+   }
+  },
+  "351160415": {
+   "name": "LEGNICA",
+   "lat": 51.2,
+   "lon": 16.2,
+   "elev": 124.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "ecmwf_ifs025",
+      "icon_seamless",
+      "gfs_seamless",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 71.3,
+      "ecmwf_aifs025_single": 18.0,
+      "icon_seamless": 66.3,
+      "gfs_seamless": 52.0,
+      "meteofrance_seamless": 38.0
+     }
+    },
+    "08": {
+     "ranking": [
+      "icon_seamless",
+      "gfs_seamless",
+      "ecmwf_ifs025",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 37.0,
+      "ecmwf_aifs025_single": 27.3,
+      "icon_seamless": 89.7,
+      "gfs_seamless": 50.7,
+      "meteofrance_seamless": 29.3
+     }
+    },
+    "09": {
+     "ranking": [
+      "ecmwf_ifs025",
+      "icon_seamless",
+      "meteofrance_seamless",
+      "gfs_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 83.0,
+      "ecmwf_aifs025_single": 32.3,
+      "icon_seamless": 81.0,
+      "gfs_seamless": 36.3,
+      "meteofrance_seamless": 47.0
+     }
+    }
+   }
+  },
+  "351160418": {
+   "name": "LESZNO",
+   "lat": 51.833,
+   "lon": 16.533,
+   "elev": 92.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "icon_seamless",
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "ecmwf_aifs025_single",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 71.3,
+      "ecmwf_aifs025_single": 33.3,
+      "icon_seamless": 82.0,
+      "gfs_seamless": 33.7,
+      "meteofrance_seamless": 32.3
+     }
+    },
+    "08": {
+     "ranking": [
+      "ecmwf_ifs025",
+      "icon_seamless",
+      "ecmwf_aifs025_single",
+      "gfs_seamless",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 70.3,
+      "ecmwf_aifs025_single": 67.3,
+      "icon_seamless": 68.3,
+      "gfs_seamless": 44.3,
+      "meteofrance_seamless": 35.0
+     }
+    },
+    "09": {
+     "ranking": [
+      "ecmwf_ifs025",
+      "icon_seamless",
+      "ecmwf_aifs025_single",
+      "gfs_seamless",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 92.3,
+      "ecmwf_aifs025_single": 46.3,
+      "icon_seamless": 52.0,
+      "gfs_seamless": 32.0,
+      "meteofrance_seamless": 26.0
+     }
+    }
+   }
+  },
+  "351160424": {
+   "name": "WROCŁAW-STRACHOWICE",
+   "lat": 51.103,
+   "lon": 16.886,
+   "elev": 123.1,
+   "windows": {
+    "07": {
+     "ranking": [
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "icon_seamless",
+      "ecmwf_aifs025_single",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 64.7,
+      "ecmwf_aifs025_single": 42.0,
+      "icon_seamless": 54.3,
+      "gfs_seamless": 63.3,
+      "meteofrance_seamless": 25.0
+     }
+    },
+    "08": {
+     "ranking": [
+      "icon_seamless",
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 66.3,
+      "ecmwf_aifs025_single": 30.3,
+      "icon_seamless": 87.0,
+      "gfs_seamless": 51.7,
+      "meteofrance_seamless": 31.3
+     }
+    },
+    "09": {
+     "ranking": [
+      "ecmwf_ifs025",
+      "icon_seamless",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single",
+      "gfs_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 86.3,
+      "ecmwf_aifs025_single": 34.3,
+      "icon_seamless": 60.3,
+      "gfs_seamless": 16.0,
+      "meteofrance_seamless": 45.7
+     }
+    }
+   }
+  },
+  "351180435": {
+   "name": "KALISZ",
+   "lat": 51.783,
+   "lon": 18.083,
+   "elev": 140.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "icon_seamless",
+      "ecmwf_ifs025",
+      "ecmwf_aifs025_single",
+      "gfs_seamless",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 55.7,
+      "ecmwf_aifs025_single": 50.3,
+      "icon_seamless": 56.3,
+      "gfs_seamless": 43.3,
+      "meteofrance_seamless": 38.0
+     }
+    },
+    "08": {
+     "ranking": [
+      "ecmwf_aifs025_single",
+      "icon_seamless",
+      "gfs_seamless",
+      "ecmwf_ifs025",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 48.3,
+      "ecmwf_aifs025_single": 70.7,
+      "icon_seamless": 68.7,
+      "gfs_seamless": 58.7,
+      "meteofrance_seamless": 40.3
+     }
+    },
+    "09": {
+     "ranking": [
+      "ecmwf_aifs025_single",
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "meteofrance_seamless",
+      "icon_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 57.3,
+      "ecmwf_aifs025_single": 73.3,
+      "icon_seamless": 27.7,
+      "gfs_seamless": 34.0,
+      "meteofrance_seamless": 29.7
+     }
+    }
+   }
+  },
+  "351180455": {
+   "name": "WIELUŃ",
+   "lat": 51.217,
+   "lon": 18.567,
+   "elev": 201.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "gfs_seamless",
+      "icon_seamless",
+      "ecmwf_ifs025",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 51.0,
+      "ecmwf_aifs025_single": 22.7,
+      "icon_seamless": 54.7,
+      "gfs_seamless": 77.7,
+      "meteofrance_seamless": 41.7
+     }
+    },
+    "08": {
+     "ranking": [
+      "icon_seamless",
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "ecmwf_aifs025_single",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 68.0,
+      "ecmwf_aifs025_single": 41.7,
+      "icon_seamless": 74.7,
+      "gfs_seamless": 62.7,
+      "meteofrance_seamless": 12.7
+     }
+    },
+    "09": {
+     "ranking": [
+      "ecmwf_aifs025_single",
+      "meteofrance_seamless",
+      "icon_seamless",
+      "ecmwf_ifs025",
+      "gfs_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 31.7,
+      "ecmwf_aifs025_single": 59.7,
+      "icon_seamless": 45.0,
+      "gfs_seamless": 31.7,
+      "meteofrance_seamless": 56.3
+     }
+    }
+   }
+  },
+  "351190465": {
+   "name": "ŁÓDŹ",
+   "lat": 51.733,
+   "lon": 19.4,
+   "elev": 190.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "gfs_seamless",
+      "ecmwf_ifs025",
+      "icon_seamless",
+      "ecmwf_aifs025_single",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 53.3,
+      "ecmwf_aifs025_single": 36.0,
+      "icon_seamless": 47.3,
+      "gfs_seamless": 75.3,
+      "meteofrance_seamless": 21.7
+     }
+    },
+    "08": {
+     "ranking": [
+      "ecmwf_aifs025_single",
+      "icon_seamless",
+      "ecmwf_ifs025",
+      "meteofrance_seamless",
+      "gfs_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 57.7,
+      "ecmwf_aifs025_single": 69.3,
+      "icon_seamless": 68.0,
+      "gfs_seamless": 28.0,
+      "meteofrance_seamless": 41.0
+     }
+    },
+    "09": {
+     "ranking": [
+      "meteofrance_seamless",
+      "ecmwf_ifs025",
+      "ecmwf_aifs025_single",
+      "icon_seamless",
+      "gfs_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 55.0,
+      "ecmwf_aifs025_single": 53.3,
+      "icon_seamless": 46.0,
+      "gfs_seamless": 46.0,
+      "meteofrance_seamless": 73.3
+     }
+    }
+   }
+  },
+  "351190469": {
+   "name": "SULEJÓW",
+   "lat": 51.35,
+   "lon": 19.867,
+   "elev": 189.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "icon_seamless",
+      "ecmwf_ifs025",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single",
+      "gfs_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 63.0,
+      "ecmwf_aifs025_single": 41.7,
+      "icon_seamless": 71.3,
+      "gfs_seamless": 36.3,
+      "meteofrance_seamless": 44.7
+     }
+    },
+    "08": {
+     "ranking": [
+      "ecmwf_aifs025_single",
+      "ecmwf_ifs025",
+      "icon_seamless",
+      "gfs_seamless",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 58.7,
+      "ecmwf_aifs025_single": 68.7,
+      "icon_seamless": 52.3,
+      "gfs_seamless": 42.7,
+      "meteofrance_seamless": 36.3
+     }
+    },
+    "09": {
+     "ranking": [
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single",
+      "ecmwf_ifs025",
+      "icon_seamless",
+      "gfs_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 54.7,
+      "ecmwf_aifs025_single": 63.0,
+      "icon_seamless": 46.7,
+      "gfs_seamless": 18.3,
+      "meteofrance_seamless": 71.7
+     }
+    }
+   }
+  },
+  "351210488": {
+   "name": "KOZIENICE",
+   "lat": 51.567,
+   "lon": 21.55,
+   "elev": 126.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "icon_seamless",
+      "ecmwf_aifs025_single",
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 67.3,
+      "ecmwf_aifs025_single": 70.0,
+      "icon_seamless": 80.3,
+      "gfs_seamless": 44.7,
+      "meteofrance_seamless": 24.3
+     }
+    },
+    "08": {
+     "ranking": [
+      "ecmwf_aifs025_single",
+      "ecmwf_ifs025",
+      "icon_seamless",
+      "gfs_seamless",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 51.3,
+      "ecmwf_aifs025_single": 72.7,
+      "icon_seamless": 44.7,
+      "gfs_seamless": 43.7,
+      "meteofrance_seamless": 28.0
+     }
+    },
+    "09": {
+     "ranking": [
+      "ecmwf_aifs025_single",
+      "icon_seamless",
+      "gfs_seamless",
+      "meteofrance_seamless",
+      "ecmwf_ifs025"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 40.7,
+      "ecmwf_aifs025_single": 71.3,
+      "icon_seamless": 51.7,
+      "gfs_seamless": 49.0,
+      "meteofrance_seamless": 45.0
+     }
+    }
+   }
+  },
+  "351220495": {
+   "name": "LUBLIN-RADAWIEC",
+   "lat": 51.217,
+   "lon": 22.4,
+   "elev": 240.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "gfs_seamless",
+      "ecmwf_ifs025",
+      "ecmwf_aifs025_single",
+      "icon_seamless",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 74.3,
+      "ecmwf_aifs025_single": 65.7,
+      "icon_seamless": 55.3,
+      "gfs_seamless": 76.0,
+      "meteofrance_seamless": 20.7
+     }
+    },
+    "08": {
+     "ranking": [
+      "ecmwf_aifs025_single",
+      "gfs_seamless",
+      "icon_seamless",
+      "ecmwf_ifs025",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 48.3,
+      "ecmwf_aifs025_single": 87.0,
+      "icon_seamless": 54.0,
+      "gfs_seamless": 63.3,
+      "meteofrance_seamless": 35.7
+     }
+    },
+    "09": {
+     "ranking": [
+      "gfs_seamless",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single",
+      "ecmwf_ifs025",
+      "icon_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 42.0,
+      "ecmwf_aifs025_single": 50.0,
+      "icon_seamless": 30.3,
+      "gfs_seamless": 54.3,
+      "meteofrance_seamless": 50.7
+     }
+    }
+   }
+  },
+  "351230497": {
+   "name": "WŁODAWA",
+   "lat": 51.55,
+   "lon": 23.533,
+   "elev": 179.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "icon_seamless",
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 61.7,
+      "ecmwf_aifs025_single": 38.0,
+      "icon_seamless": 74.3,
+      "gfs_seamless": 54.7,
+      "meteofrance_seamless": 48.0
+     }
+    },
+    "08": {
+     "ranking": [
+      "ecmwf_aifs025_single",
+      "icon_seamless",
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 52.0,
+      "ecmwf_aifs025_single": 78.7,
+      "icon_seamless": 55.7,
+      "gfs_seamless": 29.7,
+      "meteofrance_seamless": 21.3
+     }
+    },
+    "09": {
+     "ranking": [
+      "ecmwf_ifs025",
+      "ecmwf_aifs025_single",
+      "gfs_seamless",
+      "icon_seamless",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 95.0,
+      "ecmwf_aifs025_single": 60.3,
+      "icon_seamless": 40.0,
+      "gfs_seamless": 46.0,
+      "meteofrance_seamless": 23.3
+     }
+    }
+   }
+  },
+  "352140310": {
+   "name": "SŁUBICE",
+   "lat": 52.35,
+   "lon": 14.6,
+   "elev": 24.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "ecmwf_aifs025_single",
+      "gfs_seamless",
+      "ecmwf_ifs025",
+      "icon_seamless",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 52.3,
+      "ecmwf_aifs025_single": 65.7,
+      "icon_seamless": 48.0,
+      "gfs_seamless": 57.3,
+      "meteofrance_seamless": 28.0
+     }
+    },
+    "08": {
+     "ranking": [
+      "ecmwf_aifs025_single",
+      "icon_seamless",
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 51.7,
+      "ecmwf_aifs025_single": 77.3,
+      "icon_seamless": 59.0,
+      "gfs_seamless": 37.7,
+      "meteofrance_seamless": 25.0
+     }
+    },
+    "09": {
+     "ranking": [
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "icon_seamless",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 67.0,
+      "ecmwf_aifs025_single": 29.0,
+      "icon_seamless": 50.7,
+      "gfs_seamless": 53.3,
+      "meteofrance_seamless": 36.7
+     }
+    }
+   }
+  },
+  "352150300": {
+   "name": "GORZÓW WIELKOPOLSKI",
+   "lat": 52.75,
+   "lon": 15.283,
+   "elev": 73.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "icon_seamless",
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 67.3,
+      "ecmwf_aifs025_single": 28.0,
+      "icon_seamless": 77.7,
+      "gfs_seamless": 43.3,
+      "meteofrance_seamless": 41.7
+     }
+    },
+    "08": {
+     "ranking": [
+      "ecmwf_aifs025_single",
+      "icon_seamless",
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 51.0,
+      "ecmwf_aifs025_single": 62.3,
+      "icon_seamless": 57.7,
+      "gfs_seamless": 40.0,
+      "meteofrance_seamless": 39.7
+     }
+    },
+    "09": {
+     "ranking": [
+      "icon_seamless",
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "ecmwf_aifs025_single",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 69.3,
+      "ecmwf_aifs025_single": 46.3,
+      "icon_seamless": 76.7,
+      "gfs_seamless": 52.0,
+      "meteofrance_seamless": 11.0
+     }
+    }
+   }
+  },
+  "352160330": {
+   "name": "POZNAŃ-ŁAWICA",
+   "lat": 52.421,
+   "lon": 16.826,
+   "elev": 93.9,
+   "windows": {
+    "07": {
+     "ranking": [
+      "icon_seamless",
+      "gfs_seamless",
+      "ecmwf_aifs025_single",
+      "ecmwf_ifs025",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 43.7,
+      "ecmwf_aifs025_single": 57.7,
+      "icon_seamless": 70.7,
+      "gfs_seamless": 64.3,
+      "meteofrance_seamless": 29.7
+     }
+    },
+    "08": {
+     "ranking": [
+      "ecmwf_ifs025",
+      "ecmwf_aifs025_single",
+      "icon_seamless",
+      "meteofrance_seamless",
+      "gfs_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 79.0,
+      "ecmwf_aifs025_single": 78.7,
+      "icon_seamless": 67.0,
+      "gfs_seamless": 26.0,
+      "meteofrance_seamless": 40.0
+     }
+    },
+    "09": {
+     "ranking": [
+      "ecmwf_ifs025",
+      "ecmwf_aifs025_single",
+      "meteofrance_seamless",
+      "icon_seamless",
+      "gfs_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 84.3,
+      "ecmwf_aifs025_single": 62.7,
+      "icon_seamless": 36.7,
+      "gfs_seamless": 19.3,
+      "meteofrance_seamless": 47.7
+     }
+    }
+   }
+  },
+  "352190360": {
+   "name": "PŁOCK",
+   "lat": 52.583,
+   "lon": 19.733,
+   "elev": 109.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "ecmwf_ifs025",
+      "ecmwf_aifs025_single",
+      "gfs_seamless",
+      "icon_seamless",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 71.0,
+      "ecmwf_aifs025_single": 59.7,
+      "icon_seamless": 37.0,
+      "gfs_seamless": 41.7,
+      "meteofrance_seamless": 17.3
+     }
+    },
+    "08": {
+     "ranking": [
+      "ecmwf_aifs025_single",
+      "ecmwf_ifs025",
+      "icon_seamless",
+      "gfs_seamless",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 63.7,
+      "ecmwf_aifs025_single": 70.7,
+      "icon_seamless": 59.0,
+      "gfs_seamless": 58.0,
+      "meteofrance_seamless": 38.3
+     }
+    },
+    "09": {
+     "ranking": [
+      "gfs_seamless",
+      "icon_seamless",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single",
+      "ecmwf_ifs025"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 25.0,
+      "ecmwf_aifs025_single": 34.7,
+      "icon_seamless": 56.0,
+      "gfs_seamless": 84.3,
+      "meteofrance_seamless": 48.3
+     }
+    }
+   }
+  },
+  "352200375": {
+   "name": "WARSZAWA",
+   "lat": 52.166,
+   "lon": 20.967,
+   "elev": 110.3,
+   "windows": {
+    "07": {
+     "ranking": [
+      "icon_seamless",
+      "ecmwf_ifs025",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single",
+      "gfs_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 72.0,
+      "ecmwf_aifs025_single": 48.0,
+      "icon_seamless": 78.3,
+      "gfs_seamless": 38.7,
+      "meteofrance_seamless": 50.7
+     }
+    },
+    "08": {
+     "ranking": [
+      "icon_seamless",
+      "ecmwf_aifs025_single",
+      "ecmwf_ifs025",
+      "meteofrance_seamless",
+      "gfs_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 53.0,
+      "ecmwf_aifs025_single": 66.7,
+      "icon_seamless": 73.3,
+      "gfs_seamless": 35.0,
+      "meteofrance_seamless": 51.3
+     }
+    },
+    "09": {
+     "ranking": [
+      "icon_seamless",
+      "meteofrance_seamless",
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 53.7,
+      "ecmwf_aifs025_single": 45.0,
+      "icon_seamless": 82.3,
+      "gfs_seamless": 47.7,
+      "meteofrance_seamless": 73.7
+     }
+    }
+   }
+  },
+  "352220385": {
+   "name": "SIEDLCE",
+   "lat": 52.181,
+   "lon": 22.25,
+   "elev": 155.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "icon_seamless",
+      "meteofrance_seamless",
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 51.0,
+      "ecmwf_aifs025_single": 22.0,
+      "icon_seamless": 59.0,
+      "gfs_seamless": 46.3,
+      "meteofrance_seamless": 57.3
+     }
+    },
+    "08": {
+     "ranking": [
+      "ecmwf_aifs025_single",
+      "gfs_seamless",
+      "ecmwf_ifs025",
+      "icon_seamless",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 59.7,
+      "ecmwf_aifs025_single": 77.0,
+      "icon_seamless": 51.0,
+      "gfs_seamless": 64.7,
+      "meteofrance_seamless": 14.0
+     }
+    },
+    "09": {
+     "ranking": [
+      "gfs_seamless",
+      "icon_seamless",
+      "meteofrance_seamless",
+      "ecmwf_ifs025",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 47.3,
+      "ecmwf_aifs025_single": 46.0,
+      "icon_seamless": 50.7,
+      "gfs_seamless": 56.7,
+      "meteofrance_seamless": 49.7
+     }
+    }
+   }
+  },
+  "352230399": {
+   "name": "TERESPOL",
+   "lat": 52.067,
+   "lon": 23.617,
+   "elev": 137.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "gfs_seamless",
+      "icon_seamless",
+      "ecmwf_ifs025",
+      "ecmwf_aifs025_single",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 57.3,
+      "ecmwf_aifs025_single": 21.7,
+      "icon_seamless": 62.7,
+      "gfs_seamless": 70.0,
+      "meteofrance_seamless": 17.7
+     }
+    },
+    "08": {
+     "ranking": [
+      "gfs_seamless",
+      "ecmwf_aifs025_single",
+      "ecmwf_ifs025",
+      "icon_seamless",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 53.0,
+      "ecmwf_aifs025_single": 68.7,
+      "icon_seamless": 51.3,
+      "gfs_seamless": 73.3,
+      "meteofrance_seamless": 36.3
+     }
+    },
+    "09": {
+     "ranking": [
+      "ecmwf_ifs025",
+      "icon_seamless",
+      "gfs_seamless",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 71.7,
+      "ecmwf_aifs025_single": 32.3,
+      "icon_seamless": 67.7,
+      "gfs_seamless": 46.0,
+      "meteofrance_seamless": 39.3
+     }
+    }
+   }
+  },
+  "353140200": {
+   "name": "ŚWINOUJŚCIE",
+   "lat": 53.917,
+   "lon": 14.233,
+   "elev": 5.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "gfs_seamless",
+      "icon_seamless",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single",
+      "ecmwf_ifs025"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 14.3,
+      "ecmwf_aifs025_single": 42.7,
+      "icon_seamless": 57.0,
+      "gfs_seamless": 73.7,
+      "meteofrance_seamless": 48.0
+     }
+    },
+    "08": {
+     "ranking": [
+      "meteofrance_seamless",
+      "icon_seamless",
+      "gfs_seamless",
+      "ecmwf_ifs025",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 36.0,
+      "ecmwf_aifs025_single": 21.3,
+      "icon_seamless": 53.3,
+      "gfs_seamless": 48.7,
+      "meteofrance_seamless": 82.7
+     }
+    },
+    "09": {
+     "ranking": [
+      "gfs_seamless",
+      "meteofrance_seamless",
+      "icon_seamless",
+      "ecmwf_aifs025_single",
+      "ecmwf_ifs025"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 26.3,
+      "ecmwf_aifs025_single": 29.7,
+      "icon_seamless": 48.0,
+      "gfs_seamless": 80.7,
+      "meteofrance_seamless": 59.7
+     }
+    }
+   }
+  },
+  "353140205": {
+   "name": "SZCZECIN",
+   "lat": 53.4,
+   "lon": 14.617,
+   "elev": 7.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "icon_seamless",
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 68.0,
+      "ecmwf_aifs025_single": 14.3,
+      "icon_seamless": 74.0,
+      "gfs_seamless": 52.3,
+      "meteofrance_seamless": 31.0
+     }
+    },
+    "08": {
+     "ranking": [
+      "gfs_seamless",
+      "ecmwf_ifs025",
+      "ecmwf_aifs025_single",
+      "icon_seamless",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 56.7,
+      "ecmwf_aifs025_single": 55.7,
+      "icon_seamless": 48.0,
+      "gfs_seamless": 63.7,
+      "meteofrance_seamless": 39.3
+     }
+    },
+    "09": {
+     "ranking": [
+      "gfs_seamless",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single",
+      "ecmwf_ifs025",
+      "icon_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 36.3,
+      "ecmwf_aifs025_single": 36.7,
+      "icon_seamless": 11.7,
+      "gfs_seamless": 77.7,
+      "meteofrance_seamless": 47.0
+     }
+    }
+   }
+  },
+  "353160230": {
+   "name": "PIŁA",
+   "lat": 53.133,
+   "lon": 16.75,
+   "elev": 73.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "icon_seamless",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 75.3,
+      "ecmwf_aifs025_single": 17.3,
+      "icon_seamless": 59.7,
+      "gfs_seamless": 69.3,
+      "meteofrance_seamless": 33.7
+     }
+    },
+    "08": {
+     "ranking": [
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "icon_seamless",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 70.7,
+      "ecmwf_aifs025_single": 33.0,
+      "icon_seamless": 61.0,
+      "gfs_seamless": 65.3,
+      "meteofrance_seamless": 39.3
+     }
+    },
+    "09": {
+     "ranking": [
+      "gfs_seamless",
+      "icon_seamless",
+      "ecmwf_ifs025",
+      "ecmwf_aifs025_single",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 47.7,
+      "ecmwf_aifs025_single": 35.3,
+      "icon_seamless": 57.3,
+      "gfs_seamless": 64.3,
+      "meteofrance_seamless": 31.3
+     }
+    }
+   }
+  },
+  "353170235": {
+   "name": "CHOJNICE",
+   "lat": 53.717,
+   "lon": 17.55,
+   "elev": 172.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "icon_seamless",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 67.0,
+      "ecmwf_aifs025_single": 13.3,
+      "icon_seamless": 62.7,
+      "gfs_seamless": 63.7,
+      "meteofrance_seamless": 48.0
+     }
+    },
+    "08": {
+     "ranking": [
+      "icon_seamless",
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 59.0,
+      "ecmwf_aifs025_single": 31.7,
+      "icon_seamless": 83.3,
+      "gfs_seamless": 44.0,
+      "meteofrance_seamless": 43.0
+     }
+    },
+    "09": {
+     "ranking": [
+      "icon_seamless",
+      "gfs_seamless",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single",
+      "ecmwf_ifs025"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 30.7,
+      "ecmwf_aifs025_single": 37.7,
+      "icon_seamless": 84.3,
+      "gfs_seamless": 84.0,
+      "meteofrance_seamless": 39.7
+     }
+    }
+   }
+  },
+  "353180250": {
+   "name": "TORUŃ",
+   "lat": 53.05,
+   "lon": 18.583,
+   "elev": 72.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "ecmwf_ifs025",
+      "icon_seamless",
+      "gfs_seamless",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 70.7,
+      "ecmwf_aifs025_single": 22.0,
+      "icon_seamless": 68.0,
+      "gfs_seamless": 57.0,
+      "meteofrance_seamless": 52.0
+     }
+    },
+    "08": {
+     "ranking": [
+      "ecmwf_aifs025_single",
+      "ecmwf_ifs025",
+      "icon_seamless",
+      "gfs_seamless",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 48.0,
+      "ecmwf_aifs025_single": 88.0,
+      "icon_seamless": 44.0,
+      "gfs_seamless": 32.3,
+      "meteofrance_seamless": 20.0
+     }
+    },
+    "09": {
+     "ranking": [
+      "ecmwf_aifs025_single",
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "icon_seamless",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 65.3,
+      "ecmwf_aifs025_single": 86.0,
+      "icon_seamless": 28.0,
+      "gfs_seamless": 50.3,
+      "meteofrance_seamless": 18.7
+     }
+    }
+   }
+  },
+  "353200270": {
+   "name": "MŁAWA",
+   "lat": 53.1,
+   "lon": 20.35,
+   "elev": 149.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "gfs_seamless",
+      "icon_seamless",
+      "ecmwf_ifs025",
+      "ecmwf_aifs025_single",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 57.0,
+      "ecmwf_aifs025_single": 49.3,
+      "icon_seamless": 60.0,
+      "gfs_seamless": 91.3,
+      "meteofrance_seamless": 19.0
+     }
+    },
+    "08": {
+     "ranking": [
+      "ecmwf_ifs025",
+      "ecmwf_aifs025_single",
+      "gfs_seamless",
+      "icon_seamless",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 71.7,
+      "ecmwf_aifs025_single": 61.3,
+      "icon_seamless": 56.7,
+      "gfs_seamless": 58.3,
+      "meteofrance_seamless": 22.0
+     }
+    },
+    "09": {
+     "ranking": [
+      "gfs_seamless",
+      "ecmwf_aifs025_single",
+      "ecmwf_ifs025",
+      "icon_seamless",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 36.0,
+      "ecmwf_aifs025_single": 39.7,
+      "icon_seamless": 33.0,
+      "gfs_seamless": 88.0,
+      "meteofrance_seamless": 15.7
+     }
+    }
+   }
+  },
+  "353200272": {
+   "name": "OLSZTYN",
+   "lat": 53.767,
+   "lon": 20.417,
+   "elev": 137.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "gfs_seamless",
+      "icon_seamless",
+      "ecmwf_ifs025",
+      "ecmwf_aifs025_single",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 46.3,
+      "ecmwf_aifs025_single": 42.3,
+      "icon_seamless": 50.7,
+      "gfs_seamless": 72.3,
+      "meteofrance_seamless": 20.3
+     }
+    },
+    "08": {
+     "ranking": [
+      "icon_seamless",
+      "gfs_seamless",
+      "ecmwf_ifs025",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 46.7,
+      "ecmwf_aifs025_single": 34.3,
+      "icon_seamless": 78.0,
+      "gfs_seamless": 60.7,
+      "meteofrance_seamless": 38.0
+     }
+    },
+    "09": {
+     "ranking": [
+      "gfs_seamless",
+      "ecmwf_aifs025_single",
+      "ecmwf_ifs025",
+      "meteofrance_seamless",
+      "icon_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 56.0,
+      "ecmwf_aifs025_single": 63.7,
+      "icon_seamless": 29.0,
+      "gfs_seamless": 66.3,
+      "meteofrance_seamless": 43.3
+     }
+    }
+   }
+  },
+  "353210280": {
+   "name": "MIKOŁAJKI",
+   "lat": 53.783,
+   "lon": 21.583,
+   "elev": 132.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "icon_seamless",
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "ecmwf_aifs025_single",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 57.3,
+      "ecmwf_aifs025_single": 46.0,
+      "icon_seamless": 85.3,
+      "gfs_seamless": 51.7,
+      "meteofrance_seamless": 20.7
+     }
+    },
+    "08": {
+     "ranking": [
+      "icon_seamless",
+      "ecmwf_ifs025",
+      "ecmwf_aifs025_single",
+      "gfs_seamless",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 73.3,
+      "ecmwf_aifs025_single": 58.0,
+      "icon_seamless": 82.0,
+      "gfs_seamless": 49.7,
+      "meteofrance_seamless": 15.3
+     }
+    },
+    "09": {
+     "ranking": [
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "icon_seamless",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 87.7,
+      "ecmwf_aifs025_single": 28.7,
+      "icon_seamless": 47.0,
+      "gfs_seamless": 62.0,
+      "meteofrance_seamless": 30.3
+     }
+    }
+   }
+  },
+  "353230295": {
+   "name": "BIAŁYSTOK",
+   "lat": 53.1,
+   "lon": 23.167,
+   "elev": 151.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "icon_seamless",
+      "ecmwf_aifs025_single",
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 57.0,
+      "ecmwf_aifs025_single": 57.3,
+      "icon_seamless": 70.0,
+      "gfs_seamless": 43.7,
+      "meteofrance_seamless": 23.0
+     }
+    },
+    "08": {
+     "ranking": [
+      "ecmwf_aifs025_single",
+      "ecmwf_ifs025",
+      "icon_seamless",
+      "gfs_seamless",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 73.0,
+      "ecmwf_aifs025_single": 77.3,
+      "icon_seamless": 63.7,
+      "gfs_seamless": 51.7,
+      "meteofrance_seamless": 21.7
+     }
+    },
+    "09": {
+     "ranking": [
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "ecmwf_aifs025_single",
+      "meteofrance_seamless",
+      "icon_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 81.0,
+      "ecmwf_aifs025_single": 57.3,
+      "icon_seamless": 10.0,
+      "gfs_seamless": 60.3,
+      "meteofrance_seamless": 43.7
+     }
+    }
+   }
+  },
+  "354150100": {
+   "name": "KOŁOBRZEG-DŹWIRZYNO",
+   "lat": 54.183,
+   "lon": 15.583,
+   "elev": 5.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "icon_seamless",
+      "ecmwf_aifs025_single",
+      "gfs_seamless",
+      "meteofrance_seamless",
+      "ecmwf_ifs025"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 16.0,
+      "ecmwf_aifs025_single": 67.3,
+      "icon_seamless": 73.0,
+      "gfs_seamless": 62.0,
+      "meteofrance_seamless": 47.7
+     }
+    },
+    "08": {
+     "ranking": [
+      "icon_seamless",
+      "gfs_seamless",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single",
+      "ecmwf_ifs025"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 16.3,
+      "ecmwf_aifs025_single": 53.7,
+      "icon_seamless": 68.7,
+      "gfs_seamless": 63.7,
+      "meteofrance_seamless": 59.7
+     }
+    },
+    "09": {
+     "ranking": [
+      "gfs_seamless",
+      "icon_seamless",
+      "ecmwf_aifs025_single",
+      "meteofrance_seamless",
+      "ecmwf_ifs025"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 15.7,
+      "ecmwf_aifs025_single": 46.3,
+      "icon_seamless": 81.7,
+      "gfs_seamless": 82.0,
+      "meteofrance_seamless": 31.3
+     }
+    }
+   }
+  },
+  "354160105": {
+   "name": "KOSZALIN",
+   "lat": 54.2,
+   "lon": 16.15,
+   "elev": 34.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "icon_seamless",
+      "ecmwf_ifs025",
+      "meteofrance_seamless",
+      "gfs_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 52.7,
+      "ecmwf_aifs025_single": 23.3,
+      "icon_seamless": 67.0,
+      "gfs_seamless": 26.3,
+      "meteofrance_seamless": 41.0
+     }
+    },
+    "08": {
+     "ranking": [
+      "icon_seamless",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single",
+      "gfs_seamless",
+      "ecmwf_ifs025"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 16.0,
+      "ecmwf_aifs025_single": 50.7,
+      "icon_seamless": 73.7,
+      "gfs_seamless": 47.7,
+      "meteofrance_seamless": 64.0
+     }
+    },
+    "09": {
+     "ranking": [
+      "gfs_seamless",
+      "meteofrance_seamless",
+      "icon_seamless",
+      "ecmwf_aifs025_single",
+      "ecmwf_ifs025"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 15.7,
+      "ecmwf_aifs025_single": 35.3,
+      "icon_seamless": 49.7,
+      "gfs_seamless": 75.7,
+      "meteofrance_seamless": 54.3
+     }
+    }
+   }
+  },
+  "354160115": {
+   "name": "USTKA",
+   "lat": 54.583,
+   "lon": 16.867,
+   "elev": 11.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "ecmwf_ifs025",
+      "ecmwf_aifs025_single",
+      "icon_seamless",
+      "meteofrance_seamless",
+      "gfs_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 80.0,
+      "ecmwf_aifs025_single": 67.3,
+      "icon_seamless": 65.0,
+      "gfs_seamless": 28.0,
+      "meteofrance_seamless": 33.0
+     }
+    },
+    "08": {
+     "ranking": [
+      "icon_seamless",
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "ecmwf_aifs025_single",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 59.0,
+      "ecmwf_aifs025_single": 52.0,
+      "icon_seamless": 70.0,
+      "gfs_seamless": 53.7,
+      "meteofrance_seamless": 41.0
+     }
+    },
+    "09": {
+     "ranking": [
+      "icon_seamless",
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "ecmwf_aifs025_single",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 65.3,
+      "ecmwf_aifs025_single": 48.7,
+      "icon_seamless": 83.0,
+      "gfs_seamless": 60.7,
+      "meteofrance_seamless": 20.3
+     }
+    }
+   }
+  },
+  "354170120": {
+   "name": "ŁEBA",
+   "lat": 54.75,
+   "lon": 17.533,
+   "elev": 6.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "icon_seamless",
+      "ecmwf_aifs025_single",
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 49.0,
+      "ecmwf_aifs025_single": 53.3,
+      "icon_seamless": 89.7,
+      "gfs_seamless": 27.7,
+      "meteofrance_seamless": 20.3
+     }
+    },
+    "08": {
+     "ranking": [
+      "ecmwf_aifs025_single",
+      "icon_seamless",
+      "ecmwf_ifs025",
+      "meteofrance_seamless",
+      "gfs_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 46.0,
+      "ecmwf_aifs025_single": 68.0,
+      "icon_seamless": 63.7,
+      "gfs_seamless": 31.3,
+      "meteofrance_seamless": 35.7
+     }
+    },
+    "09": {
+     "ranking": [
+      "gfs_seamless",
+      "ecmwf_ifs025",
+      "icon_seamless",
+      "ecmwf_aifs025_single",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 61.0,
+      "ecmwf_aifs025_single": 47.0,
+      "icon_seamless": 56.3,
+      "gfs_seamless": 66.0,
+      "meteofrance_seamless": 14.7
+     }
+    }
+   }
+  },
+  "354170125": {
+   "name": "LĘBORK",
+   "lat": 54.55,
+   "lon": 17.75,
+   "elev": 41.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "icon_seamless",
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 67.0,
+      "ecmwf_aifs025_single": 15.0,
+      "icon_seamless": 78.7,
+      "gfs_seamless": 53.0,
+      "meteofrance_seamless": 33.0
+     }
+    },
+    "08": {
+     "ranking": [
+      "ecmwf_ifs025",
+      "icon_seamless",
+      "gfs_seamless",
+      "ecmwf_aifs025_single",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 75.0,
+      "ecmwf_aifs025_single": 49.0,
+      "icon_seamless": 71.3,
+      "gfs_seamless": 54.7,
+      "meteofrance_seamless": 14.0
+     }
+    },
+    "09": {
+     "ranking": [
+      "gfs_seamless",
+      "icon_seamless",
+      "ecmwf_ifs025",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 51.7,
+      "ecmwf_aifs025_single": 21.7,
+      "icon_seamless": 64.3,
+      "gfs_seamless": 75.7,
+      "meteofrance_seamless": 26.0
+     }
+    }
+   }
+  },
+  "354180135": {
+   "name": "HEL",
+   "lat": 54.6,
+   "lon": 18.817,
+   "elev": 3.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "ecmwf_aifs025_single",
+      "meteofrance_seamless",
+      "ecmwf_ifs025",
+      "icon_seamless",
+      "gfs_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 41.7,
+      "ecmwf_aifs025_single": 63.0,
+      "icon_seamless": 39.7,
+      "gfs_seamless": 30.3,
+      "meteofrance_seamless": 48.7
+     }
+    },
+    "08": {
+     "ranking": [
+      "ecmwf_aifs025_single",
+      "ecmwf_ifs025",
+      "icon_seamless",
+      "meteofrance_seamless",
+      "gfs_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 45.0,
+      "ecmwf_aifs025_single": 94.7,
+      "icon_seamless": 44.7,
+      "gfs_seamless": 12.7,
+      "meteofrance_seamless": 26.0
+     }
+    },
+    "09": {
+     "ranking": [
+      "ecmwf_aifs025_single",
+      "ecmwf_ifs025",
+      "icon_seamless",
+      "gfs_seamless",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 66.7,
+      "ecmwf_aifs025_single": 76.0,
+      "icon_seamless": 55.7,
+      "gfs_seamless": 39.7,
+      "meteofrance_seamless": 38.3
+     }
+    }
+   }
+  },
+  "354180155": {
+   "name": "GDAŃSK-ŚWIBNO",
+   "lat": 54.333,
+   "lon": 18.933,
+   "elev": 9.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "ecmwf_ifs025",
+      "meteofrance_seamless",
+      "icon_seamless",
+      "gfs_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 75.3,
+      "ecmwf_aifs025_single": 29.0,
+      "icon_seamless": 53.0,
+      "gfs_seamless": 36.3,
+      "meteofrance_seamless": 73.7
+     }
+    },
+    "08": {
+     "ranking": [
+      "ecmwf_ifs025",
+      "meteofrance_seamless",
+      "gfs_seamless",
+      "icon_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 64.3,
+      "ecmwf_aifs025_single": 41.7,
+      "icon_seamless": 42.0,
+      "gfs_seamless": 55.0,
+      "meteofrance_seamless": 56.3
+     }
+    },
+    "09": {
+     "ranking": [
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "icon_seamless",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 88.0,
+      "ecmwf_aifs025_single": 22.7,
+      "icon_seamless": 51.3,
+      "gfs_seamless": 73.7,
+      "meteofrance_seamless": 40.3
+     }
+    }
+   }
+  },
+  "354190160": {
+   "name": "ELBLĄG-MILEJEWO",
+   "lat": 54.223,
+   "lon": 19.543,
+   "elev": 43.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "ecmwf_ifs025",
+      "meteofrance_seamless",
+      "gfs_seamless",
+      "icon_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 71.7,
+      "ecmwf_aifs025_single": 29.3,
+      "icon_seamless": 40.0,
+      "gfs_seamless": 58.7,
+      "meteofrance_seamless": 62.7
+     }
+    },
+    "08": {
+     "ranking": [
+      "icon_seamless",
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 52.7,
+      "ecmwf_aifs025_single": 15.3,
+      "icon_seamless": 57.3,
+      "gfs_seamless": 51.0,
+      "meteofrance_seamless": 37.3
+     }
+    },
+    "09": {
+     "ranking": [
+      "ecmwf_ifs025",
+      "gfs_seamless",
+      "icon_seamless",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 90.0,
+      "ecmwf_aifs025_single": 26.3,
+      "icon_seamless": 50.7,
+      "gfs_seamless": 71.7,
+      "meteofrance_seamless": 41.0
+     }
+    }
+   }
+  },
+  "354210185": {
+   "name": "KĘTRZYN",
+   "lat": 54.067,
+   "lon": 21.367,
+   "elev": 110.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "ecmwf_ifs025",
+      "icon_seamless",
+      "gfs_seamless",
+      "ecmwf_aifs025_single",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 71.3,
+      "ecmwf_aifs025_single": 37.7,
+      "icon_seamless": 70.0,
+      "gfs_seamless": 42.0,
+      "meteofrance_seamless": 31.3
+     }
+    },
+    "08": {
+     "ranking": [
+      "icon_seamless",
+      "gfs_seamless",
+      "ecmwf_ifs025",
+      "ecmwf_aifs025_single",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 43.7,
+      "ecmwf_aifs025_single": 36.0,
+      "icon_seamless": 84.0,
+      "gfs_seamless": 57.0,
+      "meteofrance_seamless": 28.3
+     }
+    },
+    "09": {
+     "ranking": [
+      "gfs_seamless",
+      "ecmwf_ifs025",
+      "icon_seamless",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 59.7,
+      "ecmwf_aifs025_single": 25.0,
+      "icon_seamless": 49.0,
+      "gfs_seamless": 70.0,
+      "meteofrance_seamless": 36.0
+     }
+    }
+   }
+  },
+  "354220195": {
+   "name": "SUWAŁKI",
+   "lat": 54.133,
+   "lon": 22.95,
+   "elev": 186.0,
+   "windows": {
+    "07": {
+     "ranking": [
+      "icon_seamless",
+      "meteofrance_seamless",
+      "ecmwf_ifs025",
+      "ecmwf_aifs025_single",
+      "gfs_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 59.7,
+      "ecmwf_aifs025_single": 55.3,
+      "icon_seamless": 74.3,
+      "gfs_seamless": 30.0,
+      "meteofrance_seamless": 60.0
+     }
+    },
+    "08": {
+     "ranking": [
+      "icon_seamless",
+      "gfs_seamless",
+      "ecmwf_ifs025",
+      "ecmwf_aifs025_single",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 51.0,
+      "ecmwf_aifs025_single": 48.3,
+      "icon_seamless": 85.7,
+      "gfs_seamless": 53.7,
+      "meteofrance_seamless": 37.0
+     }
+    },
+    "09": {
+     "ranking": [
+      "gfs_seamless",
+      "meteofrance_seamless",
+      "ecmwf_ifs025",
+      "icon_seamless",
+      "ecmwf_aifs025_single"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 39.7,
+      "ecmwf_aifs025_single": 30.3,
+      "icon_seamless": 35.0,
+      "gfs_seamless": 66.0,
+      "meteofrance_seamless": 48.7
+     }
+    }
+   }
+  },
+  "353150210": {
+   "name": "RESKO-SMÓLSKO",
+   "lat": 53.767,
+   "lon": 15.4,
+   "elev": 52.9,
+   "windows": {
+    "08": {
+     "ranking": [
+      "gfs_seamless",
+      "icon_seamless",
+      "meteofrance_seamless",
+      "ecmwf_aifs025_single",
+      "ecmwf_ifs025"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 39.0,
+      "ecmwf_aifs025_single": 44.0,
+      "icon_seamless": 51.3,
+      "gfs_seamless": 61.0,
+      "meteofrance_seamless": 48.7
+     }
+    },
+    "09": {
+     "ranking": [
+      "gfs_seamless",
+      "icon_seamless",
+      "ecmwf_aifs025_single",
+      "ecmwf_ifs025",
+      "meteofrance_seamless"
+     ],
+     "scores": {
+      "ecmwf_ifs025": 39.0,
+      "ecmwf_aifs025_single": 42.0,
+      "icon_seamless": 58.7,
+      "gfs_seamless": 69.7,
+      "meteofrance_seamless": 34.3
+     }
+    }
+   }
+  }
+ },
+ "selection_test": {
+  "08|fixed:ecmwf_aifs025_single": {
+   "temp_mae": 1.801,
+   "precip_mae": 2.06,
+   "precip_ets": 0.406,
+   "score": 55.567,
+   "n": 57
+  },
+  "08|fixed:ecmwf_ifs025": {
+   "temp_mae": 1.619,
+   "precip_mae": 2.413,
+   "precip_ets": 0.374,
+   "score": 53.374,
+   "n": 57
+  },
+  "08|fixed:gfs_seamless": {
+   "temp_mae": 1.738,
+   "precip_mae": 2.155,
+   "precip_ets": 0.384,
+   "score": 52.637,
+   "n": 57
+  },
+  "08|fixed:icon_seamless": {
+   "temp_mae": 1.449,
+   "precip_mae": 2.501,
+   "precip_ets": 0.41,
+   "score": 64.515,
+   "n": 57
+  },
+  "08|fixed:meteofrance_seamless": {
+   "temp_mae": 2.13,
+   "precip_mae": 2.271,
+   "precip_ets": 0.423,
+   "score": 37.076,
+   "n": 57
+  },
+  "08|local_prev_month": {
+   "temp_mae": 1.514,
+   "precip_mae": 2.373,
+   "precip_ets": 0.403,
+   "score": 62.613,
+   "n": 56
+  },
+  "08|oracle_target_month": {
+   "temp_mae": 1.516,
+   "precip_mae": 2.211,
+   "precip_ets": 0.476,
+   "score": 75.854,
+   "n": 57
+  },
+  "08|regional_150km_prev_month": {
+   "temp_mae": 1.495,
+   "precip_mae": 2.442,
+   "precip_ets": 0.403,
+   "score": 63.047,
+   "n": 57
+  },
+  "09|fixed:ecmwf_aifs025_single": {
+   "temp_mae": 1.512,
+   "precip_mae": 1.459,
+   "precip_ets": 0.379,
+   "score": 45.918,
+   "n": 57
+  },
+  "09|fixed:ecmwf_ifs025": {
+   "temp_mae": 1.429,
+   "precip_mae": 1.495,
+   "precip_ets": 0.453,
+   "score": 58.591,
+   "n": 57
+  },
+  "09|fixed:gfs_seamless": {
+   "temp_mae": 1.524,
+   "precip_mae": 1.387,
+   "precip_ets": 0.425,
+   "score": 51.0,
+   "n": 57
+  },
+  "09|fixed:icon_seamless": {
+   "temp_mae": 1.366,
+   "precip_mae": 1.612,
+   "precip_ets": 0.401,
+   "score": 52.614,
+   "n": 57
+  },
+  "09|fixed:meteofrance_seamless": {
+   "temp_mae": 1.539,
+   "precip_mae": 1.521,
+   "precip_ets": 0.406,
+   "score": 41.561,
+   "n": 57
+  },
+  "09|local_prev_2_months": {
+   "temp_mae": 1.368,
+   "precip_mae": 1.55,
+   "precip_ets": 0.412,
+   "score": 56.327,
+   "n": 56
+  },
+  "09|local_prev_month": {
+   "temp_mae": 1.357,
+   "precip_mae": 1.491,
+   "precip_ets": 0.427,
+   "score": 59.76,
+   "n": 57
+  },
+  "09|oracle_target_month": {
+   "temp_mae": 1.34,
+   "precip_mae": 1.35,
+   "precip_ets": 0.491,
+   "score": 75.789,
+   "n": 57
+  },
+  "09|regional_150km_prev_month": {
+   "temp_mae": 1.379,
+   "precip_mae": 1.598,
+   "precip_ets": 0.399,
+   "score": 51.649,
+   "n": 57
+  },
+  "08|mean_all_models": {
+   "temp_mae": 1.521,
+   "precip_mae": 2.075,
+   "precip_ets": 0.449,
+   "n": 57
+  },
+  "09|mean_all_models": {
+   "temp_mae": 1.313,
+   "precip_mae": 1.299,
+   "precip_ets": 0.457,
+   "n": 57
+  }
+ }
+}

@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+
+# spike data (downloaded, reproducible)
+spike/data/
+
+# runtime (SPEC §10)
+web/data/rankings/
+web/var/
+web/tmp/
