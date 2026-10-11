@@ -18,4 +18,9 @@ Format: data · kontekst · wybór · alternatywy.
 - **Wagi lokalne zamiast regionalnych (≤ 150 km)** na stacjach. Na siatce z obserwacjami satelitarnymi do ponownej oceny w Etapie 3.
 - **`ecmwf_ifs` (HRES 9 km) dodany do modeli.** Lepszy od IFS 0,25° na 1.–3. dzień.
 - **Dni 5–7 jako „mniej pewne”, opad jako szansa w %, podsumowanie „Ten tydzień”** (decyzje domyślne agenta, do weta człowieka). Kontekst: od 5. dnia prognoza ilości opadu wypada gorzej niż klimatologia, a prognoza tygodnia jako całości jest trafniejsza od pojedynczych dni pod jego koniec.
+- **Siatka 0,1° z pobieraniem rotacyjnym 14-dniowym** (decyzja człowieka, §17 pkt 2). Alternatywa: 0,25° bez problemów z limitem.
+- **Obszary, ranking burzowy i „Chmury teraz” przeniesione do v1.1** (decyzja człowieka, §17 pkt 4). Warunek: składniki metryk w Parquet od MVP.
+- **`ecmwf_ifs025` usunięty.** Kontekst: to ten sam IFS co `ecmwf_ifs` (korelacja błędów 0,90–0,94, dla innych par 0,6–0,8). Średnia bez niego jest równa lub lepsza, a budżet API mniejszy o 1/6. Alternatywa: zostawić z wagą połówkową dla „rodziny ECMWF IFS”.
+- **Modele krótsze niż 7 dni:** jest tylko Météo-France (103 h, Forecast API sprawdzony 2026-10-11). W średniej wagi się renormalizują, w trybach jednomodelowych prognoza jest obcięta z adnotacją.
+- **„Optymistyczna” liczona w locie** zamiast crona. Kontekst: cron dla 6 300 komórek × 5 modeli co 6 h ≈ 126 tys. wywołań na dobę. Widok 2 i tak pobiera wszystkie modele do średniej.
 - **Open-Meteo ma limit godzinowy 5 000 ważonych wywołań.** Przekroczony w Etapie 0b, więc potok potrzebuje dławika (§7.3).

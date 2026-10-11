@@ -1,12 +1,13 @@
 # lepszapogoda.pl — specyfikacja projektu dla agenta AI
 
-Wersja: 0.8, 2026-10-11
+Wersja: 0.9, 2026-10-11
 Status: dokument wykonawczy. Realizację w całości prowadzi agent AI (np. Claude Code). Człowiek dostarcza konta, klucze i decyzje z §15; wszystko inne agent robi sam.
 Zmiany 0.4: hosting mydevil.net (Python/Passenger zamiast PHP), Flask jako frontend, deploy przez git, instrukcja GitHub w §16.
 Zmiany 0.5: decyzja o siatce (§8.1, §15), obszary wielokomórkowe — prognoza i ranking dla całego miasta/gminy (§8.7).
 Zmiany 0.6: czwarty tryb „najlepsza na burze” — ranking trafności prognoz burz weryfikowany wyładowaniami (§8.9).
 Zmiany 0.7 (po Etapie 0a, `docs/reports/etap-0a.md`): Previous Runs API zamiast Historical Forecast API (§7.3); lista modeli poprawiona wg realnego pokrycia Polski (§4); budżet Open-Meteo i pobieranie paczkami 14-dniowymi (§7.3); konwencje IMGW i miary odporne na bias (§8.2–8.3); brak CAPE/kodu pogody dla ECMWF w archiwum (§8.9); otwarte decyzje produktowe (§17).
 Zmiany 0.8 (decyzja człowieka + `docs/reports/etap-0b.md`): „Najbardziej trafna” = średnia ważona modeli (§1, §5, §6, §8.10); `ecmwf_ifs` dodany (§4); podsumowanie „Ten tydzień” i prezentacja dni 5–7 jako mniej pewnych (§6); limit godzinowy Open-Meteo (§7.3).
+Zmiany 0.9 (decyzje człowieka §17 pkt 2–4): siatka 0,1° z pobieraniem rotacyjnym; obszary, burze i „Chmury teraz” przeniesione do v1.1; `ecmwf_ifs025` usunięty jako duplikat IFS; horyzonty modeli; „optymistyczna” liczona w locie zamiast crona (budżet API).
 
 ---
 
@@ -48,27 +49,31 @@ Osoby szukające „po prostu pogody”; rolnicy, ogrodnicy, rowerzyści, żegla
 
 **Obszar:** Polska, bbox 48.9–55.0 N, 13.9–24.2 E. Siatka 0,1° → ok. 6 300 komórek (decyzja o siatce: §8.1).
 
-**Jednostki prognozy:** (a) **punkt** — jedna komórka siatki; (b) **obszar** — zbiór komórek z wagami, np. całe miasto lub gmina (§8.7). Obszary są w MVP dla miast i gmin z granic administracyjnych; obszary rysowane przez użytkownika — v2.
+**MVP a v1.1 (decyzja człowieka 2026-10-11):** MVP = ranking i prognoza dla **punktu**, mapa z warstwami „Mapa” i „Satelita”, trzy przyciski. Do **v1.1** przechodzą: obszary wielokomórkowe (§8.7), ranking burzowy i czwarty przycisk (§8.9), nakładka „Chmury teraz”. Sekcje te zostają w dokumencie jako projekt v1.1 i są oznaczone „[v1.1]”. **Warunek dla MVP:** dane weryfikacji przechowują składniki metryk (§8.8), a `grid.py` jest jedyną wiedzą o kształcie komórki (§0 pkt 12) — tak, żeby v1.1 nie wymagała przeliczania ani przepisywania potoku.
 
-**Modele (identyfikatory zgodne z Open-Meteo):**
-`ecmwf_ifs`, `ecmwf_ifs025`, `ecmwf_aifs025_single`, `icon_seamless`, `gfs_seamless`, `meteofrance_seamless`. WeatherNext 3 — v2. (`ecmwf_ifs` = IFS HRES 9 km — w Etapie 0b trafniejszy od IFS 0,25° na krótkich wyprzedzeniach; oba zostają do czasu oceny na pełnym roku.)
-Sprawdzone w Etapie 0a: `icon_d2` pokrywa tylko zachód Polski (do ok. 20,3°E), `meteofrance_arome_france_hd` tylko okolice Szczecina — oba wchodzą wyłącznie jako część modeli „seamless”. Horyzont: `meteofrance_seamless` i `icon_seamless` mogą nie sięgać 7 dni — Widok 2 pokazuje prognozę do końca horyzontu modelu z czytelną adnotacją (decyzja w §17).
+**Jednostki prognozy:** (a) **punkt** — jedna komórka siatki (MVP); (b) **[v1.1] obszar** — zbiór komórek z wagami, np. całe miasto lub gmina (§8.7); obszary rysowane przez użytkownika — v2.
+
+**Modele (identyfikatory zgodne z Open-Meteo), 5 niezależnych:**
+`ecmwf_ifs` (ECMWF IFS HRES 9 km), `ecmwf_aifs025_single` (ECMWF AIFS — model AI, inny niż IFS), `icon_seamless` (DWD: ICON-D2 → ICON-EU → ICON global), `gfs_seamless` (NOAA GFS), `meteofrance_seamless` (Météo-France: AROME → ARPEGE). WeatherNext 3 — v2.
+- `ecmwf_ifs025` **usunięty** (Etap 0b, `spike/model_families.py`): to ten sam model IFS co `ecmwf_ifs`, tylko w grubszej siatce wyjściowej — korelacja błędów 0,90–0,94 (inne pary modeli: 0,6–0,8). W średniej liczyłby IFS podwójnie; bez niego średnia jest tak samo dobra lub lepsza, a budżet API mniejszy o 1/6.
+- „Seamless” to nie warianty, tylko sklejka różnych modeli jednego ośrodka: najdokładniejszy regionalny tak długo, jak sięga, potem coraz grubszy. `icon_d2` pokrywa tylko zachód Polski (do ok. 20,3°E), `meteofrance_arome_france_hd` tylko okolice Szczecina — dlatego wchodzą wyłącznie przez „seamless”.
+- **Horyzonty (Forecast API, sprawdzone 2026-10-11):** ECMWF IFS/AIFS i GFS ≥ 15 dni, ICON ~7,5 dnia, **Météo-France ~4 dni (103 h)**. Jedyny model krótszy niż 7 dni to Météo-France: w średniej (§8.10) od 5. dnia wagi renormalizują się na pozostałe 4 modele; w trybach jednomodelowych (optymistyczny, najmniej trafny) prognoza kończy się na horyzoncie modelu z adnotacją „ten model liczy prognozę tylko na 4 dni”.
 
 **Zmienne w prognozie:** zachmurzenie, opady, temperatura 2 m, wiatr 10 m (prędkość, porywy, kierunek), ryzyko burzy (kod pogody, CAPE).
 **Zmienne w rankingu:** zachmurzenie, opady (satelita), temperatura (stacje IMGW — decyzja domyślna §15). Wiatr poza rankingiem.
-**Osobny ranking burzowy:** trafność prognoz burz, weryfikowana wyładowaniami atmosferycznymi (§8.9). Sezonowy: kwiecień–wrzesień.
+**[v1.1] Osobny ranking burzowy:** trafność prognoz burz, weryfikowana wyładowaniami atmosferycznymi (§8.9). Sezonowy: kwiecień–wrzesień. W MVP Widok 2 pokazuje tylko informacyjne ryzyko burzy z prognozy (bez rankingu).
 **Horyzont:** 7 dni; krok 1 h do 5 dni, dalej 3 h.
 **Poza zakresem:** konta, powiadomienia, aplikacja mobilna, prognozy probabilistyczne, API publiczne.
 
 ## 5. Widok 1 — ekran główny
 
 ### Układ
-Pełnoekranowa mapa. Na niej, u góry na środku: pole lokalizacji; pod nim nagłówek „Jaką pogodę chcesz oglądać?” i cztery przyciski: trzy główne w rzędzie i czwarty, „Najlepsza na burze”, pod nimi jako mniejszy, wyróżniony ikoną błyskawicy (na < 640 px wszystko w kolumnie). Poza sezonem burzowym czwarty przycisk jest szary z podpisem „ranking burzowy od kwietnia”. Logo w lewym górnym rogu, „O projekcie” w prawym dolnym. Panel z polem i przyciskami ma półprzezroczyste tło i cień (czytelność na zdjęciu satelitarnym).
+Pełnoekranowa mapa. Na niej, u góry na środku: pole lokalizacji; pod nim nagłówek „Jaką pogodę chcesz oglądać?” i trzy przyciski w rzędzie (na < 640 px w kolumnie). [v1.1] Czwarty, „Najlepsza na burze”, pod nimi jako mniejszy, wyróżniony ikoną błyskawicy; poza sezonem burzowym szary z podpisem „ranking burzowy od kwietnia”. Logo w lewym górnym rogu, „O projekcie” w prawym dolnym. Panel z polem i przyciskami ma półprzezroczyste tło i cień (czytelność na zdjęciu satelitarnym).
 
 ### Warstwy mapy (MapLibre GL JS, self-host pliku JS)
 - **Bazowa „Mapa”** (domyślna): OpenFreeMap, styl `liberty` lub `bright`, kolory lekko wyciszone własnym nadpisaniem stylu.
 - **Bazowa „Satelita”**: EOX Sentinel-2 cloudless, WMTS, bez klucza; na wierzchu warstwa OpenFreeMap tylko z granicami, drogami i nazwami. Fallback: Esri World Imagery z kluczem ArcGIS Location Platform (darmowy plan).
-- **Nakładka „Chmury teraz”**: EUMETView (WMS/WMTS, Meteosat, co 15 min). RGB w dzień, IR 10.8 w nocy, przełączenie automatyczne. Krycie 60 %, suwak. Widoczna tylko przy zoomie ≤ 9. Znacznik czasu obrazu w rogu. Animacja 6 ostatnich klatek po „▶”. Fallback: RainViewer IR.
+- **[v1.1] Nakładka „Chmury teraz”**: EUMETView (WMS/WMTS, Meteosat, co 15 min). RGB w dzień, IR 10.8 w nocy, przełączenie automatyczne. Krycie 60 %, suwak. Widoczna tylko przy zoomie ≤ 9. Znacznik czasu obrazu w rogu. Animacja 6 ostatnich klatek po „▶”. Fallback: RainViewer IR.
 - Wybór warstw zapamiętany w localStorage. Kafelki zawsze prosto z przeglądarki, nigdy przez hosting.
 - Atrybucje wszystkich źródeł w kontrolce mapy (§11).
 
@@ -82,20 +87,20 @@ Pełnoekranowa mapa. Na niej, u góry na środku: pole lokalizacji; pod nim nag�
 MaxMind GeoLite2-City z pliku `.mmdb` (biblioteka `geoip2`), plik odświeżany co miesiąc przez cron na hostingu (`tools/update_geoip.py`, klucz licencyjny w env). Fallback: ip-api.com (limit 45/min, cache 24 h w Redis pod kluczem SHA-256 z IP, bez zapisu samego IP).
 
 ### Autocomplete
-Photon (publiczna instancja Komoot) wywoływany z przeglądarki, `lang=pl`, bbox Polski, `limit=6`, debounce 250 ms, od 2 znaków, cache odpowiedzi w localStorage 7 dni. Fallback offline: `public/data/places-pl.json` (miejscowości z OSM, nazwa + gmina + województwo + lat/lon, ~40 tys. rekordów, indeks prefiksowy budowany w JS przy pierwszym użyciu). Wyświetlanie: nazwa, gmina/powiat, województwo. Jeśli podpowiedź odpowiada miastu lub gminie z `regions.json` (§8.7), pokazuje się z ikoną obszaru i wybór ustawia tryb **obszar** (na mapie rysowany jest kontur, nie pinezka). Mały przełącznik pod polem: „punkt / cały obszar” — widoczny tylko wtedy, gdy oba są dostępne. Kliknięcie na mapie zawsze daje punkt.
+Photon (publiczna instancja Komoot) wywoływany z przeglądarki, `lang=pl`, bbox Polski, `limit=6`, debounce 250 ms, od 2 znaków, cache odpowiedzi w localStorage 7 dni. Fallback offline: `public/data/places-pl.json` (miejscowości z OSM, nazwa + gmina + województwo + lat/lon, ~40 tys. rekordów, indeks prefiksowy budowany w JS przy pierwszym użyciu). Wyświetlanie: nazwa, gmina/powiat, województwo. W MVP wybór podpowiedzi zawsze ustawia punkt. [v1.1] Jeśli podpowiedź odpowiada miastu lub gminie z `regions.json` (§8.7), pokazuje się z ikoną obszaru i wybór ustawia tryb **obszar** (na mapie rysowany jest kontur, nie pinezka). Mały przełącznik pod polem: „punkt / cały obszar” — widoczny tylko wtedy, gdy oba są dostępne. Kliknięcie na mapie zawsze daje punkt.
 
 ### Trzy przyciski
 
 | Przycisk | Logika |
 |---|---|
 | **Najbardziej trafna** | średnia ważona modeli z wagami `blend` z JSON komórki lub obszaru (§8.10) |
-| **Najbardziej optymistyczna** | pole `optimistic` w JSON komórki lub obszaru |
+| **Najbardziej optymistyczna** | model wybrany w locie z bieżących prognoz (§8.5) |
 | **Najmniej trafna** | ostatni model z `accurate[]` |
-| **Najlepsza na burze** | pierwszy model z `storm[]` w JSON komórki lub obszaru; brak pola → przycisk nieaktywny z wyjaśnieniem |
+| **[v1.1] Najlepsza na burze** | pierwszy model z `storm[]` w JSON komórki lub obszaru; brak pola → przycisk nieaktywny z wyjaśnieniem |
 
 ## 6. Widok 2 — prognoza
 
-**URL punktu:** `/prognoza/{slug}/{lat},{lon}/{tryb}`; **URL obszaru:** `/prognoza/obszar/{region_id}/{tryb}` (np. `/prognoza/obszar/m-warszawa/trafna`). Tryb ∈ `trafna|optymistyczna|najmniej-trafna|burze`. Lat/lon z 3 miejscami po przecinku.
+**URL punktu:** `/prognoza/{slug}/{lat},{lon}/{tryb}`; **[v1.1] URL obszaru:** `/prognoza/obszar/{region_id}/{tryb}` (np. `/prognoza/obszar/m-warszawa/trafna`). Tryb ∈ `trafna|optymistyczna|najmniej-trafna` (+ `burze` w v1.1). Lat/lon z 3 miejscami po przecinku.
 
 ### Nagłówek
 - Nazwa lokalizacji, link „zmień” (powrót na mapę z zachowaną pinezką lub konturem). Dla obszaru: dopisek „prognoza uśredniona dla całego obszaru ({n} komórek, {km²})” i link „pokaż dla punktu”.
@@ -127,7 +132,7 @@ Założenie do weryfikacji: hosting współdzielony ma limity CPU i RAM per proc
 ```
  STRONA OBLICZENIOWA                              HOSTING mydevil.net
  GEE (satelity) ─┐                                Passenger → Flask (web/)
- GitHub Actions ─┴─ verify.yml: prognozy           cron: optimistic.py (co 6 h), pull_rankings.py,
+ GitHub Actions ─┴─ verify.yml: prognozy           cron: pull_rankings.py,
                     archiwalne, weryfikacja,             cleanup.py, update_geoip.py
                     ranking → rankings.tar.zst    Redis: cache prognoz, cache geoIP
                     → Cloudflare R2  ────────────► data/rankings/*.json, data/meta.json
@@ -140,7 +145,7 @@ Runner nie łączy się z hostingiem bezpośrednio. Publikuje wynik do R2; hosti
 - **GEE** przez `earthengine-api` z kontem serwisowym. Skrypty w `pipeline/gee/` eksportują dzienne tabele (frakcja zachmurzenia, suma IMERG) na komórkę, dla doby D-2.
 - **`verify.yml`**: codziennie 05:30 UTC. Kroki: eksport GEE → pobranie obserwacji IMGW → pobranie prognoz archiwalnych → metryki → ranking → `rankings.tar.zst` + `meta.json` → upload do R2. Dane pośrednie (Parquet) także w R2, żeby job był wznawialny.
 - **Prognozy archiwalne: Open-Meteo Previous Runs API** (`previous-runs-api.open-meteo.com/v1/forecast`), zmienne `{var}_previous_day{1,2,3}` (= prognoza wydana 24/48/72 h przed czasem ważności), `models=` po jednym, `timezone=UTC`, `cell_selection=nearest`, `elevation=nan` (odpowiedź podaje wtedy wysokość komórki modelu — potrzebna do korekty temperatury). Zmienne: `cloud_cover,precipitation,temperature_2m` + dla burz `weather_code,cape` tam, gdzie istnieją (§8.9). **Nie** Historical Forecast API — ono skleja pierwsze godziny przebiegów i nie zawiera wyprzedzeń 24–72 h. Archiwum od 01.2024 (AIFS od 02.2025), co pozwala policzyć ranking wstecz od pierwszego dnia.
-- **Budżet:** darmowy limit 10 000 wywołań/dobę i 300 000/mies.; zapytanie > 10 zmiennych lub > 2 tygodnie liczy się proporcjonalnie więcej; zapytania wielopunktowe liczymy ostrożnie jako 1 wywołanie na punkt. Pełna siatka dziennie (6 300 × 5 modeli × ~1,8) ≈ 57 tys./dobę — niewykonalne. Dlatego pobieranie **rotacyjne paczkami 14-dniowymi**: każdego dnia 1/14 komórek za ostatnie 14 dni (~4 tys./dobę), albo weryfikacja na grubszej siatce (§17). Licznik zużycia w `meta.json`. **Limit godzinowy (5 000 ważonych wywołań/h) jest realnym ograniczeniem** — w Etapie 0a został przekroczony po ~600 zapytaniach z 3-miesięcznym zakresem dat. Pobieranie musi mieć własny dławik (np. ≤ 4 000 ważonych wywołań/h, licząc wagę z liczby zmiennych i dni) i obsługę HTTP 429 z odczekaniem do następnej godziny.
+- **Budżet:** darmowy limit 10 000 wywołań/dobę i 300 000/mies.; zapytanie > 10 zmiennych lub > 2 tygodnie liczy się proporcjonalnie więcej; zapytania wielopunktowe liczymy ostrożnie jako 1 wywołanie na punkt. Pełna siatka dziennie (6 300 × 5 modeli × ~1,8) ≈ 57 tys./dobę — niewykonalne. **Decyzja (człowiek, 2026-10-11): siatka 0,1° z pobieraniem rotacyjnym paczkami 14-dniowymi** — każdego dnia 1/14 komórek za ostatnie 14 dni (~4 tys. ważonych wywołań/dobę); dane weryfikacji są więc opóźnione maks. o 14 dni, co przy oknie 30 dni jest akceptowalne. Rozruch (30 dni wstecz dla wszystkich komórek, ~110 tys. wywołań) rozłożony na ~14 dni przed startem strony. Budżet całkowity (weryfikacja + Widok 2) musi zmieścić się w 300 tys./mies.; licznik zużycia w `meta.json`. **Limit godzinowy (5 000 ważonych wywołań/h) jest realnym ograniczeniem** — w Etapie 0a został przekroczony po ~600 zapytaniach z 3-miesięcznym zakresem dat. Pobieranie musi mieć własny dławik (np. ≤ 4 000 ważonych wywołań/h, licząc wagę z liczby zmiennych i dni) i obsługę HTTP 429 z odczekaniem do następnej godziny.
 - Ten sam kod uruchamialny lokalnie: `make verify`.
 - `requirements-pipeline.txt`: `pandas`, `pyarrow`, `numpy`, `requests`, `earthengine-api`, `boto3`, `pydantic`, `zstandard`, `pytest`, `ruff`.
 - Budżet Open-Meteo policzony i zapisany w `docs/api-budget.md`.
@@ -156,7 +161,7 @@ Runner nie łączy się z hostingiem bezpośrednio. Publikuje wynik do R2; hosti
 - `requirements-web.txt`: `flask`, `jinja2`, `requests`, `redis`, `geoip2`, `gunicorn` (tylko do testów lokalnych; na hostingu serwuje Passenger).
 - Crony na hostingu (panel DevilWEB, wszystkie w virtualenvie, logi do `web/var/log/`):
   - `pull_rankings.py` — co 30 min: sprawdza `meta.json` w R2 (ETag); jeśli nowy, pobiera archiwum do `data/rankings.tmp/`, weryfikuje liczbę plików i podmienia katalog `os.rename`.
-  - `optimistic.py` — 01/07/13/19 UTC: liczy „optymistyczny” model dla wszystkich komórek (§8.5) i dopisuje pola do JSON-ów. Jeśli sonda pokaże, że przekracza limity hostingu, zadanie wraca do GitHub Actions (`optimistic.yml`), a wynik przychodzi przez R2 — decyzja w DECISIONS.
+  - ~~`optimistic.py`~~ — **usunięty w v0.9**: liczenie dla 6 300 komórek × 5 modeli co 6 h to ~126 tys. wywołań/dobę, ponad limit. „Optymistyczny” liczy się w locie w Widoku 2 z prognoz wszystkich modeli, które i tak są pobierane do średniej (§8.5) — zero dodatkowych wywołań.
   - `cleanup.py` — codziennie: sprząta cache plikowy i logi starsze niż 7 dni.
   - `update_geoip.py` — 1. dnia miesiąca: pobiera nowy `.mmdb`.
 - Deploy: `deploy/deploy.sh` wykonywany przez SSH z GitHub Actions (`deploy.yml`, po zielonym CI na `main`): `git pull`, `pip install -r requirements-web.txt` w virtualenvie, `touch web/tmp/restart.txt` (restart Passengera), `curl /healthz`.
@@ -200,12 +205,12 @@ Każda metryka normalizowana do 0–1 względem najgorszego i najlepszego modelu
 Warunek minimalny: ≥ 20 dni z danymi dla komórki i modelu; modele poniżej progu wypadają z rankingu tej komórki. Jeśli żaden nie spełnia — brak pliku dla komórki.
 
 ### 8.5 „Najbardziej optymistyczna”
-Dla każdej komórki, z najnowszego przebiegu każdego modelu (Open-Meteo Forecast API, centroid, `daily=temperature_2m_max,precipitation_sum,cloud_cover_mean`, `forecast_days=4`): dni 1–3 od jutra. `t = mean(tmax)`, `p = sum(precip)`. Normalizacja min–max między modelami; `score = 0.5·t_norm + 0.5·(1−p_norm)`; remis → niższe zachmurzenie. Wynik i czas obliczenia w JSON komórki. Etykieta UI: „najcieplej i najsuszej”.
+Liczone **w locie w Widoku 2** (`lepszapogoda/optimistic.py`), z prognoz wszystkich modeli pobranych dla punktu do średniej (§8.10) — bez dodatkowych wywołań API i bez crona. Dni 1–3 od jutra (wszystkie modele, także Météo-France, sięgają tak daleko). `t = mean(tmax)`, `p = sum(precip)`. Normalizacja min–max między modelami; `score = 0.5·t_norm + 0.5·(1−p_norm)`; remis → niższe zachmurzenie. Etykieta UI: „najcieplej i najsuszej”.
 
 ### 8.6 Zastrzeżenia (do umieszczenia na stronie „O projekcie”)
 IMERG zaniża słabe opady i myli się przy śniegu; skala 0,1° nie widzi pojedynczej burzy; ranking temperatury jest regionalny (stacje), nie lokalny; wiatr nie jest weryfikowany. Prognozy nie zastępują ostrzeżeń IMGW.
 
-### 8.7 Obszary wielokomórkowe (miasto, gmina)
+### 8.7 [v1.1] Obszary wielokomórkowe (miasto, gmina)
 Obszar to zbiór komórek z wagami. Definicja w `web/data/regions.json` i `pipeline/grid/regions.parquet`, generowana raz przez `pipeline/grid/build_regions.py` z granic administracyjnych (OSM `admin_level` 7–8 albo PRG z GUGiK, decyzja w DECISIONS):
 
 ```json
@@ -245,8 +250,7 @@ Obszar to zbiór komórek z wagami. Definicja w `web/data/regions.json` i `pipel
   ```json
   {"grid_version":"latlon01","cell":"522_209","computed":"2026-09-28T05:10Z","window_days":30,
    "accurate":[{"model":"icon_d2","score":91,"cloud_mae":11.2,"precip_ets":0.58,"temp_mae":1.3}, ...],
-   "blend":{"method":"…","temp":{"ecmwf_ifs025":0.24, ...},"precip":{...},"cloud":{...}},
-   "optimistic":"gfs_global","optimistic_computed":"2026-09-28T07:00Z",
+   "blend":{"method":"…","temp":{"ecmwf_ifs":0.24, ...},"precip":{...},"cloud":{...}},
    "temp_source":"station:12375:8km",
    "storm":{...}}
   ```
@@ -254,7 +258,7 @@ Obszar to zbiór komórek z wagami. Definicja w `web/data/regions.json` i `pipel
 - `regions.json` — definicje obszarów (§8.7).
 - `meta.json` — lista modeli z opisami, `grid_version`, czas ostatniej aktualizacji, wagi, liczba komórek i obszarów z rankingiem, mediana wyniku.
 
-### 8.9 Ranking burzowy
+### 8.9 [v1.1] Ranking burzowy
 
 **Cel:** który model najlepiej przewiduje, czy w danym miejscu będzie burza. To inna umiejętność niż trafność opadów: burza jest zdarzeniem rzadkim, krótkim i lokalnym, więc wymaga własnej weryfikacji, własnego okna i własnych progów.
 
@@ -306,7 +310,7 @@ Podstawa: `docs/reports/etap-0b.md` (średnia modeli najlepsza na każdym wyprze
 | Co | Gdzie użyte | Zmienna / miejsce |
 |---|---|---|
 | Google Cloud projekt + GEE (niekomercyjny) + konto serwisowe JSON | GitHub Actions | secret `GEE_SERVICE_ACCOUNT_JSON` |
-| EUMETSAT konto (Data Store: Lightning Imager, ew. produkty chmurowe) | GitHub Actions | secrets `EUMETSAT_KEY`, `EUMETSAT_SECRET` — **wymagane** od v0.6 |
+| EUMETSAT konto (Data Store: Lightning Imager, ew. produkty chmurowe) | GitHub Actions | secrets `EUMETSAT_KEY`, `EUMETSAT_SECRET` — wymagane dopiero w v1.1 (burze); w MVP tylko, jeśli produkt chmurowy z §8.2 tego wymaga |
 | Cloudflare R2 bucket + klucze (odczyt/zapis) | GitHub Actions | secrets `R2_ENDPOINT`, `R2_KEY`, `R2_SECRET`, `R2_BUCKET` |
 | Cloudflare R2 klucze tylko do odczytu | hosting | `~/.bash_profile` na mydevil: `R2_*_RO` |
 | Klucz SSH do mydevil (deploy) | GitHub Actions | secrets `DEPLOY_HOST`, `DEPLOY_USER`, `DEPLOY_SSH_KEY`, `DEPLOY_PATH` |
@@ -331,7 +335,7 @@ lepszapogoda/
 │   ├── static/          js/ (map.js, search.js, charts.js), css/, vendor/ (maplibre, uplot),
 │   │                    icons/, data/places-pl.json, config.js
 │   ├── data/            rankings/ (pobierane cronem, w .gitignore), meta.json
-│   ├── cron/            pull_rankings.py, optimistic.py, cleanup.py, update_geoip.py
+│   ├── cron/            pull_rankings.py, cleanup.py, update_geoip.py
 │   ├── var/             cache/, log/, geoip/ (w .gitignore)
 │   ├── tmp/             restart.txt (Passenger)
 │   └── tests/
@@ -340,7 +344,7 @@ lepszapogoda/
 ├── docs/                DECISIONS.md, HUMAN_TODO.md, hosting-capabilities.md, api-budget.md,
 │                        api-samples/, reports/, o-projekcie.md, QA.md
 ├── requirements-web.txt, requirements-pipeline.txt, requirements-dev.txt
-└── .github/workflows/   ci.yml, verify.yml, optimistic.yml (opcjonalny), deploy.yml
+└── .github/workflows/   ci.yml, verify.yml, deploy.yml
 ```
 
 ## 11. Prawne i atrybucje (wszystkie widoczne w kontrolce mapy lub stopce „O projekcie”)
@@ -362,12 +366,14 @@ lepszapogoda/
 ## 13. Etapy i kryteria akceptacji
 
 **Etap 0 — rozpoznanie (agent + człowiek).**
-Agent: `tools/hosting_probe.py` uruchomiony przez SSH na mydevil, raport w `docs/hosting-capabilities.md` (w tym: czy `optimistic.py` mieści się w limitach hostingu); realne wywołania wszystkich API z §0 zapisane w `docs/api-samples/`; test w GEE: eksport zachmurzenia i IMERG dla siatki za jeden dzień; test pobrania i zliczenia wyładowań MTG LI z EUMETSAT Data Store dla jednego dnia burzowego z lata 2026 (oraz sprawdzenie otwartego dostępu do PERUN); decyzja o produkcie chmurowym w DECISIONS; `HUMAN_TODO.md` z listą kont.
+Agent: `tools/hosting_probe.py` uruchomiony przez SSH na mydevil, raport w `docs/hosting-capabilities.md` (w tym: czas obliczenia średniej ważonej i „optymistycznej” dla jednego punktu w Flasku); realne wywołania wszystkich API z §0 zapisane w `docs/api-samples/`; test w GEE: eksport zachmurzenia i IMERG dla siatki za jeden dzień; [v1.1, nie w MVP] test MTG LI i PERUN; decyzja o produkcie chmurowym w DECISIONS; `HUMAN_TODO.md` z listą kont.
 Akceptacja: wszystkie API odpowiadają; wiadomo, co działa na hostingu; siatka istnieje.
 
 **Etap 1 — potok danych.**
-Codzienny `verify.yml` produkuje `rankings.tar.zst` i `meta.json` w R2; `pull_rankings.py` na hostingu pobiera je i podmienia katalog; `optimistic.py` działa co 6 h (na hostingu lub w Actions wg DECISIONS); testy z §12 przechodzą; `api-budget.md` pokazuje zużycie < 60 % limitu.
-Akceptacja: po 20 dniach ≥ 90 % komórek ma ranking; ranking odtwarzalny z Parquet; rankingi obszarów wygenerowane dla wszystkich miast na prawach powiatu i gmin miejskich; ranking burzowy policzony wstecznie za sezon 2026 (kwiecień–wrzesień) z archiwalnych prognoz i archiwum wyładowań, żeby czwarty przycisk działał od startu, a nie dopiero od kwietnia 2027.
+Codzienny `verify.yml` produkuje `rankings.tar.zst` i `meta.json` w R2; `pull_rankings.py` na hostingu pobiera je i podmienia katalog; wagi `blend` (§8.10) w JSON komórek; testy z §12 przechodzą; `api-budget.md` pokazuje zużycie < 60 % limitu (dobowego, godzinowego i miesięcznego).
+Akceptacja: po rozruchu (≈ 14 dni rotacji wstecz) ≥ 90 % komórek ma ranking i wagi; ranking odtwarzalny z Parquet; Parquet weryfikacji zawiera składniki metryk (warunek v1.1).
+
+**[v1.1] Etap 1.1 — obszary, burze, „Chmury teraz”.** Rankingi obszarów dla wszystkich miast na prawach powiatu i gmin miejskich (§8.7); ranking burzowy policzony wstecznie za ostatni sezon (§8.9; wymaga konta EUMETSAT i testu MTG LI); nakładka „Chmury teraz” (§5).
 
 **Etap 2 — frontend.**
 Aplikacja Flask działa pod Passengerem na mydevil, `deploy.yml` wdraża po zielonym CI; Widok 1 i 2 zgodnie z §5–6; działa bez JS w wersji podstawowej; TTFB < 300 ms; Widok 2 < 1,5 s przy zimnym cache Open-Meteo; scenariusze `QA.md` przechodzą; atrybucje kompletne.
@@ -385,7 +391,7 @@ Porównanie rankingu z ręczną kontrolą dla 20 lokalizacji; korekta wag jeśli
 | IMERG słaby zimą | waga ETS > MAE (już w §8.3); w meta.json flaga sezonu; radar w v2 |
 | Limit Open-Meteo | TTL adaptacyjny (§7.4); przy > 90 % przez 3 dni — precomputowanie prognoz per komórka co 6 h (dodać do runnera) |
 | Cron hostingu zawodny | `pull_rankings.py` jest idempotentny, a strona działa na ostatnich danych; `/healthz` zwraca wiek `meta.json`, monitorowany przez darmowy uptime checker (HUMAN_TODO) |
-| `pyarrow`/`numpy` nie instalują się na FreeBSD (mydevil) | na hostingu tylko `requirements-web.txt` bez pandas; `optimistic.py` przechodzi do Actions; JSON zamiast Parquet w kodzie hostingu |
+| `pyarrow`/`numpy` nie instalują się na FreeBSD (mydevil) | na hostingu tylko `requirements-web.txt` bez pandas; JSON zamiast Parquet w kodzie hostingu |
 | Passenger nie serwuje statycznych plików wydajnie | ustawić nagłówki cache z Flask (`Cache-Control: max-age=86400` dla `static/`), rozważyć subdomenę statyczną |
 | Limity CPU/RAM na hostingu ubijają cron | wszystkie crony z `nice`, przetwarzanie strumieniowe po jednej komórce, timeout 10 min; przy problemach przenieść do Actions |
 | GitHub Actions job > 6 h lub brak minut | podział na kroki, cache Parquet w R2; instrukcja uruchomienia na domowym komputerze w README |
@@ -411,7 +417,9 @@ Porównanie rankingu z ręczną kontrolą dla 20 lokalizacji; korekta wag jeśli
 | „Najbardziej trafna” | średnia ważona trafnością (§8.10), decyzja człowieka 2026-10-11 |
 | Siatka | lat-lon 0,1° (`grid_version=latlon01`); HEALPix w v2 przy Europie, migracja wg §8.1 |
 | Źródło granic obszarów | OSM `admin_level` 7–8 (miasta, gminy); PRG GUGiK jeśli OSM ma braki |
-| Zakres obszarów w MVP | miasta na prawach powiatu + gminy miejskie (~300 obszarów); reszta gmin i obszary własne — v2 |
+| Zakres obszarów (v1.1) | miasta na prawach powiatu + gminy miejskie (~300 obszarów); reszta gmin i obszary własne — v2 |
+| Zakres MVP | punkt, ranking + średnia ważona, 3 przyciski; obszary, burze, „Chmury teraz” — v1.1 (decyzja człowieka 2026-10-11) |
+| Siatka rankingu | 0,1°, pobieranie rotacyjne 14-dniowe (decyzja człowieka 2026-10-11) |
 | Źródło wyładowań | MTG Lightning Imager; PERUN jeśli otwarty; IMERG jako proxy w ostateczności |
 | Definicja burzy w modelu | kod pogody 95–99 lub CAPE ≥ 800 J/kg z opadem ≥ 0,5 mm w oknie 3 h; kalibracja progu w Etapie 3 |
 | Sąsiedztwo weryfikacji burz | 1 komórka (3×3) |
@@ -434,7 +442,7 @@ Kolejność ma znaczenie: agent potrzebuje repozytorium i sekretów, zanim uruch
 - `GEE_SERVICE_ACCOUNT_JSON` — cała zawartość pliku JSON klucza konta serwisowego GEE.
 - `R2_ENDPOINT`, `R2_KEY`, `R2_SECRET`, `R2_BUCKET` — z panelu Cloudflare R2 (utwórz bucket `lepszapogoda-data` i token API z uprawnieniem Object Read & Write).
 - `DEPLOY_HOST` (np. `s1.mydevil.net`), `DEPLOY_USER` (login mydevil), `DEPLOY_PATH` (np. `/usr/home/LOGIN/domains/lepszapogoda.pl/public_python`), `DEPLOY_SSH_KEY` — klucz **prywatny** wygenerowany specjalnie do deployu (krok 3).
-- `EUMETSAT_KEY`, `EUMETSAT_SECRET` — z konta EUMETSAT (Data Store → API keys); potrzebne do wyładowań (§8.9), a być może też do produktów chmurowych.
+- `EUMETSAT_KEY`, `EUMETSAT_SECRET` — z konta EUMETSAT (Data Store → API keys); potrzebne do wyładowań (§8.9, v1.1), a być może też do produktów chmurowych — w MVP można odłożyć do wyniku Etapu 0.
 - Sekrety są niewidoczne po zapisaniu; przy pomyłce nadpisz.
 
 **3. Klucz SSH do deployu**
@@ -444,7 +452,7 @@ Kolejność ma znaczenie: agent potrzebuje repozytorium i sekretów, zanim uruch
 - Sprawdź z terminala: `ssh -i ~/.ssh/lepszapogoda_deploy LOGIN@sX.mydevil.net` musi wejść bez pytania o hasło.
 
 **4. Zmienne nie-tajne** (*Settings → Secrets and variables → Actions → Variables*):
-- `OPENMETEO_MODELS` = `ecmwf_ifs,ecmwf_ifs025,ecmwf_aifs025_single,icon_seamless,gfs_seamless,meteofrance_seamless`
+- `OPENMETEO_MODELS` = `ecmwf_ifs,ecmwf_aifs025_single,icon_seamless,gfs_seamless,meteofrance_seamless`
 - `RANKING_WINDOW_DAYS` = `30`
 Agent może dodać kolejne; ma je opisać w README.
 
@@ -472,6 +480,8 @@ Szczegóły i liczby: `docs/reports/etap-0a.md`.
    a. średnia modeli ważona trafnością (rekomendacja: najlepsza jakość; zmienia zasadę „cały widok z jednego modelu”),
    b. pojedynczy zwycięzca, ale okno 60–90 dni, ranking regionalny i komunikat o remisie, gdy różnice mieszczą się w niepewności,
    c. bez zmian (najprostsze, najsłabiej uzasadnione).
-2. **Rozdzielczość weryfikacji:** siatka rankingu 0,1° (pobieranie rotacyjne, dane do 14 dni opóźnione) czy 0,25° (~1 000 komórek, bez problemu z limitem). Prognoza w Widoku 2 i tak jest dla punktu.
-3. **Modele o krótszym horyzoncie niż 7 dni** w Widoku 2: obcinać prognozę z adnotacją czy dokładać od pewnego dnia inny model.
-4. **Zakres MVP:** czy ranking burzowy, obszary miast i „Chmury teraz” przesunąć do v1.1, żeby szybciej uruchomić rdzeń.
+2. **Rozstrzygnięte 2026-10-11: 0,1°** z pobieraniem rotacyjnym (§7.3).
+3. **Rozstrzygnięte 2026-10-11:** jedynym modelem krótszym niż 7 dni jest Météo-France (~4 dni); w średniej wagi się renormalizują, w trybach jednomodelowych prognoza kończy się na horyzoncie z adnotacją (§4). Przy okazji usunięto `ecmwf_ifs025` jako duplikat IFS.
+4. **Rozstrzygnięte 2026-10-11: tak** — obszary, burze i „Chmury teraz” w v1.1 (§4, §13).
+
+Wszystkie decyzje z §17 są zamknięte; następny krok: Etap 0 (§13) po założeniu kont z §16.

@@ -1,0 +1,266 @@
+{
+ "horizons": {
+  "ecmwf_ifs025": {
+   "first": "2026-10-11T00:00",
+   "last": "2026-10-25T14:00",
+   "hours": 351
+  },
+  "ecmwf_aifs025_single": {
+   "first": "2026-10-11T00:00",
+   "last": "2026-10-26T05:00",
+   "hours": 366
+  },
+  "ecmwf_ifs": {
+   "first": "2026-10-11T00:00",
+   "last": "2026-10-26T00:00",
+   "hours": 361
+  },
+  "gfs_seamless": {
+   "first": "2026-10-11T00:00",
+   "last": "2026-10-26T23:00",
+   "hours": 384
+  },
+  "icon_seamless": {
+   "first": "2026-10-11T00:00",
+   "last": "2026-10-18T12:00",
+   "hours": 181
+  },
+  "meteofrance_seamless": {
+   "first": "2026-10-11T00:00",
+   "last": "2026-10-15T06:00",
+   "hours": 103
+  }
+ },
+ "error_corr": {
+  "lead1": {
+   "n": 5211,
+   "pairs": {
+    "ecmwf_ifs025 ~ ecmwf_ifs": {
+     "tmax": 0.902,
+     "precip": 0.918
+    },
+    "ecmwf_aifs025_single ~ icon_seamless": {
+     "tmax": 0.655,
+     "precip": 0.702
+    },
+    "ecmwf_ifs025 ~ icon_seamless": {
+     "tmax": 0.651,
+     "precip": 0.623
+    },
+    "icon_seamless ~ meteofrance_seamless": {
+     "tmax": 0.647,
+     "precip": 0.575
+    },
+    "ecmwf_ifs025 ~ ecmwf_aifs025_single": {
+     "tmax": 0.644,
+     "precip": 0.823
+    },
+    "ecmwf_ifs ~ icon_seamless": {
+     "tmax": 0.638,
+     "precip": 0.617
+    },
+    "ecmwf_ifs025 ~ gfs_seamless": {
+     "tmax": 0.631,
+     "precip": 0.684
+    },
+    "gfs_seamless ~ icon_seamless": {
+     "tmax": 0.629,
+     "precip": 0.601
+    },
+    "ecmwf_ifs ~ meteofrance_seamless": {
+     "tmax": 0.606,
+     "precip": 0.7
+    },
+    "ecmwf_aifs025_single ~ gfs_seamless": {
+     "tmax": 0.605,
+     "precip": 0.785
+    },
+    "ecmwf_aifs025_single ~ ecmwf_ifs": {
+     "tmax": 0.595,
+     "precip": 0.788
+    },
+    "ecmwf_ifs ~ gfs_seamless": {
+     "tmax": 0.592,
+     "precip": 0.661
+    },
+    "ecmwf_ifs025 ~ meteofrance_seamless": {
+     "tmax": 0.581,
+     "precip": 0.705
+    },
+    "gfs_seamless ~ meteofrance_seamless": {
+     "tmax": 0.564,
+     "precip": 0.629
+    },
+    "ecmwf_aifs025_single ~ meteofrance_seamless": {
+     "tmax": 0.489,
+     "precip": 0.726
+    }
+   }
+  },
+  "lead3": {
+   "n": 5211,
+   "pairs": {
+    "ecmwf_ifs025 ~ ecmwf_ifs": {
+     "tmax": 0.919,
+     "precip": 0.937
+    },
+    "ecmwf_aifs025_single ~ icon_seamless": {
+     "tmax": 0.665,
+     "precip": 0.768
+    },
+    "ecmwf_ifs025 ~ ecmwf_aifs025_single": {
+     "tmax": 0.655,
+     "precip": 0.805
+    },
+    "ecmwf_ifs ~ icon_seamless": {
+     "tmax": 0.644,
+     "precip": 0.7
+    },
+    "gfs_seamless ~ icon_seamless": {
+     "tmax": 0.644,
+     "precip": 0.639
+    },
+    "ecmwf_ifs025 ~ icon_seamless": {
+     "tmax": 0.641,
+     "precip": 0.696
+    },
+    "ecmwf_ifs025 ~ gfs_seamless": {
+     "tmax": 0.609,
+     "precip": 0.698
+    },
+    "icon_seamless ~ meteofrance_seamless": {
+     "tmax": 0.608,
+     "precip": 0.711
+    },
+    "ecmwf_aifs025_single ~ ecmwf_ifs": {
+     "tmax": 0.604,
+     "precip": 0.788
+    },
+    "ecmwf_ifs ~ gfs_seamless": {
+     "tmax": 0.589,
+     "precip": 0.695
+    },
+    "ecmwf_ifs025 ~ meteofrance_seamless": {
+     "tmax": 0.579,
+     "precip": 0.687
+    },
+    "ecmwf_ifs ~ meteofrance_seamless": {
+     "tmax": 0.578,
+     "precip": 0.686
+    },
+    "ecmwf_aifs025_single ~ gfs_seamless": {
+     "tmax": 0.573,
+     "precip": 0.751
+    },
+    "gfs_seamless ~ meteofrance_seamless": {
+     "tmax": 0.539,
+     "precip": 0.73
+    },
+    "ecmwf_aifs025_single ~ meteofrance_seamless": {
+     "tmax": 0.513,
+     "precip": 0.761
+    }
+   }
+  }
+ },
+ "member_set_test": {
+  "1": {
+   "all6": {
+    "tmax": 1.091,
+    "tmin": 1.467,
+    "precip": 1.675,
+    "ets_1mm": 0.477
+   },
+   "no_ifs025": {
+    "tmax": 1.066,
+    "tmin": 1.478,
+    "precip": 1.662,
+    "ets_1mm": 0.485
+   }
+  },
+  "2": {
+   "all6": {
+    "tmax": 1.186,
+    "tmin": 1.565,
+    "precip": 1.922,
+    "ets_1mm": 0.43
+   },
+   "no_ifs025": {
+    "tmax": 1.168,
+    "tmin": 1.582,
+    "precip": 1.916,
+    "ets_1mm": 0.431
+   }
+  },
+  "3": {
+   "all6": {
+    "tmax": 1.264,
+    "tmin": 1.624,
+    "precip": 2.169,
+    "ets_1mm": 0.373
+   },
+   "no_ifs025": {
+    "tmax": 1.253,
+    "tmin": 1.641,
+    "precip": 2.156,
+    "ets_1mm": 0.374
+   }
+  },
+  "4": {
+   "all6": {
+    "tmax": 1.383,
+    "tmin": 1.644,
+    "precip": 2.23,
+    "ets_1mm": 0.339
+   },
+   "no_ifs025": {
+    "tmax": 1.367,
+    "tmin": 1.645,
+    "precip": 2.228,
+    "ets_1mm": 0.339
+   }
+  },
+  "5": {
+   "all6": {
+    "tmax": 1.542,
+    "tmin": 1.773,
+    "precip": 2.388,
+    "ets_1mm": 0.289
+   },
+   "no_ifs025": {
+    "tmax": 1.543,
+    "tmin": 1.775,
+    "precip": 2.37,
+    "ets_1mm": 0.287
+   }
+  },
+  "6": {
+   "all6": {
+    "tmax": 1.8,
+    "tmin": 2.016,
+    "precip": 2.558,
+    "ets_1mm": 0.23
+   },
+   "no_ifs025": {
+    "tmax": 1.779,
+    "tmin": 1.941,
+    "precip": 2.555,
+    "ets_1mm": 0.227
+   }
+  },
+  "7": {
+   "all6": {
+    "tmax": 1.982,
+    "tmin": 2.207,
+    "precip": 2.634,
+    "ets_1mm": 0.175
+   },
+   "no_ifs025": {
+    "tmax": 1.99,
+    "tmin": 2.123,
+    "precip": 2.645,
+    "ets_1mm": 0.172
+   }
+  }
+ }
+}
