@@ -13,6 +13,9 @@ Porównywarka trafności modeli pogodowych dla Polski. Wymagania: [docs/SPEC.md]
   - `grid/poland_cells.parquet`: lista komórek.
   - `gee/auth.py`: logowanie do Earth Engine.
   - `ingest/forecasts.py`: dzienne pobieranie prognoz archiwalnych (rotacja, uzupełnianie luk, Parquet w `data/`).
+  - `ingest/imgw.py`: stacje IMGW. Odpytywanie co godzinę (`poll`), dobowe Tmax/Tmin (`daily`), paczki miesięczne (`archive`).
+  - `ingest/satellite.py`: IMERG (opady, D-2) i MODIS Terra/Aqua (chmury, D-4) per komórka z Earth Engine.
+  - `grid/build_stations.py`: lista stacji IMGW ze współrzędnymi, zapisywana w `lepszapogoda/data/imgw_stations.json`.
 - `tests/`, `pipeline/tests/`: testy.
 - `spike/`: jednorazowe eksperymenty z Etapów 0a i 0b oraz testu GEE. Nie są częścią produktu.
 
@@ -37,6 +40,15 @@ Pobieranie prognoz archiwalnych (dane trafiają do `data/`, poza repozytorium):
 ```powershell
 .\.venv\Scripts\python -m pipeline.ingest.forecasts --dry-run          # plan i koszt
 .\.venv\Scripts\python -m pipeline.ingest.forecasts --max-requests 10  # ograniczony przebieg
+```
+
+Obserwacje:
+
+```powershell
+.\.venv\Scripts\python -m pipeline.ingest.imgw poll                       # co godzinę
+.\.venv\Scripts\python -m pipeline.ingest.imgw daily                      # raz dziennie, za wczoraj
+.\.venv\Scripts\python -m pipeline.ingest.imgw archive --year 2026 --month 9
+.\.venv\Scripts\python -m pipeline.ingest.satellite                       # wymaga EE_PROJECT
 ```
 
 W CI zamiast `EE_PROJECT` używany jest sekret `GEE_SERVICE_ACCOUNT_JSON` (SPEC §9).

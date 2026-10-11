@@ -22,7 +22,6 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import os
 from collections import defaultdict
 from dataclasses import dataclass
 from datetime import UTC, date, datetime, timedelta
@@ -31,6 +30,7 @@ from pathlib import Path
 import pandas as pd
 
 from lepszapogoda import grid, openmeteo
+from pipeline.paths import DATA_DIR
 
 VARIABLES = ("temperature_2m", "precipitation", "cloud_cover")
 LEAD_DAYS = tuple(range(1, 8))
@@ -38,8 +38,6 @@ WINDOW_DAYS = 30
 ROTATION_DAYS = 14
 LAG_DAYS = 2
 FLUSH_EVERY = 10  # requests per Parquet file (~2.5 M rows, bounded memory, little lost on a crash)
-
-DATA_DIR = Path(os.environ.get("LP_DATA_DIR", Path(__file__).resolve().parents[2] / "data"))
 
 
 # ---------------------------------------------------------------- manifest

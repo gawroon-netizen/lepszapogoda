@@ -188,7 +188,7 @@ PHP w całości; SFTP; PostgreSQL (niepotrzebny w MVP — rankingi w JSON); Fast
 |---|---|---|
 | Zachmurzenie | **MODIS Terra i Aqua w GEE** (`MODIS/061/MOD09GA`, `MYD09GA`, bity `state_1km`: zachmurzone = 1, mieszane = 0,5). Decyzja po Etapie 0: Meteosatu nie ma w GEE; VIIRS ma ~7 dni opóźnienia i inną definicję maski (systematycznie mniej chmur) — nie mieszać źródeł | frakcja na komórkę w chwili przelotu (Terra ~09:30, Aqua ~11:30 UTC; dokładny czas z metadanych granuli), porównywana z `cloud_cover` modelu interpolowanym na tę godzinę; tylko pora dzienna. Zachmurzenie nocne poza rankingiem (oznaczyć w „O projekcie”) |
 | Opady | NASA IMERG V07 Late, GEE (`NASA/GPM_L3/IMERG_V07`) | suma dobowa [mm] na komórkę; flaga `snow_possible` gdy T2m stacji < 2 °C |
-| Temperatura | IMGW, dane synoptyczne (API publiczne `danepubliczne.imgw.pl`), ok. 60 stacji | dobowa średnia, max, min; przypisanie do komórek w promieniu 60 km z wagą 1/d; korekta 0,65 °C/100 m względem wysokości modelu z odpowiedzi Open-Meteo |
+| Temperatura | IMGW, dane synoptyczne: API `danepubliczne.imgw.pl/api/data/synop` odpytywane **co godzinę** (zwraca tylko ostatni pomiar; 62 stacje) + miesięczne paczki archiwalne zastępujące wartości z API, gdy się pojawią; implementacja `pipeline/ingest/imgw.py` | dobowa średnia, max, min; przypisanie do komórek w promieniu 60 km z wagą 1/d; korekta 0,65 °C/100 m względem wysokości modelu z odpowiedzi Open-Meteo |
 
 Wiatr: brak obserwacji nad lądem — poza rankingiem.
 
