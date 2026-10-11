@@ -11,3 +11,5 @@ spike/data/
 web/data/rankings/
 web/var/
 web/tmp/
+
+*.egg-info/

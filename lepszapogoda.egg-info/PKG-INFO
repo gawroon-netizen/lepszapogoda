@@ -1,6 +1,0 @@
-Metadata-Version: 2.4
-Name: lepszapogoda
-Version: 0.1.0
-Summary: Weather model accuracy comparison for Poland (lepszapogoda.pl)
-License-Expression: AGPL-3.0-only
-Requires-Python: >=3.11
