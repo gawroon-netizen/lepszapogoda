@@ -24,3 +24,11 @@ Format: data · kontekst · wybór · alternatywy.
 - **Modele krótsze niż 7 dni:** jest tylko Météo-France (103 h, Forecast API sprawdzony 2026-10-11). W średniej wagi się renormalizują, w trybach jednomodelowych prognoza jest obcięta z adnotacją.
 - **„Optymistyczna” liczona w locie** zamiast crona. Kontekst: cron dla 6 300 komórek × 5 modeli co 6 h ≈ 126 tys. wywołań na dobę. Widok 2 i tak pobiera wszystkie modele do średniej.
 - **Open-Meteo ma limit godzinowy 5 000 ważonych wywołań.** Przekroczony w Etapie 0b, więc potok potrzebuje dławika (§7.3).
+
+## 2026-10-11 · Etap 0, część GEE (`docs/reports/etap-0-gee.md`)
+
+- **Zachmurzenie z MODIS Terra i Aqua, nie z Meteosatu.** Kontekst: Meteosatu nie ma w katalogu GEE (sprawdzone 1 162 zbiory). VIIRS ma ~7 dni opóźnienia i inną maskę chmur. Alternatywa: EUMETSAT Data Store poza GEE (v1.1).
+- **Chmury weryfikowane dla D-4, opady dla D-2.** Kontekst: opóźnienie MODIS w GEE ~3 dni, IMERG ~21 h.
+- **Weryfikacja tylko komórek z `pl_frac > 0`** (4 324 z 6 283). Kontekst: o 31 % mniej wywołań Open-Meteo.
+- **IMERG zostaje sędzią opadu.** Jesienią ETS 0,58 wobec deszczomierzy IMGW, czyli lepiej niż najlepsza prognoza. Zimą do ponownego sprawdzenia.
+- **Granice Polski: `USDOS/LSIB_SIMPLE/2017`** w GEE. Wystarczy do flagi `pl_frac`; do obszarów v1.1 zostaje OSM/PRG wg §15.

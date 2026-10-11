@@ -47,7 +47,7 @@ Osoby szukające „po prostu pogody”; rolnicy, ogrodnicy, rowerzyści, żegla
 
 ## 4. Zakres MVP
 
-**Obszar:** Polska, bbox 48.9–55.0 N, 13.9–24.2 E. Siatka 0,1° → ok. 6 300 komórek (decyzja o siatce: §8.1).
+**Obszar:** Polska, bbox 48.9–55.0 N, 13.9–24.2 E. Siatka 0,1° → 6 283 komórki w prostokącie, z czego **4 324 dotyka Polski** — tylko te są weryfikowane i rankingowane (decyzja o siatce: §8.1; liczby z `docs/reports/etap-0-gee.md`).
 
 **MVP a v1.1 (decyzja człowieka 2026-10-11):** MVP = ranking i prognoza dla **punktu**, mapa z warstwami „Mapa” i „Satelita”, trzy przyciski. Do **v1.1** przechodzą: obszary wielokomórkowe (§8.7), ranking burzowy i czwarty przycisk (§8.9), nakładka „Chmury teraz”. Sekcje te zostają w dokumencie jako projekt v1.1 i są oznaczone „[v1.1]”. **Warunek dla MVP:** dane weryfikacji przechowują składniki metryk (§8.8), a `grid.py` jest jedyną wiedzą o kształcie komórki (§0 pkt 12) — tak, żeby v1.1 nie wymagała przeliczania ani przepisywania potoku.
 
@@ -142,10 +142,10 @@ Założenie do weryfikacji: hosting współdzielony ma limity CPU i RAM per proc
 Runner nie łączy się z hostingiem bezpośrednio. Publikuje wynik do R2; hosting sam pobiera go cronem (`pull_rankings.py`) i atomowo podmienia katalog. Dzięki temu brak sekretów SFTP w GitHubie, a hosting jest odporny na niedostępność Actions (zostaje przy ostatnich danych).
 
 ### 7.3 Strona obliczeniowa (Python 3.11, GitHub Actions)
-- **GEE** przez `earthengine-api` z kontem serwisowym. Skrypty w `pipeline/gee/` eksportują dzienne tabele (frakcja zachmurzenia, suma IMERG) na komórkę, dla doby D-2.
+- **GEE** przez `earthengine-api` z kontem serwisowym. Skrypty w `pipeline/gee/` eksportują dzienne tabele na komórkę: suma IMERG dla doby D-2, frakcja zachmurzenia MODIS dla doby D-4 (opóźnienie MODIS w GEE ~3 dni). Koszt zmierzony w Etapie 0: ~8 EECU-s na dobę danych IMERG dla całej siatki — potok mieści się w < 1 % darmowego limitu Community (150 EECU-h/mies., obowiązuje od 27.04.2026).
 - **`verify.yml`**: codziennie 05:30 UTC. Kroki: eksport GEE → pobranie obserwacji IMGW → pobranie prognoz archiwalnych → metryki → ranking → `rankings.tar.zst` + `meta.json` → upload do R2. Dane pośrednie (Parquet) także w R2, żeby job był wznawialny.
 - **Prognozy archiwalne: Open-Meteo Previous Runs API** (`previous-runs-api.open-meteo.com/v1/forecast`), zmienne `{var}_previous_day{1,2,3}` (= prognoza wydana 24/48/72 h przed czasem ważności), `models=` po jednym, `timezone=UTC`, `cell_selection=nearest`, `elevation=nan` (odpowiedź podaje wtedy wysokość komórki modelu — potrzebna do korekty temperatury). Zmienne: `cloud_cover,precipitation,temperature_2m` + dla burz `weather_code,cape` tam, gdzie istnieją (§8.9). **Nie** Historical Forecast API — ono skleja pierwsze godziny przebiegów i nie zawiera wyprzedzeń 24–72 h. Archiwum od 01.2024 (AIFS od 02.2025), co pozwala policzyć ranking wstecz od pierwszego dnia.
-- **Budżet:** darmowy limit 10 000 wywołań/dobę i 300 000/mies.; zapytanie > 10 zmiennych lub > 2 tygodnie liczy się proporcjonalnie więcej; zapytania wielopunktowe liczymy ostrożnie jako 1 wywołanie na punkt. Pełna siatka dziennie (6 300 × 5 modeli × ~1,8) ≈ 57 tys./dobę — niewykonalne. **Decyzja (człowiek, 2026-10-11): siatka 0,1° z pobieraniem rotacyjnym paczkami 14-dniowymi** — każdego dnia 1/14 komórek za ostatnie 14 dni (~4 tys. ważonych wywołań/dobę); dane weryfikacji są więc opóźnione maks. o 14 dni, co przy oknie 30 dni jest akceptowalne. Rozruch (30 dni wstecz dla wszystkich komórek, ~110 tys. wywołań) rozłożony na ~14 dni przed startem strony. Budżet całkowity (weryfikacja + Widok 2) musi zmieścić się w 300 tys./mies.; licznik zużycia w `meta.json`. **Limit godzinowy (5 000 ważonych wywołań/h) jest realnym ograniczeniem** — w Etapie 0a został przekroczony po ~600 zapytaniach z 3-miesięcznym zakresem dat. Pobieranie musi mieć własny dławik (np. ≤ 4 000 ważonych wywołań/h, licząc wagę z liczby zmiennych i dni) i obsługę HTTP 429 z odczekaniem do następnej godziny.
+- **Budżet:** darmowy limit 10 000 wywołań/dobę i 300 000/mies.; zapytanie > 10 zmiennych lub > 2 tygodnie liczy się proporcjonalnie więcej; zapytania wielopunktowe liczymy ostrożnie jako 1 wywołanie na punkt. Pełna siatka dziennie (6 300 × 5 modeli × ~1,8) ≈ 57 tys./dobę — niewykonalne. **Decyzja (człowiek, 2026-10-11): siatka 0,1° z pobieraniem rotacyjnym paczkami 14-dniowymi** — każdego dnia 1/14 komórek za ostatnie 14 dni (dla 4 324 komórek w Polsce ~2,8 tys. ważonych wywołań/dobę); dane weryfikacji są więc opóźnione maks. o 14 dni, co przy oknie 30 dni jest akceptowalne. Rozruch (30 dni wstecz dla wszystkich komórek, ~110 tys. wywołań) rozłożony na ~14 dni przed startem strony. Budżet całkowity (weryfikacja + Widok 2) musi zmieścić się w 300 tys./mies.; licznik zużycia w `meta.json`. **Limit godzinowy (5 000 ważonych wywołań/h) jest realnym ograniczeniem** — w Etapie 0a został przekroczony po ~600 zapytaniach z 3-miesięcznym zakresem dat. Pobieranie musi mieć własny dławik (np. ≤ 4 000 ważonych wywołań/h, licząc wagę z liczby zmiennych i dni) i obsługę HTTP 429 z odczekaniem do następnej godziny.
 - Ten sam kod uruchamialny lokalnie: `make verify`.
 - `requirements-pipeline.txt`: `pandas`, `pyarrow`, `numpy`, `requests`, `earthengine-api`, `boto3`, `pydantic`, `zstandard`, `pytest`, `ruff`.
 - Budżet Open-Meteo policzony i zapisany w `docs/api-budget.md`.
@@ -172,7 +172,7 @@ PHP w całości; SFTP; PostgreSQL (niepotrzebny w MVP — rankingi w JSON); Fast
 ## 8. Weryfikacja przez satelity
 
 ### 8.1 Siatka
-**Decyzja (MVP):** regularna siatka 0,1° × 0,1° w lat-lon. `cell_id = f"{int(round(lat*10)):03d}_{int(round(lon*10)):03d}"` dla lewego dolnego rogu (np. `509_182`). Lista komórek w `pipeline/grid/poland_cells.parquet` (cell_id, lat_min, lon_min, centroid, geometria, pole [km²], flaga `arome_covered`).
+**Decyzja (MVP):** regularna siatka 0,1° × 0,1° w lat-lon. `cell_id = f"{int(round(lat*10)):03d}_{int(round(lon*10)):03d}"` dla lewego dolnego rogu (np. `509_182`). Lista komórek w `pipeline/grid/poland_cells.parquet` (cell_id, lat_min, lon_min, centroid, geometria, pole [km²], `pl_frac` — ułamek komórki w granicach Polski wg `USDOS/LSIB_SIMPLE/2017`). Komórki z `pl_frac = 0` są w pliku, ale potok ich nie weryfikuje.
 
 **Dlaczego nie HEALPix teraz:** produktem jest ranking per komórka, gdzie równa powierzchnia komórek nic nie zmienia; nad Polską różnica pola między północą a południem to ~13 %, a wszystkie źródła (GEE, Open-Meteo, mapa) pracują w lat-lon. HEALPix wchodzi w v2 przy rozszerzeniu na Europę lub przy statystykach po dużych obszarach.
 
@@ -186,7 +186,7 @@ PHP w całości; SFTP; PostgreSQL (niepotrzebny w MVP — rankingi w JSON); Fast
 
 | Zmienna | Źródło | Przetwarzanie |
 |---|---|---|
-| Zachmurzenie | Meteosat przez EUMETSAT (produkt CLAAS/NWC SAF), jeśli dostępny w GEE; inaczej MODIS/VIIRS cloud fraction w GEE (decyzja po teście w Etapie 0) | średnia frakcji [%] na komórkę, dla godzin 06–18 UTC i 18–06 UTC osobno |
+| Zachmurzenie | **MODIS Terra i Aqua w GEE** (`MODIS/061/MOD09GA`, `MYD09GA`, bity `state_1km`: zachmurzone = 1, mieszane = 0,5). Decyzja po Etapie 0: Meteosatu nie ma w GEE; VIIRS ma ~7 dni opóźnienia i inną definicję maski (systematycznie mniej chmur) — nie mieszać źródeł | frakcja na komórkę w chwili przelotu (Terra ~09:30, Aqua ~11:30 UTC; dokładny czas z metadanych granuli), porównywana z `cloud_cover` modelu interpolowanym na tę godzinę; tylko pora dzienna. Zachmurzenie nocne poza rankingiem (oznaczyć w „O projekcie”) |
 | Opady | NASA IMERG V07 Late, GEE (`NASA/GPM_L3/IMERG_V07`) | suma dobowa [mm] na komórkę; flaga `snow_possible` gdy T2m stacji < 2 °C |
 | Temperatura | IMGW, dane synoptyczne (API publiczne `danepubliczne.imgw.pl`), ok. 60 stacji | dobowa średnia, max, min; przypisanie do komórek w promieniu 60 km z wagą 1/d; korekta 0,65 °C/100 m względem wysokości modelu z odpowiedzi Open-Meteo |
 
@@ -357,7 +357,7 @@ lepszapogoda/
 
 ## 12. Testy i jakość
 
-- **Potok i pakiet współdzielony:** `pytest` — (a) test siatki: 6 300 ± 50 komórek, pełne pokrycie bbox; (b) test metryk na syntetycznych danych: model idealny → MAE 0, ETS 1; model losowy → ETS ≈ 0; (c) test normalizacji i wag: suma wag = 1, wynik w [0,100]; (d) test „optymistyczny” na 3 modelach z ręcznie policzonym wynikiem; (e) test odtwarzalności: ten sam Parquet → identyczny JSON (hash); (f) test agregacji obszarów: obszar z jednej komórki = wynik komórki; obszar z dwóch komórek o wagach 0,5/0,5 z ręcznie policzonym ETS ze zsumowanych liczników; średnia wektorowa kierunku wiatru (350° i 10° → 0°); (g) test `build_regions.py`: sumy wag = 1 ± 1e-6, każda komórka obszaru istnieje w siatce; (h) test weryfikacji burz: sąsiedztwo (wyładowanie w komórce obok = trafienie), okno 3 h na granicy doby, ETS przy zerowych zdarzeniach zwraca `null` a nie dzielenie przez zero, próg minimum 5 dni burzowych.
+- **Potok i pakiet współdzielony:** `pytest` — (a) test siatki: 6 283 komórki w bbox, pełne pokrycie bbox, 4 324 ± 20 z `pl_frac > 0`; (b) test metryk na syntetycznych danych: model idealny → MAE 0, ETS 1; model losowy → ETS ≈ 0; (c) test normalizacji i wag: suma wag = 1, wynik w [0,100]; (d) test „optymistyczny” na 3 modelach z ręcznie policzonym wynikiem; (e) test odtwarzalności: ten sam Parquet → identyczny JSON (hash); (f) test agregacji obszarów: obszar z jednej komórki = wynik komórki; obszar z dwóch komórek o wagach 0,5/0,5 z ręcznie policzonym ETS ze zsumowanych liczników; średnia wektorowa kierunku wiatru (350° i 10° → 0°); (g) test `build_regions.py`: sumy wag = 1 ± 1e-6, każda komórka obszaru istnieje w siatce; (h) test weryfikacji burz: sąsiedztwo (wyładowanie w komórce obok = trafienie), okno 3 h na granicy doby, ETS przy zerowych zdarzeniach zwraca `null` a nie dzielenie przez zero, próg minimum 5 dni burzowych.
 - **WWW:** `pytest` z klientem testowym Flask — walidacja tras (błędne lat/lon → 400, slug spoza wzorca → 404), mapowanie lat/lon → cell_id na granicach bbox, brak pliku rankingu → model domyślny, TTL i licznik limitu (Redis podmieniony na `fakeredis`), nagłówki CSP, SSR paska dni bez JS.
 - **Frontend:** brak frameworka testowego; lista ręcznych scenariuszy w `docs/QA.md` (mobile 360 px, brak JS, brak geolokalizacji, wolne łącze, pinezka na granicy).
 - **CI (`ci.yml`):** `ruff check`, `ruff format --check`, `pytest` (pipeline + web), kontrola, że `.env.example` zawiera wszystkie zmienne z §9. Deploy (`deploy.yml`) startuje tylko po zielonym CI na `main`.
@@ -387,7 +387,8 @@ Porównanie rankingu z ręczną kontrolą dla 20 lokalizacji; korekta wag jeśli
 
 | Ryzyko | Co robi agent |
 |---|---|
-| Produkt chmurowy Meteosat niedostępny w GEE | użyj MODIS/VIIRS, zapisz w DECISIONS, oznacz w „O projekcie” |
+| Produkt chmurowy Meteosat niedostępny w GEE | **zmaterializowane w Etapie 0** — używamy MODIS Terra/Aqua; Meteosat z EUMETSAT Data Store jako opcja v1.1 (wymaga przetwarzania na runnerze) |
+| IMERG jako „prawda” zawodzi zimą (śnieg, słabe opady) | jesienią ETS IMERG vs deszczomierze = 0,58 (Etap 0); powtórzyć test na miesiącach zimowych; w razie słabego wyniku zimą — ważyć mocniej stacje IMGW lub dodać GSMaP v8 jako drugie źródło |
 | IMERG słaby zimą | waga ETS > MAE (już w §8.3); w meta.json flaga sezonu; radar w v2 |
 | Limit Open-Meteo | TTL adaptacyjny (§7.4); przy > 90 % przez 3 dni — precomputowanie prognoz per komórka co 6 h (dodać do runnera) |
 | Cron hostingu zawodny | `pull_rankings.py` jest idempotentny, a strona działa na ostatnich danych; `/healthz` zwraca wiek `meta.json`, monitorowany przez darmowy uptime checker (HUMAN_TODO) |
@@ -408,7 +409,7 @@ Porównanie rankingu z ręczną kontrolą dla 20 lokalizacji; korekta wag jeśli
 | Framework WWW | Flask + Jinja2, WSGI pod Passengerem; bez FastAPI/Django |
 | Cache | Redis na mydevil; fallback plikowy |
 | Transfer runner → hosting | Cloudflare R2, hosting pobiera cronem (pull), bez SFTP |
-| Produkt chmurowy | Meteosat jeśli w GEE lub przetwarzalny w < 30 min na Actions; inaczej MODIS/VIIRS |
+| Produkt chmurowy | MODIS Terra + Aqua (Etap 0: Meteosatu nie ma w GEE) |
 | Nazwy modeli w UI | prawdziwe (ICON-D2, ECMWF IFS…) z jednozdaniowym opisem w dymku |
 | Język | tylko PL; teksty UI w `web/app/i18n/pl.py`, szablony gotowe na i18n |
 | Okno rankingu | 30 dni; sezonowe — v2 |
