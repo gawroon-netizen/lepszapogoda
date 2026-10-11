@@ -31,4 +31,11 @@ Format: data · kontekst · wybór · alternatywy.
 - **Chmury weryfikowane dla D-4, opady dla D-2.** Kontekst: opóźnienie MODIS w GEE ~3 dni, IMERG ~21 h.
 - **Weryfikacja tylko komórek z `pl_frac > 0`** (4 324 z 6 283). Kontekst: o 31 % mniej wywołań Open-Meteo.
 - **IMERG zostaje sędzią opadu.** Jesienią ETS 0,58 wobec deszczomierzy IMGW, czyli lepiej niż najlepsza prognoza. Zimą do ponownego sprawdzenia.
-- **Granice Polski: `USDOS/LSIB_SIMPLE/2017`** w GEE. Wystarczy do flagi `pl_frac`; do obszarów v1.1 zostaje OSM/PRG wg §15.
+- **Granice Polski: `USDOS/LSIB_SIMPLE/2017`** w GEE (precyzyjnie: `pipeline/grid/build_cells.py`, maska 100 m, ułamki < 0,001 zerowane). Wynik: 4 313 komórek z `pl_frac > 0`, łączne pole Polski 310 718 km², o 0,6 % mniej niż według GUS (312 696 km²) przez uproszczone granice. Wcześniejsze 4 324 z testu GEE pochodziło z maski 1 km. Wystarczy do flagi `pl_frac`; do obszarów v1.1 zostaje OSM/PRG wg §15.
+
+## 2026-10-11 · Pakiet `lepszapogoda/` i siatka
+
+- **`grid.py` jest jedynym modułem, który zna kształt komórki** (§0 pkt 12). API: `cell_id_for`, `get_cell`, `all_cells`, `poland_cells`, `neighbours`, `pl_frac`, `GRID_VERSION`.
+- **Punkt na krawędzi należy do komórki na północ/wschód** (krawędź dolna i lewa są włączne). Punkt na północnej lub wschodniej krawędzi bboxa (55,0°N, 24,2°E) jest poza siatką i dostaje `None`. Siatka obejmuje [48,9; 55,0) × [13,9; 24,2).
+- **`pl_frac` w pakiecie jako JSON** (`lepszapogoda/data/poland_cells.json`), a nie tylko w Parquet. Kontekst: hosting może nie mieć pyarrow (§14). Pełna tabela komórek jest w `pipeline/grid/poland_cells.parquet`, a test pilnuje zgodności obu plików.
+- **Testy pakietu współdzielonego w `tests/`** (SPEC §10 przewidywał tylko `pipeline/tests` i `web/tests`).

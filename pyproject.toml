@@ -1,0 +1,27 @@
+[project]
+name = "lepszapogoda"
+version = "0.1.0"
+description = "Weather model accuracy comparison for Poland (lepszapogoda.pl)"
+license = "AGPL-3.0-only"
+requires-python = ">=3.11"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["lepszapogoda*"]
+
+[tool.setuptools.package-data]
+lepszapogoda = ["data/*.json"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+extend-exclude = ["spike"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "pipeline/tests"]

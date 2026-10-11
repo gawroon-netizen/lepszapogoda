@@ -1,0 +1,7 @@
+# Pipeline runner (GitHub Actions / local), SPEC §7.3
+pandas
+pyarrow
+numpy
+requests
+earthengine-api
+# added when the corresponding stage starts: boto3 (R2), pydantic (schemas), zstandard (archive)
