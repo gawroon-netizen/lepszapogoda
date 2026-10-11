@@ -13,3 +13,6 @@ web/var/
 web/tmp/
 
 *.egg-info/
+
+# pipeline data (local runs; R2 in production)
+data/

@@ -241,7 +241,7 @@ Obszar to zbiór komórek z wagami. Definicja w `web/data/regions.json` i `pipel
 ### 8.8 Formaty danych
 
 **Runner (Parquet w R2, każdy plik z kolumną `grid_version`):**
-- `forecasts/{model}/{date}.parquet` — cell_id, init_time, valid_time, lead_h, cloud, precip, temp
+- `forecasts/{model}/{run_date}_{nnn}.parquet` — grid_version, model, cell_id, valid_time (UTC), lead_day (1–7), temperature_2m, precipitation, cloud_cover, model_lat, model_lon, model_elevation; + `forecasts/manifest.json` (pobrane daty per model i komórka). Zaimplementowane: `pipeline/ingest/forecasts.py`.
 - `obs/{source}/{date}.parquet` — cell_id, time, cloud | precip | temp | flashes (liczba wyładowań w oknie 3 h)
 - `verification/{date}.parquet` — cell_id, model, var (`cloud|precip|temp|storm`), lead_h, mae, bias, hits, misses, false_alarms, correct_negatives, n, timing_err — **składniki, nie tylko metryki**, żeby obszary (§8.7) i sezonowe okna burzowe (§8.9) dało się policzyć bez ponownej weryfikacji
 
