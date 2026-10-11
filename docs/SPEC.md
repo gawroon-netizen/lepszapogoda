@@ -1,11 +1,12 @@
 # lepszapogoda.pl — specyfikacja projektu dla agenta AI
 
-Wersja: 0.7, 2026-10-11
+Wersja: 0.8, 2026-10-11
 Status: dokument wykonawczy. Realizację w całości prowadzi agent AI (np. Claude Code). Człowiek dostarcza konta, klucze i decyzje z §15; wszystko inne agent robi sam.
 Zmiany 0.4: hosting mydevil.net (Python/Passenger zamiast PHP), Flask jako frontend, deploy przez git, instrukcja GitHub w §16.
 Zmiany 0.5: decyzja o siatce (§8.1, §15), obszary wielokomórkowe — prognoza i ranking dla całego miasta/gminy (§8.7).
 Zmiany 0.6: czwarty tryb „najlepsza na burze” — ranking trafności prognoz burz weryfikowany wyładowaniami (§8.9).
 Zmiany 0.7 (po Etapie 0a, `docs/reports/etap-0a.md`): Previous Runs API zamiast Historical Forecast API (§7.3); lista modeli poprawiona wg realnego pokrycia Polski (§4); budżet Open-Meteo i pobieranie paczkami 14-dniowymi (§7.3); konwencje IMGW i miary odporne na bias (§8.2–8.3); brak CAPE/kodu pogody dla ECMWF w archiwum (§8.9); otwarte decyzje produktowe (§17).
+Zmiany 0.8 (decyzja człowieka + `docs/reports/etap-0b.md`): „Najbardziej trafna” = średnia ważona modeli (§1, §5, §6, §8.10); `ecmwf_ifs` dodany (§4); podsumowanie „Ten tydzień” i prezentacja dni 5–7 jako mniej pewnych (§6); limit godzinowy Open-Meteo (§7.3).
 
 ---
 
@@ -28,7 +29,9 @@ Ten dokument jest jedynym źródłem wymagań. Zasady pracy:
 
 ## 1. Cel
 
-Porównywarka modeli pogodowych, która dla dowolnej lokalizacji w Polsce odpowiada: **który model prognozował tu ostatnio najtrafniej** — i pokazuje prognozę właśnie z niego. Użytkownik nie musi wiedzieć, czym jest ICON ani ECMWF.
+Porównywarka modeli pogodowych, która dla dowolnej lokalizacji w Polsce odpowiada: **jak trafnie prognozowały tu ostatnio poszczególne modele** — i pokazuje prognozę złożoną z nich tak, żeby była możliwie najtrafniejsza (średnia ważona trafnością, §8.10). Użytkownik nie musi wiedzieć, czym jest ICON ani ECMWF.
+
+Decyzja z 2026-10-11 (§17 pkt 1, wariant a): w Etapie 0a średnia modeli była trafniejsza niż model wybrany jako „zwycięzca” poprzedniego miesiąca, a zwycięzca zmieniał się z miesiąca na miesiąc. Ranking pojedynczych modeli zostaje jako informacja i podstawa wag, nie jako wybór jednego modelu.
 
 ## 2. Zasady nadrzędne
 
@@ -48,8 +51,8 @@ Osoby szukające „po prostu pogody”; rolnicy, ogrodnicy, rowerzyści, żegla
 **Jednostki prognozy:** (a) **punkt** — jedna komórka siatki; (b) **obszar** — zbiór komórek z wagami, np. całe miasto lub gmina (§8.7). Obszary są w MVP dla miast i gmin z granic administracyjnych; obszary rysowane przez użytkownika — v2.
 
 **Modele (identyfikatory zgodne z Open-Meteo):**
-`ecmwf_ifs025`, `ecmwf_aifs025_single`, `icon_seamless`, `gfs_seamless`, `meteofrance_seamless`. WeatherNext 3 — v2.
-Sprawdzone w Etapie 0a: `icon_d2` pokrywa tylko zachód Polski (do ok. 20,3°E), `meteofrance_arome_france_hd` tylko okolice Szczecina — oba wchodzą wyłącznie jako część modeli „seamless”. Do sprawdzenia: `ecmwf_ifs` (HRES 9 km) jako dodatkowy model. Horyzont: `meteofrance_seamless` i `icon_seamless` mogą nie sięgać 7 dni — Widok 2 pokazuje prognozę do końca horyzontu modelu z czytelną adnotacją (decyzja w §17).
+`ecmwf_ifs`, `ecmwf_ifs025`, `ecmwf_aifs025_single`, `icon_seamless`, `gfs_seamless`, `meteofrance_seamless`. WeatherNext 3 — v2. (`ecmwf_ifs` = IFS HRES 9 km — w Etapie 0b trafniejszy od IFS 0,25° na krótkich wyprzedzeniach; oba zostają do czasu oceny na pełnym roku.)
+Sprawdzone w Etapie 0a: `icon_d2` pokrywa tylko zachód Polski (do ok. 20,3°E), `meteofrance_arome_france_hd` tylko okolice Szczecina — oba wchodzą wyłącznie jako część modeli „seamless”. Horyzont: `meteofrance_seamless` i `icon_seamless` mogą nie sięgać 7 dni — Widok 2 pokazuje prognozę do końca horyzontu modelu z czytelną adnotacją (decyzja w §17).
 
 **Zmienne w prognozie:** zachmurzenie, opady, temperatura 2 m, wiatr 10 m (prędkość, porywy, kierunek), ryzyko burzy (kod pogody, CAPE).
 **Zmienne w rankingu:** zachmurzenie, opady (satelita), temperatura (stacje IMGW — decyzja domyślna §15). Wiatr poza rankingiem.
@@ -85,7 +88,7 @@ Photon (publiczna instancja Komoot) wywoływany z przeglądarki, `lang=pl`, bbox
 
 | Przycisk | Logika |
 |---|---|
-| **Najbardziej trafna** | pierwszy model z `accurate[]` w JSON komórki lub obszaru |
+| **Najbardziej trafna** | średnia ważona modeli z wagami `blend` z JSON komórki lub obszaru (§8.10) |
 | **Najbardziej optymistyczna** | pole `optimistic` w JSON komórki lub obszaru |
 | **Najmniej trafna** | ostatni model z `accurate[]` |
 | **Najlepsza na burze** | pierwszy model z `storm[]` w JSON komórki lub obszaru; brak pola → przycisk nieaktywny z wyjaśnieniem |
@@ -96,17 +99,19 @@ Photon (publiczna instancja Komoot) wywoływany z przeglądarki, `lang=pl`, bbox
 
 ### Nagłówek
 - Nazwa lokalizacji, link „zmień” (powrót na mapę z zachowaną pinezką lub konturem). Dla obszaru: dopisek „prognoza uśredniona dla całego obszaru ({n} komórek, {km²})” i link „pokaż dla punktu”.
-- Zdanie wyjaśniające, generowane z szablonu: *„W okolicy {nazwa} przez ostatnie 30 dni najtrafniej zachmurzenie i opady przewidywał {model}. Pokazujemy jego prognozę.”* Dla trybu optymistycznego: *„{model} obiecuje na najbliższe 3 dni najcieplej i najsuszej (w rankingu trafności jest {n}. z {m}).”*
+- Zdanie wyjaśniające, generowane z szablonu. Tryb trafny: *„Prognoza łączy {n} modeli. Większą wagę mają te, które w okolicy {nazwa} trafiały ostatnio lepiej: {model1} {w1} %, {model2} {w2} %…”* Pod spodem jedno zdanie, dlaczego tak: *„Średnia z kilku modeli myli się zwykle rzadziej niż którykolwiek z nich osobno.”* Tryby optymistyczny i najmniej trafny pokazują pojedynczy model. Dla trybu optymistycznego: *„{model} obiecuje na najbliższe 3 dni najcieplej i najsuszej (w rankingu trafności jest {n}. z {m}).”*
 - Zwijany pasek rankingu: pozycja, nazwa modelu, wynik 0–100, MAE zachmurzenia, ETS opadów, MAE temperatury (jeśli jest). W trybie burzowym pasek pokazuje ranking burzowy: ETS burz, liczbę dni burzowych w oknie, odsetek fałszywych alarmów. Zdanie wyjaśniające: *„W tym sezonie burze w okolicy {nazwa} najtrafniej przewidywał {model} (trafił {k} z {n} dni burzowych, {f} fałszywych alarmów).”*
 - Przełącznik trybu bez powrotu na mapę.
 - Jeśli `temp_source` = null: adnotacja „temperatura poza rankingiem dla tej okolicy (brak stacji w 60 km)”.
 
 ### Prognoza 7 dni
-1. **Pasek dni**: 7 kafelków — dzień tygodnia, ikona (własny zestaw SVG, 12 stanów), temp. max/min, suma opadu, max porywy. Kliknięcie rozwija dzień; domyślnie rozwinięty dziś.
-2. **Szczegół dnia** (uPlot, self-host): temperatura + odczuwalna; opady mm/h (deszcz/śnieg kolorem); zachmurzenie 0–100 % (warstwy jako odcienie); wiatr — prędkość, porywy, strzałki kierunku pod osią.
+0. **„Ten tydzień”** (nad paskiem dni, jedno–dwa zdania): średnia temperatura tygodnia względem normy IMGW dla tej pory roku („cieplej niż zwykle o ok. 2 °C”) i suma opadu względem typowego tygodnia („mniej deszczu niż zwykle”). Prognoza tygodnia jako całości jest trafniejsza niż pojedyncze dni pod jego koniec (`docs/reports/etap-0b.md`). Normy: mediana 2016–2025 ze stacji przypisanej do komórki, okno ±7 dni.
+1. **Wiarygodność wg wyprzedzenia:** dni 1–4 — pełne wartości; dni 5–7 — kafelki wizualnie przygaszone z podpisem „mniej pewne”, temperatura jako zakres między modelami, opad jako „szansa opadu {p} %” zamiast milimetrów (od 5. dnia ilość opadu z modeli myli się bardziej niż założenie „typowy dzień”). Progi w `config.yaml`.
+2. **Pasek dni**: 7 kafelków — dzień tygodnia, ikona (własny zestaw SVG, 12 stanów), temp. max/min, suma opadu, max porywy. Kliknięcie rozwija dzień; domyślnie rozwinięty dziś.
+3. **Szczegół dnia** (uPlot, self-host): temperatura + odczuwalna; opady mm/h (deszcz/śnieg kolorem); zachmurzenie 0–100 % (warstwy jako odcienie); wiatr — prędkość, porywy, strzałki kierunku pod osią.
 
 ### Zasady prezentacji
-°C, mm, km/h. Czas `Europe/Warsaw`. Widoczny czas przebiegu modelu. Cały widok z jednego modelu. Dla obszaru wykresy pokazują średnią, a przy opadach i wietrze dodatkowo cienki pas min–max między komórkami (rozrzut wewnątrz obszaru). Adnotacja przy wietrze: „wiatr nie wchodzi do rankingu” z linkiem do „O projekcie”. Widok działa bez JS w wersji podstawowej (SSR pasek dni w Jinja2; wykresy wymagają JS).
+°C, mm, km/h. Czas `Europe/Warsaw`. Widoczny czas przebiegu każdego użytego modelu. W trybie trafnym widok pokazuje średnią ważoną (§8.10), a na wykresach opadu i temperatury dodatkowo cienki pas min–max między modelami (niepewność prognozy); w pozostałych trybach — jeden model. Dla obszaru wykresy pokazują średnią, a przy opadach i wietrze dodatkowo cienki pas min–max między komórkami (rozrzut wewnątrz obszaru). Adnotacja przy wietrze: „wiatr nie wchodzi do rankingu” z linkiem do „O projekcie”. Widok działa bez JS w wersji podstawowej (SSR pasek dni w Jinja2; wykresy wymagają JS).
 
 ## 7. Architektura
 
@@ -135,7 +140,7 @@ Runner nie łączy się z hostingiem bezpośrednio. Publikuje wynik do R2; hosti
 - **GEE** przez `earthengine-api` z kontem serwisowym. Skrypty w `pipeline/gee/` eksportują dzienne tabele (frakcja zachmurzenia, suma IMERG) na komórkę, dla doby D-2.
 - **`verify.yml`**: codziennie 05:30 UTC. Kroki: eksport GEE → pobranie obserwacji IMGW → pobranie prognoz archiwalnych → metryki → ranking → `rankings.tar.zst` + `meta.json` → upload do R2. Dane pośrednie (Parquet) także w R2, żeby job był wznawialny.
 - **Prognozy archiwalne: Open-Meteo Previous Runs API** (`previous-runs-api.open-meteo.com/v1/forecast`), zmienne `{var}_previous_day{1,2,3}` (= prognoza wydana 24/48/72 h przed czasem ważności), `models=` po jednym, `timezone=UTC`, `cell_selection=nearest`, `elevation=nan` (odpowiedź podaje wtedy wysokość komórki modelu — potrzebna do korekty temperatury). Zmienne: `cloud_cover,precipitation,temperature_2m` + dla burz `weather_code,cape` tam, gdzie istnieją (§8.9). **Nie** Historical Forecast API — ono skleja pierwsze godziny przebiegów i nie zawiera wyprzedzeń 24–72 h. Archiwum od 01.2024 (AIFS od 02.2025), co pozwala policzyć ranking wstecz od pierwszego dnia.
-- **Budżet:** darmowy limit 10 000 wywołań/dobę i 300 000/mies.; zapytanie > 10 zmiennych lub > 2 tygodnie liczy się proporcjonalnie więcej; zapytania wielopunktowe liczymy ostrożnie jako 1 wywołanie na punkt. Pełna siatka dziennie (6 300 × 5 modeli × ~1,8) ≈ 57 tys./dobę — niewykonalne. Dlatego pobieranie **rotacyjne paczkami 14-dniowymi**: każdego dnia 1/14 komórek za ostatnie 14 dni (~4 tys./dobę), albo weryfikacja na grubszej siatce (§17). Licznik zużycia w `meta.json`.
+- **Budżet:** darmowy limit 10 000 wywołań/dobę i 300 000/mies.; zapytanie > 10 zmiennych lub > 2 tygodnie liczy się proporcjonalnie więcej; zapytania wielopunktowe liczymy ostrożnie jako 1 wywołanie na punkt. Pełna siatka dziennie (6 300 × 5 modeli × ~1,8) ≈ 57 tys./dobę — niewykonalne. Dlatego pobieranie **rotacyjne paczkami 14-dniowymi**: każdego dnia 1/14 komórek za ostatnie 14 dni (~4 tys./dobę), albo weryfikacja na grubszej siatce (§17). Licznik zużycia w `meta.json`. **Limit godzinowy (5 000 ważonych wywołań/h) jest realnym ograniczeniem** — w Etapie 0a został przekroczony po ~600 zapytaniach z 3-miesięcznym zakresem dat. Pobieranie musi mieć własny dławik (np. ≤ 4 000 ważonych wywołań/h, licząc wagę z liczby zmiennych i dni) i obsługę HTTP 429 z odczekaniem do następnej godziny.
 - Ten sam kod uruchamialny lokalnie: `make verify`.
 - `requirements-pipeline.txt`: `pandas`, `pyarrow`, `numpy`, `requests`, `earthengine-api`, `boto3`, `pydantic`, `zstandard`, `pytest`, `ruff`.
 - Budżet Open-Meteo policzony i zapisany w `docs/api-budget.md`.
@@ -144,7 +149,8 @@ Runner nie łączy się z hostingiem bezpośrednio. Publikuje wynik do R2; hosti
 - `web/passenger_wsgi.py`: `from app import create_app; application = create_app()`. Domena w panelu DevilWEB jako typ „Python”, wskazująca na katalog `web/` i interpreter z virtualenva.
 - Trasy: `/` (Widok 1), `/prognoza/<slug>/<lat>,<lon>/<tryb>` (Widok 2), `/api/forecast` (JSON dla wykresów), `/o-projekcie`, `/healthz`. Statyczne pliki z `web/static/` (Passenger/nginx serwuje je bezpośrednio, jeśli hosting to wspiera — sprawdzić w sondzie).
 - `lepszapogoda/forecast.py`: prognoza z Open-Meteo Forecast API dla `(model, lat, lon)`, cache w Redis pod kluczem `fc:{model}:{lat2}:{lon2}`, TTL 1 h; dla obszaru — jedno zapytanie wielopunktowe na centroidy komórek obszaru (max 50 punktów; większe obszary próbkowane co drugą komórkę, zapisane w DECISIONS), wynik agregowany wg §8.7 i cache'owany pod `fcr:{model}:{region_id}`; licznik dzienny `quota:{date}` w Redis; po 8 000 wywołań TTL rośnie do 3 h. Fallback cache plikowy w `web/var/cache/`, jeśli Redis niedostępny.
-- `lepszapogoda/ranking.py`: czyta `web/data/rankings/{cell_id}.json`; brak → model domyślny `ecmwf_ifs025` i komunikat „zbieramy dane”.
+- `lepszapogoda/ranking.py`: czyta `web/data/rankings/{cell_id}.json`; brak → średnia z równymi wagami i komunikat „zbieramy dane”.
+- `lepszapogoda/blend.py`: łączy prognozy modeli wg §8.10. W trybie trafnym Widok 2 potrzebuje prognoz wszystkich modeli — jedno zapytanie Forecast API z `models=` jako listą (cache per model jak wyżej; przy liczeniu budżetu traktować jako N wywołań).
 - `lepszapogoda/grid.py` (lat/lon → cell_id), `web/app/geoip.py`, `web/app/slug.py`.
 - Szablony Jinja2 w `web/app/templates/`; teksty UI w `web/app/i18n/pl.py`.
 - `requirements-web.txt`: `flask`, `jinja2`, `requests`, `redis`, `geoip2`, `gunicorn` (tylko do testów lokalnych; na hostingu serwuje Passenger).
@@ -239,6 +245,7 @@ Obszar to zbiór komórek z wagami. Definicja w `web/data/regions.json` i `pipel
   ```json
   {"grid_version":"latlon01","cell":"522_209","computed":"2026-09-28T05:10Z","window_days":30,
    "accurate":[{"model":"icon_d2","score":91,"cloud_mae":11.2,"precip_ets":0.58,"temp_mae":1.3}, ...],
+   "blend":{"method":"…","temp":{"ecmwf_ifs025":0.24, ...},"precip":{...},"cloud":{...}},
    "optimistic":"gfs_global","optimistic_computed":"2026-09-28T07:00Z",
    "temp_source":"station:12375:8km",
    "storm":{...}}
@@ -281,6 +288,18 @@ Komercyjne sieci (Vaisala GLD360, ENTLN) poza zakresem.
 ```
 
 **Zastrzeżenia (do „O projekcie”):** satelitarna detekcja wyładowań gubi część słabych burz i bywa mniej czuła w dzień; ranking mówi „czy będzie burza w okolicy”, nie „o której i jak silna”; poza sezonem pokazujemy dane historyczne.
+
+### 8.10 Łączenie modeli („Najbardziej trafna”)
+
+Podstawa: `docs/reports/etap-0b.md` (średnia modeli najlepsza na każdym wyprzedzeniu 1–7 dni; ważenie pomaga tylko w temperaturze; wybór jednego zwycięzcy gorszy).
+
+- **Członkowie:** wszystkie modele z §4 dostępne dla danej godziny prognozy; gdy model kończy horyzont, wagi renormalizuje się na pozostałych.
+- **Temperatura:** wagi ∝ 1/MSE z ostatnich 30 dni, osobno dla grup wyprzedzeń 1–2, 3–4, 5–7 dni, liczone z obserwacji stacyjnych przypisanych do komórki (§8.2). Brak danych → równe wagi.
+- **Opad, zachmurzenie, wiatr:** równe wagi (ważenie nie poprawiło wyniku; do ponownej oceny w Etapie 3 na pełnym roku). Kierunek wiatru — średnia wektorowa u/v.
+- **Ikona dnia** z wartości uśrednionych, nie z najczęstszej ikony.
+- **Niepewność:** min–max między członkami, pokazywany jako pas na wykresach; „szansa opadu” = odsetek członków z opadem ≥ 1 mm w danym dniu.
+- **Zapis:** pole `blend` w JSON komórki/obszaru (§8.8): metoda, wagi per zmienna i grupa wyprzedzeń, okno, czas obliczenia. Wagi muszą być odtwarzalne z Parquet weryfikacji (§0 pkt 9).
+- **Do sprawdzenia w Etapie 3:** korekta biasu per komórka (30 dni) przed uśrednieniem — może dać więcej niż samo ważenie, zwłaszcza dla Tmin.
 
 ## 9. Konta, klucze, sekrety (dostarcza człowiek)
 
@@ -388,7 +407,8 @@ Porównanie rankingu z ręczną kontrolą dla 20 lokalizacji; korekta wag jeśli
 | Język | tylko PL; teksty UI w `web/app/i18n/pl.py`, szablony gotowe na i18n |
 | Okno rankingu | 30 dni; sezonowe — v2 |
 | Licencja kodu | AGPL-3.0 |
-| Model domyślny bez rankingu | `ecmwf_ifs025` |
+| Prognoza bez rankingu | średnia modeli z równymi wagami |
+| „Najbardziej trafna” | średnia ważona trafnością (§8.10), decyzja człowieka 2026-10-11 |
 | Siatka | lat-lon 0,1° (`grid_version=latlon01`); HEALPix w v2 przy Europie, migracja wg §8.1 |
 | Źródło granic obszarów | OSM `admin_level` 7–8 (miasta, gminy); PRG GUGiK jeśli OSM ma braki |
 | Zakres obszarów w MVP | miasta na prawach powiatu + gminy miejskie (~300 obszarów); reszta gmin i obszary własne — v2 |
@@ -424,7 +444,7 @@ Kolejność ma znaczenie: agent potrzebuje repozytorium i sekretów, zanim uruch
 - Sprawdź z terminala: `ssh -i ~/.ssh/lepszapogoda_deploy LOGIN@sX.mydevil.net` musi wejść bez pytania o hasło.
 
 **4. Zmienne nie-tajne** (*Settings → Secrets and variables → Actions → Variables*):
-- `OPENMETEO_MODELS` = `ecmwf_ifs025,ecmwf_aifs025_single,icon_seamless,gfs_seamless,meteofrance_seamless`
+- `OPENMETEO_MODELS` = `ecmwf_ifs,ecmwf_ifs025,ecmwf_aifs025_single,icon_seamless,gfs_seamless,meteofrance_seamless`
 - `RANKING_WINDOW_DAYS` = `30`
 Agent może dodać kolejne; ma je opisać w README.
 
@@ -448,7 +468,7 @@ Agent dostaje: adres repozytorium, dostęp do SSH mydevil (ten sam klucz lub oso
 
 Szczegóły i liczby: `docs/reports/etap-0a.md`.
 
-1. **Czym jest „Najbardziej trafna”.** Na 57 stacjach IMGW (VII–IX 2026) model wybrany jako najlepszy w poprzednim miesiącu trafiał w kolejnym mniej więcej tak samo jak jeden stały model, a **średnia z 5 modeli była lepsza od każdego pojedynczego**. Warianty:
+1. ~~**Czym jest „Najbardziej trafna”.**~~ **Rozstrzygnięte 2026-10-11: wariant a** (średnia ważona, §8.10; potwierdzone testem w `docs/reports/etap-0b.md`). Pierwotny opis: na 57 stacjach IMGW (VII–IX 2026) model wybrany jako najlepszy w poprzednim miesiącu trafiał w kolejnym mniej więcej tak samo jak jeden stały model, a **średnia z 5 modeli była lepsza od każdego pojedynczego**. Warianty:
    a. średnia modeli ważona trafnością (rekomendacja: najlepsza jakość; zmienia zasadę „cały widok z jednego modelu”),
    b. pojedynczy zwycięzca, ale okno 60–90 dni, ranking regionalny i komunikat o remisie, gdy różnice mieszczą się w niepewności,
    c. bez zmian (najprostsze, najsłabiej uzasadnione).

@@ -8,6 +8,6 @@ Porównywarka trafności modeli pogodowych dla Polski. Projekt realizuje agent A
 - **Geneza projektu** (rozmowa, z której powstała specyfikacja): `docs/history/`. Tylko kontekst, nie wymagania.
 - **Spike'i i eksperymenty:** `spike/`. Kod jednorazowy, nie jest częścią produktu. Dane w `spike/data/` są w `.gitignore`.
 
-Aktualny stan: zakończony Etap 0a (`docs/reports/etap-0a.md`). Przed Etapem 0 potrzebne są decyzje człowieka z §17.
+Aktualny stan: zakończone Etapy 0a i 0b (`docs/reports/`). Decyzja o łączeniu modeli zapadła (§8.10). Otwarte pozostają §17 pkt 2–4; następny krok to Etap 0 z §13.
 
 Środowisko lokalne: Windows, Python 3.14 (docelowo 3.11 na mydevil i w Actions). Kod i komentarze po angielsku, UI i dokumentacja po polsku.

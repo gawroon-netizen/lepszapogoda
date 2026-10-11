@@ -139,7 +139,7 @@ def daily_from_hourly(data: dict, lead: int, precip_shift: int) -> dict:
     idx = {t: i for i, t in enumerate(times)}
     temp = h[f"temperature_2m_previous_day{lead}"]
     prec = h[f"precipitation_previous_day{lead}"]
-    sun = h[f"sunshine_duration_previous_day{lead}"]
+    sun = h.get(f"sunshine_duration_previous_day{lead}")
 
     def window(series, start: datetime, hours: int):
         vals = [series[idx[start + timedelta(hours=k)]] for k in range(hours) if (start + timedelta(hours=k)) in idx]
@@ -154,7 +154,7 @@ def daily_from_hourly(data: dict, lead: int, precip_shift: int) -> dict:
         tx = window(temp, day0 + timedelta(hours=6), 13)
         tn = window(temp, day0 - timedelta(hours=6), 13)
         pr = window(prec, day0 + timedelta(days=precip_shift, hours=7), 24)  # hourly sums are for the preceding hour
-        su = window(sun, day0 + timedelta(hours=1), 24)
+        su = window(sun, day0 + timedelta(hours=1), 24) if sun else None
         out[d] = {
             "tmax": max(tx) if tx else None,
             "tmin": min(tn) if tn else None,
