@@ -37,6 +37,7 @@ LEAD_DAYS = tuple(range(1, 8))
 WINDOW_DAYS = 30
 ROTATION_DAYS = 14
 LAG_DAYS = 2
+FLUSH_EVERY = 10  # requests per Parquet file (~2.5 M rows, bounded memory, little lost on a crash)
 
 DATA_DIR = Path(os.environ.get("LP_DATA_DIR", Path(__file__).resolve().parents[2] / "data"))
 
@@ -199,6 +200,24 @@ def run(
     if dry_run:
         return summary
     buffers: dict[str, list[pd.DataFrame]] = defaultdict(list)
+    pending: list[tuple[str, str, date]] = []  # manifest entries, applied only after their data is on disk
+
+    def flush() -> None:
+        # Data first, manifest second: a crash in between means a refetch, never a silent gap
+        for model, frames in buffers.items():
+            out_dir = data_dir / "forecasts" / model
+            out_dir.mkdir(parents=True, exist_ok=True)
+            k = len(list(out_dir.glob(f"{today.isoformat()}_*.parquet")))
+            df = pd.concat(frames, ignore_index=True)
+            df.to_parquet(out_dir / f"{today.isoformat()}_{k:03d}.parquet", index=False)
+            summary["rows"] += len(df)
+        buffers.clear()
+        for model, cid, d in pending:
+            manifest.add(model, cid, d, d)
+        pending.clear()
+        manifest.prune(target_range(today)[0] - timedelta(days=WINDOW_DAYS))
+        manifest.save()
+
     try:
         for i, task in enumerate(tasks):
             if max_requests is not None and i >= max_requests:
@@ -210,24 +229,18 @@ def run(
             buffers[task.model].append(df)
             # Mark only dates that actually came back with data (an upstream outage must stay a gap)
             got = df.assign(d=df["valid_time"].dt.date).groupby("cell_id")["d"].unique()
-            for cid, days in got.items():
-                for d in days:
-                    manifest.add(task.model, cid, d, d)
+            pending.extend((task.model, cid, d) for cid, days in got.items() for d in days)
             summary["done_requests"] += 1
             summary["done_cost"] += task.cost
+            if summary["done_requests"] % FLUSH_EVERY == 0:
+                flush()
+                print(
+                    f"  {summary['done_requests']}/{len(tasks)} requests, cost {summary['done_cost']:.0f}", flush=True
+                )
     except openmeteo.BudgetExceeded as e:
         summary["stopped"] = f"budget: {e}"
     finally:
-        # Data first, manifest second: a crash in between means a refetch, never a silent gap
-        for model, frames in buffers.items():
-            out_dir = data_dir / "forecasts" / model
-            out_dir.mkdir(parents=True, exist_ok=True)
-            k = len(list(out_dir.glob(f"{today.isoformat()}_*.parquet")))
-            df = pd.concat(frames, ignore_index=True)
-            df.to_parquet(out_dir / f"{today.isoformat()}_{k:03d}.parquet", index=False)
-            summary["rows"] += len(df)
-        manifest.prune(target_range(today)[0] - timedelta(days=WINDOW_DAYS))
-        manifest.save()
+        flush()
     summary["done_cost"] = round(summary["done_cost"], 1)
     summary["remaining_requests"] = len(tasks) - summary["done_requests"]
     return summary

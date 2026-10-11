@@ -1,8 +1,9 @@
 """Ingest planning: rotation, gap filling, backfill, manifest (no network)."""
 
 from collections import Counter
-from datetime import date, timedelta
+from datetime import UTC, date, datetime, timedelta
 
+import pandas as pd
 import pytest
 
 from lepszapogoda import grid, openmeteo
@@ -92,6 +93,42 @@ def test_cells_never_lag_more_than_rotation(tmp_path):
             for c in CELLS[:300]:
                 last = max(e for _, e in m.ranges("gfs_seamless", c))
                 assert (t_end - last).days < fc.ROTATION_DAYS
+
+
+class FakeClient:
+    """Returns constant series; raises BudgetExceeded after `fail_after` requests."""
+
+    def __init__(self, fail_after: int | None = None) -> None:
+        self.calls = 0
+        self.fail_after = fail_after
+
+    def previous_runs(self, model, points, start, end, variables, lead_days):
+        if self.fail_after is not None and self.calls >= self.fail_after:
+            raise openmeteo.BudgetExceeded("per_day")
+        self.calls += 1
+        n_hours = ((end - start).days + 1) * 24
+        t0 = int(datetime(start.year, start.month, start.day, tzinfo=UTC).timestamp())
+        times = [t0 + 3600 * h for h in range(n_hours)]
+        leads = [d for d in lead_days if d <= openmeteo.MAX_LEAD_DAYS[model]]
+        vals = {openmeteo.previous_day_var(v, d): [1.0] * n_hours for v in variables for d in leads}
+        return [openmeteo.PointSeries(la, lo, la, lo, 100.0, times, vals) for la, lo in points]
+
+
+def test_run_stops_on_budget_and_keeps_fetched_data(tmp_path, monkeypatch):
+    monkeypatch.setattr(fc, "FLUSH_EVERY", 2)
+    cells = CELLS[:120]  # 3 requests per model
+    s1 = fc.run(TODAY, ["gfs_seamless"], FakeClient(fail_after=2), data_dir=tmp_path, cell_ids=cells)
+    assert s1["done_requests"] == 2 and s1["stopped"].startswith("budget")
+    m = fc.Manifest(tmp_path / "forecasts" / "manifest.json")
+    covered = [c for c in cells if m.ranges("gfs_seamless", c)]
+    assert len(covered) == 100
+    files = list((tmp_path / "forecasts" / "gfs_seamless").glob("*.parquet"))
+    assert sum(len(pd.read_parquet(f)) for f in files) == s1["rows"] == 100 * 30 * 24 * 7
+    # next run picks up exactly the remaining 20 cells
+    s2 = fc.run(TODAY, ["gfs_seamless"], FakeClient(), data_dir=tmp_path, cell_ids=cells)
+    assert s2["planned_requests"] == 1 and s2["done_requests"] == 1 and s2["stopped"] is None
+    m = fc.Manifest(tmp_path / "forecasts" / "manifest.json")
+    assert all(m.ranges("gfs_seamless", c) == [fc.target_range(TODAY)] for c in cells)
 
 
 def test_to_frame_long_format():
