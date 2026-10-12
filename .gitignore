@@ -15,7 +15,7 @@ web/tmp/
 *.egg-info/
 
 # pipeline data (local runs; R2 in production)
-data/
+/data/
 
 # private, local only
 docs/history/

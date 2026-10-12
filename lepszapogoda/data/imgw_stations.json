@@ -1,0 +1,502 @@
+{
+ "source": "ids and names: IMGW API synop; coordinates and elevation: NOAA ISD station history",
+ "computed": "2026-10-11T22:02Z",
+ "stations": [
+  {
+   "id": "12001",
+   "name": "Platforma",
+   "lat": 55.467,
+   "lon": 18.167,
+   "elevation": 46.0,
+   "cell_id": null
+  },
+  {
+   "id": "12100",
+   "name": "Kołobrzeg",
+   "lat": 54.183,
+   "lon": 15.583,
+   "elevation": 5.0,
+   "cell_id": "541_155"
+  },
+  {
+   "id": "12105",
+   "name": "Koszalin",
+   "lat": 54.2,
+   "lon": 16.15,
+   "elevation": 34.0,
+   "cell_id": "542_161"
+  },
+  {
+   "id": "12115",
+   "name": "Ustka",
+   "lat": 54.583,
+   "lon": 16.867,
+   "elevation": 11.0,
+   "cell_id": "545_168"
+  },
+  {
+   "id": "12120",
+   "name": "Łeba",
+   "lat": 54.75,
+   "lon": 17.533,
+   "elevation": 6.0,
+   "cell_id": "547_175"
+  },
+  {
+   "id": "12125",
+   "name": "Lębork",
+   "lat": 54.55,
+   "lon": 17.75,
+   "elevation": 41.0,
+   "cell_id": "545_177"
+  },
+  {
+   "id": "12135",
+   "name": "Hel",
+   "lat": 54.6,
+   "lon": 18.817,
+   "elevation": 3.0,
+   "cell_id": "546_188"
+  },
+  {
+   "id": "12155",
+   "name": "Gdańsk",
+   "lat": 54.333,
+   "lon": 18.933,
+   "elevation": 9.0,
+   "cell_id": "543_189"
+  },
+  {
+   "id": "12160",
+   "name": "Elbląg",
+   "lat": 54.223,
+   "lon": 19.543,
+   "elevation": 43.0,
+   "cell_id": "542_195"
+  },
+  {
+   "id": "12185",
+   "name": "Kętrzyn",
+   "lat": 54.067,
+   "lon": 21.367,
+   "elevation": 110.0,
+   "cell_id": "540_213"
+  },
+  {
+   "id": "12195",
+   "name": "Suwałki",
+   "lat": 54.133,
+   "lon": 22.95,
+   "elevation": 186.0,
+   "cell_id": "541_229"
+  },
+  {
+   "id": "12200",
+   "name": "Świnoujście",
+   "lat": 53.917,
+   "lon": 14.233,
+   "elevation": 5.0,
+   "cell_id": "539_142"
+  },
+  {
+   "id": "12205",
+   "name": "Szczecin",
+   "lat": 53.4,
+   "lon": 14.617,
+   "elevation": 7.0,
+   "cell_id": "534_146"
+  },
+  {
+   "id": "12210",
+   "name": "Resko",
+   "lat": 53.767,
+   "lon": 15.4,
+   "elevation": 52.9,
+   "cell_id": "537_154"
+  },
+  {
+   "id": "12215",
+   "name": "Szczecinek",
+   "lat": 53.717,
+   "lon": 16.747,
+   "elevation": 144.0,
+   "cell_id": "537_167"
+  },
+  {
+   "id": "12230",
+   "name": "Piła",
+   "lat": 53.133,
+   "lon": 16.75,
+   "elevation": 73.0,
+   "cell_id": "531_167"
+  },
+  {
+   "id": "12235",
+   "name": "Chojnice",
+   "lat": 53.717,
+   "lon": 17.55,
+   "elevation": 172.0,
+   "cell_id": "537_175"
+  },
+  {
+   "id": "12250",
+   "name": "Toruń",
+   "lat": 53.05,
+   "lon": 18.583,
+   "elevation": 72.0,
+   "cell_id": "530_185"
+  },
+  {
+   "id": "12270",
+   "name": "Mława",
+   "lat": 53.1,
+   "lon": 20.35,
+   "elevation": 149.0,
+   "cell_id": "531_203"
+  },
+  {
+   "id": "12272",
+   "name": "Olsztyn",
+   "lat": 53.767,
+   "lon": 20.417,
+   "elevation": 137.0,
+   "cell_id": "537_204"
+  },
+  {
+   "id": "12280",
+   "name": "Mikołajki",
+   "lat": 53.783,
+   "lon": 21.583,
+   "elevation": 132.0,
+   "cell_id": "537_215"
+  },
+  {
+   "id": "12285",
+   "name": "Ostrołęka",
+   "lat": 53.083,
+   "lon": 21.567,
+   "elevation": 97.0,
+   "cell_id": "530_215"
+  },
+  {
+   "id": "12295",
+   "name": "Białystok",
+   "lat": 53.1,
+   "lon": 23.167,
+   "elevation": 151.0,
+   "cell_id": "531_231"
+  },
+  {
+   "id": "12300",
+   "name": "Gorzów",
+   "lat": 52.75,
+   "lon": 15.283,
+   "elevation": 73.0,
+   "cell_id": "527_152"
+  },
+  {
+   "id": "12310",
+   "name": "Słubice",
+   "lat": 52.35,
+   "lon": 14.6,
+   "elevation": 24.0,
+   "cell_id": "523_146"
+  },
+  {
+   "id": "12330",
+   "name": "Poznań",
+   "lat": 52.421,
+   "lon": 16.826,
+   "elevation": 93.9,
+   "cell_id": "524_168"
+  },
+  {
+   "id": "12345",
+   "name": "Koło",
+   "lat": 52.2,
+   "lon": 18.667,
+   "elevation": 117.0,
+   "cell_id": "522_186"
+  },
+  {
+   "id": "12360",
+   "name": "Płock",
+   "lat": 52.583,
+   "lon": 19.733,
+   "elevation": 109.0,
+   "cell_id": "525_197"
+  },
+  {
+   "id": "12375",
+   "name": "Warszawa",
+   "lat": 52.166,
+   "lon": 20.967,
+   "elevation": 110.3,
+   "cell_id": "521_209"
+  },
+  {
+   "id": "12385",
+   "name": "Siedlce",
+   "lat": 52.181,
+   "lon": 22.25,
+   "elevation": 155.0,
+   "cell_id": "521_222"
+  },
+  {
+   "id": "12399",
+   "name": "Terespol",
+   "lat": 52.067,
+   "lon": 23.617,
+   "elevation": 137.0,
+   "cell_id": "520_236"
+  },
+  {
+   "id": "12400",
+   "name": "Zielona Góra",
+   "lat": 51.933,
+   "lon": 15.533,
+   "elevation": 192.0,
+   "cell_id": "519_155"
+  },
+  {
+   "id": "12415",
+   "name": "Legnica",
+   "lat": 51.2,
+   "lon": 16.2,
+   "elevation": 124.0,
+   "cell_id": "512_162"
+  },
+  {
+   "id": "12418",
+   "name": "Leszno",
+   "lat": 51.833,
+   "lon": 16.533,
+   "elevation": 92.0,
+   "cell_id": "518_165"
+  },
+  {
+   "id": "12424",
+   "name": "Wrocław",
+   "lat": 51.103,
+   "lon": 16.886,
+   "elevation": 123.1,
+   "cell_id": "511_168"
+  },
+  {
+   "id": "12435",
+   "name": "Kalisz",
+   "lat": 51.783,
+   "lon": 18.083,
+   "elevation": 140.0,
+   "cell_id": "517_180"
+  },
+  {
+   "id": "12455",
+   "name": "Wieluń",
+   "lat": 51.217,
+   "lon": 18.567,
+   "elevation": 201.0,
+   "cell_id": "512_185"
+  },
+  {
+   "id": "12465",
+   "name": "Łódź",
+   "lat": 51.733,
+   "lon": 19.4,
+   "elevation": 190.0,
+   "cell_id": "517_194"
+  },
+  {
+   "id": "12469",
+   "name": "Sulejów",
+   "lat": 51.35,
+   "lon": 19.867,
+   "elevation": 189.0,
+   "cell_id": "513_198"
+  },
+  {
+   "id": "12488",
+   "name": "Kozienice",
+   "lat": 51.567,
+   "lon": 21.55,
+   "elevation": 126.0,
+   "cell_id": "515_215"
+  },
+  {
+   "id": "12495",
+   "name": "Lublin",
+   "lat": 51.217,
+   "lon": 22.4,
+   "elevation": 240.0,
+   "cell_id": "512_224"
+  },
+  {
+   "id": "12497",
+   "name": "Włodawa",
+   "lat": 51.55,
+   "lon": 23.533,
+   "elevation": 179.0,
+   "cell_id": "515_235"
+  },
+  {
+   "id": "12500",
+   "name": "Jelenia Góra",
+   "lat": 50.9,
+   "lon": 15.8,
+   "elevation": 344.0,
+   "cell_id": "509_158"
+  },
+  {
+   "id": "12510",
+   "name": "Śnieżka",
+   "lat": 50.733,
+   "lon": 15.733,
+   "elevation": 1613.0,
+   "cell_id": "507_157"
+  },
+  {
+   "id": "12520",
+   "name": "Kłodzko",
+   "lat": 50.433,
+   "lon": 16.617,
+   "elevation": 357.0,
+   "cell_id": "504_166"
+  },
+  {
+   "id": "12530",
+   "name": "Opole",
+   "lat": 50.617,
+   "lon": 17.967,
+   "elevation": 163.0,
+   "cell_id": "506_179"
+  },
+  {
+   "id": "12540",
+   "name": "Racibórz",
+   "lat": 50.05,
+   "lon": 18.2,
+   "elevation": 206.0,
+   "cell_id": "500_182"
+  },
+  {
+   "id": "12550",
+   "name": "Częstochowa",
+   "lat": 50.817,
+   "lon": 19.1,
+   "elevation": 295.0,
+   "cell_id": "508_191"
+  },
+  {
+   "id": "12560",
+   "name": "Katowice",
+   "lat": 50.233,
+   "lon": 19.033,
+   "elevation": 284.0,
+   "cell_id": "502_190"
+  },
+  {
+   "id": "12566",
+   "name": "Kraków",
+   "lat": 50.078,
+   "lon": 19.785,
+   "elevation": 241.1,
+   "cell_id": "500_197"
+  },
+  {
+   "id": "12570",
+   "name": "Kielce",
+   "lat": 50.817,
+   "lon": 20.7,
+   "elevation": 261.0,
+   "cell_id": "508_207"
+  },
+  {
+   "id": "12575",
+   "name": "Tarnów",
+   "lat": 50.033,
+   "lon": 20.983,
+   "elevation": 209.0,
+   "cell_id": "500_209"
+  },
+  {
+   "id": "12580",
+   "name": "Rzeszów",
+   "lat": 50.11,
+   "lon": 22.019,
+   "elevation": 205.7,
+   "cell_id": "501_220"
+  },
+  {
+   "id": "12585",
+   "name": "Sandomierz",
+   "lat": 50.7,
+   "lon": 21.717,
+   "elevation": 218.0,
+   "cell_id": "507_217"
+  },
+  {
+   "id": "12595",
+   "name": "Zamość",
+   "lat": 50.7,
+   "lon": 23.25,
+   "elevation": 213.0,
+   "cell_id": "507_232"
+  },
+  {
+   "id": "12600",
+   "name": "Bielsko Biała",
+   "lat": 49.8,
+   "lon": 19.0,
+   "elevation": 399.0,
+   "cell_id": "498_190"
+  },
+  {
+   "id": "12625",
+   "name": "Zakopane",
+   "lat": 49.3,
+   "lon": 19.967,
+   "elevation": 857.0,
+   "cell_id": "493_199"
+  },
+  {
+   "id": "12650",
+   "name": "Kasprowy Wierch",
+   "lat": 49.233,
+   "lon": 19.983,
+   "elevation": 1989.0,
+   "cell_id": "492_199"
+  },
+  {
+   "id": "12660",
+   "name": "Nowy Sącz",
+   "lat": 49.617,
+   "lon": 20.7,
+   "elevation": 295.0,
+   "cell_id": "496_207"
+  },
+  {
+   "id": "12670",
+   "name": "Krosno",
+   "lat": 49.7,
+   "lon": 21.767,
+   "elevation": 329.0,
+   "cell_id": "497_217"
+  },
+  {
+   "id": "12690",
+   "name": "Lesko",
+   "lat": 49.467,
+   "lon": 22.35,
+   "elevation": 422.0,
+   "cell_id": "494_223"
+  },
+  {
+   "id": "12695",
+   "name": "Przemyśl",
+   "lat": 49.8,
+   "lon": 22.767,
+   "elevation": 280.0,
+   "cell_id": "498_227"
+  }
+ ]
+}
