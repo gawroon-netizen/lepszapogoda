@@ -7,15 +7,10 @@ Szczegóły w SPEC §9 i §16.
 - [x] Git zainstalowany, repozytorium https://github.com/gawroon-netizen/lepszapogoda (publiczne).
 - [x] Earth Engine: projekt Cloud zarejestrowany, logowanie lokalne (`earthengine authenticate`) działa.
 - [x] Cloudflare R2: bucket i klucze w sekretach. `setup-check` przeszedł zapis, odczyt, usunięcie i listowanie (2026-10-12).
+- [x] Konto serwisowe GEE \lepszapogoda-pipeline\ (Earth Engine Resource Admin, Service Usage Consumer), sekret \GEE_SERVICE_ACCOUNT_JSON\. \setup-check\ w pełni zielony, pierwszy przebieg dzienny pobrał IMERG i MODIS (2026-10-13).
 
 ## Teraz
 
-- [ ] **Konto serwisowe GEE** w projekcie Cloud używanym do Earth Engine:
-  1. role Earth Engine Resource Writer i Service Usage Consumer,
-  2. klucz JSON (cała zawartość pliku) jako sekret `GEE_SERVICE_ACCOUNT_JSON`,
-  3. potem usuń plik z dysku.
-
-  Do tego czasu przebieg dzienny pomija obserwacje satelitarne. Kontrola: *Actions → setup-check → Run workflow*.
 - [ ] *(opcjonalnie)* *Settings → General:* wyłączyć Wiki i Projects, włączyć „Automatically delete head branches” (§16 pkt 1).
 - [ ] *(opcjonalnie)* *Settings → Branches:* reguła dla `main` z wymaganym statusem `ci` (§16 pkt 1). Pushe agenta idą bezpośrednio na `main`, więc reguła musi na to pozwalać albo przechodzimy na pull requesty.
 - [ ] *(opcjonalnie)* Osobny projekt Cloud „lepszapogoda” zamiast automatycznego `gen-lang-client-…` z AI Studio.
