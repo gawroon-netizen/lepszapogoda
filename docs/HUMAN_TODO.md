@@ -7,7 +7,7 @@ Szczegóły w SPEC §9 i §16.
 - [x] Git zainstalowany, repozytorium https://github.com/gawroon-netizen/lepszapogoda (publiczne).
 - [x] Earth Engine: projekt Cloud zarejestrowany, logowanie lokalne (`earthengine authenticate`) działa.
 - [x] Cloudflare R2: bucket i klucze w sekretach. `setup-check` przeszedł zapis, odczyt, usunięcie i listowanie (2026-10-12).
-- [x] Konto serwisowe GEE \lepszapogoda-pipeline\ (Earth Engine Resource Admin, Service Usage Consumer), sekret \GEE_SERVICE_ACCOUNT_JSON\. \setup-check\ w pełni zielony, pierwszy przebieg dzienny pobrał IMERG i MODIS (2026-10-13).
+- [x] Konto serwisowe GEE `lepszapogoda-pipeline` (Earth Engine Resource Admin, Service Usage Consumer), sekret `GEE_SERVICE_ACCOUNT_JSON`. `setup-check` w pełni zielony, pierwszy przebieg dzienny pobrał IMERG i MODIS (2026-10-13).
 
 ## Teraz
 
