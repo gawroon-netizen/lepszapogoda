@@ -16,3 +16,6 @@ web/tmp/
 
 # pipeline data (local runs; R2 in production)
 data/
+
+# private, local only
+docs/history/

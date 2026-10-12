@@ -4,4 +4,5 @@ pyarrow
 numpy
 requests
 earthengine-api
-# added when the corresponding stage starts: boto3 (R2), pydantic (schemas), zstandard (archive)
+boto3
+# added when the corresponding stage starts: pydantic (schemas), zstandard (archive)
