@@ -16,6 +16,13 @@ Porównywarka trafności modeli pogodowych dla Polski. Wymagania: [docs/SPEC.md]
   - `ingest/imgw.py`: stacje IMGW. Odpytywanie co godzinę (`poll`), dobowe Tmax/Tmin (`daily`), paczki miesięczne (`archive`).
   - `ingest/satellite.py`: IMERG (opady, D-2) i MODIS Terra/Aqua (chmury, D-4) per komórka z Earth Engine.
   - `grid/build_stations.py`: lista stacji IMGW ze współrzędnymi, zapisywana w `lepszapogoda/data/imgw_stations.json`.
+  - `storage.py`: synchronizacja `data/` z R2 (`pull` na starcie, `push` na końcu przebiegu w CI).
+- `.github/workflows/`:
+  - `ci.yml`: ruff i pytest na Pythonie 3.11 przy każdym pushu.
+  - `pipeline-hourly.yml`: co godzinę o :07. Odpytanie IMGW, potem pobieranie prognoz w ramach godzinowego limitu Open-Meteo.
+  - `pipeline-daily.yml`: codziennie o 05:30 UTC. Dobowe Tmax/Tmin, paczki IMGW, obserwacje satelitarne (gdy jest konto serwisowe GEE).
+  - `setup-check.yml`: ręczna kontrola sekretów R2 i GEE (bez wypisywania wartości).
+- `tools/check_setup.py`: kod kontroli sekretów.
 - `tests/`, `pipeline/tests/`: testy.
 - `spike/`: jednorazowe eksperymenty z Etapów 0a i 0b oraz testu GEE. Nie są częścią produktu.
 

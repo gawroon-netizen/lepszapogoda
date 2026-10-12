@@ -9,7 +9,9 @@ Porównywarka trafności modeli pogodowych dla Polski. Projekt realizuje agent A
 - **Repozytorium:** https://github.com/gawroon-netizen/lepszapogoda (publiczne). Autor commitów: adres noreply GitHuba.
 - **Spike'i i eksperymenty:** `spike/`. Kod jednorazowy, nie jest częścią produktu. Dane w `spike/data/` są w `.gitignore`.
 
-Aktualny stan: zakończone Etapy 0a i 0b (`docs/reports/`). Wszystkie decyzje z §17 są zamknięte (SPEC v0.9). MVP = punkt + średnia ważona; obszary, burze i „Chmury teraz” to v1.1. Etap 0 w toku: test GEE zrobiony (`docs/reports/etap-0-gee.md`), pakiet `lepszapogoda/` z siatką i testami gotowy. Brakuje kont z `docs/HUMAN_TODO.md` (GitHub, R2, mydevil, konto serwisowe GEE) i sondy hostingu.
+Aktualny stan: zakończone Etapy 0a i 0b (`docs/reports/`). Wszystkie decyzje z §17 są zamknięte (SPEC v0.9). MVP = punkt + średnia ważona; obszary, burze i „Chmury teraz” to v1.1. Etap 0/1 w toku. Potok działa w GitHub Actions ze stanem w R2: co godzinę IMGW i prognozy archiwalne, codziennie dobowe Tmax/Tmin, paczki IMGW i satelity (od chwili, gdy będzie konto serwisowe GEE). Rozruch prognoz (30 dni wstecz) trwa do ok. 2026-10-24. Brakuje: konta serwisowego GEE, mydevil (`docs/HUMAN_TODO.md`), weryfikacji i rankingu (następny moduł).
+
+Logi przebiegów w Actions wymagają uwierzytelnienia. Lokalnie można użyć tokenu z `git credential fill` (Git Credential Manager), nigdy go nie wypisując.
 
 Lokalnie: `.\.venv\Scripts\python -m pytest`, `.\.venv\Scripts\ruff check .`. Earth Engine: zmienna `EE_PROJECT` z ID projektu Cloud człowieka (zapytaj, jeśli nie jest ustawiona).
 
