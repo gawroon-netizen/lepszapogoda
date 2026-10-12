@@ -1,0 +1,41 @@
+name: pipeline-hourly
+
+# Every hour: IMGW synop poll (the API keeps only the latest observation) and as much of the forecast
+# ingest as the Open-Meteo hourly budget allows. State lives in R2 (SPEC §7.2, docs/api-budget.md).
+on:
+  schedule:
+    - cron: "7 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pipeline-hourly  # one run at a time: runs share the manifest and the Open-Meteo ledger in R2
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    env:
+      R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+      R2_KEY: ${{ secrets.R2_KEY }}
+      R2_SECRET: ${{ secrets.R2_SECRET }}
+      R2_BUCKET: ${{ secrets.R2_BUCKET }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements-pipeline.txt -e .
+      - name: pull state from R2
+        run: python -m pipeline.storage pull forecasts/manifest.json openmeteo_ledger.json obs/imgw_hourly/
+      - name: IMGW poll
+        run: python -m pipeline.ingest.imgw poll
+      - name: forecast ingest (within the hourly budget)
+        run: python -m pipeline.ingest.forecasts --max-wait 120
+      - name: push results to R2
+        if: always()
+        run: python -m pipeline.storage push

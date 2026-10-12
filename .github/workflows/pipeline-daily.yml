@@ -1,0 +1,51 @@
+name: pipeline-daily
+
+# Once a day: daily Tmax/Tmin from the hourly IMGW polls, IMGW monthly archives, satellite observations (GEE).
+on:
+  schedule:
+    - cron: "30 5 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pipeline-daily
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+      R2_KEY: ${{ secrets.R2_KEY }}
+      R2_SECRET: ${{ secrets.R2_SECRET }}
+      R2_BUCKET: ${{ secrets.R2_BUCKET }}
+      GEE_SERVICE_ACCOUNT_JSON: ${{ secrets.GEE_SERVICE_ACCOUNT_JSON }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements-pipeline.txt -e .
+      - name: pull inputs from R2
+        run: python -m pipeline.storage pull obs/imgw_hourly/ obs/imgw_daily/ obs/imerg/ obs/modis_terra/ obs/modis_aqua/
+      - name: IMGW daily Tmax/Tmin (last 3 days, late polls included)
+        run: |
+          for k in 1 2 3; do
+            python -m pipeline.ingest.imgw daily --date "$(date -u -d "-$k day" +%F)"
+          done
+      - name: IMGW monthly archives (previous two months; skipped until published)
+        run: |
+          for k in 1 2; do
+            python -m pipeline.ingest.imgw archive --year "$(date -u -d "$(date -u +%Y-%m-15) -$k month" +%Y)" \
+                                                   --month "$(date -u -d "$(date -u +%Y-%m-15) -$k month" +%-m)"
+          done
+      - name: satellite observations (GEE)
+        if: env.GEE_SERVICE_ACCOUNT_JSON != ''
+        run: python -m pipeline.ingest.satellite
+      - name: push results to R2
+        if: always()
+        run: python -m pipeline.storage push

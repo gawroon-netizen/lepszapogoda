@@ -251,8 +251,14 @@ def main() -> None:
     p.add_argument("--max-requests", type=int)
     p.add_argument("--safety", type=float, default=0.8, help="fraction of Open-Meteo limits this job may use")
     p.add_argument("--dry-run", action="store_true")
+    p.add_argument(
+        "--max-wait",
+        type=float,
+        default=3_700,
+        help="seconds to wait for a rate-limit window; in CI use a small value and let the next run continue",
+    )
     a = p.parse_args()
-    budget = openmeteo.Budget(ledger_path=DATA_DIR / "openmeteo_ledger.json", safety=a.safety)
+    budget = openmeteo.Budget(ledger_path=DATA_DIR / "openmeteo_ledger.json", safety=a.safety, max_wait_s=a.max_wait)
     client = openmeteo.OpenMeteoClient(budget=budget)
     summary = run(a.date, a.models.split(","), client, max_requests=a.max_requests, dry_run=a.dry_run)
     summary["budget_usage"] = budget.usage()
