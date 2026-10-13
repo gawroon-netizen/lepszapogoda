@@ -22,9 +22,10 @@ from pipeline.paths import DATA_DIR
 
 PREFIX = "pipeline/"
 SNAPSHOT = ".r2_snapshot.json"  # sizes and mtimes of local files at pull time, to find what changed
+NOT_PUSHED = ("rankings/", "rankings.tmp/", "logs/")
 
 
-def _client():
+def client():
     import boto3
 
     return boto3.client(
@@ -36,7 +37,7 @@ def _client():
     )
 
 
-def _bucket() -> str:
+def bucket_name() -> str:
     return os.environ["R2_BUCKET"].strip()
 
 
@@ -59,10 +60,10 @@ def changed_files(data_dir: Path = DATA_DIR) -> list[str]:
     return sorted(k for k, v in _local_state(data_dir).items() if before.get(k) != v)
 
 
-def pull(paths: list[str], data_dir: Path = DATA_DIR, client=None) -> int:
+def pull(paths: list[str], data_dir: Path = DATA_DIR, s3=None) -> int:
     """Download keys; a path ending in '/' is a prefix (all objects under it). Missing keys are fine."""
-    s3 = client or _client()
-    bucket = _bucket()
+    s3 = s3 or client()
+    bucket = bucket_name()
     n = 0
     for p in paths:
         if p.endswith("/"):
@@ -85,10 +86,12 @@ def pull(paths: list[str], data_dir: Path = DATA_DIR, client=None) -> int:
     return n
 
 
-def push(data_dir: Path = DATA_DIR, everything: bool = False, client=None) -> int:
-    s3 = client or _client()
-    bucket = _bucket()
+def push(data_dir: Path = DATA_DIR, everything: bool = False, s3=None) -> int:
+    s3 = s3 or client()
+    bucket = bucket_name()
     files = sorted(_local_state(data_dir)) if everything else changed_files(data_dir)
+    # Rankings are published as one archive (pipeline.publish), not as thousands of objects
+    files = [f for f in files if not f.startswith(NOT_PUSHED)]
     for rel in files:
         s3.upload_file(str(data_dir / rel), bucket, PREFIX + rel)
     snapshot(data_dir)

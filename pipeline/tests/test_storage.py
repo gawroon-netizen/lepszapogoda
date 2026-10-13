@@ -42,13 +42,13 @@ def test_push_uploads_only_changed_files(tmp_path):
     storage.snapshot(tmp_path)
     (tmp_path / "obs").mkdir()
     (tmp_path / "obs" / "b.parquet").write_bytes(b"x")
-    assert storage.push(tmp_path, client=s3) == 1
+    assert storage.push(tmp_path, s3=s3) == 1
     assert set(s3.objects) == {"pipeline/obs/b.parquet"}
     time.sleep(0.01)
     (tmp_path / "a.txt").write_text("22")
-    assert storage.push(tmp_path, client=s3) == 1
+    assert storage.push(tmp_path, s3=s3) == 1
     assert s3.objects["pipeline/a.txt"] == b"22"
-    assert storage.push(tmp_path, client=s3) == 0
+    assert storage.push(tmp_path, s3=s3) == 0
 
 
 def test_pull_files_and_prefixes_then_nothing_to_push(tmp_path):
@@ -59,15 +59,15 @@ def test_pull_files_and_prefixes_then_nothing_to_push(tmp_path):
         "pipeline/obs/imgw_hourly/2026-10-12.parquet": b"p2",
         "pipeline/obs/imerg/2026-10-09.parquet": b"other",
     }
-    n = storage.pull(["forecasts/manifest.json", "openmeteo_ledger.json", "obs/imgw_hourly/"], tmp_path, client=s3)
+    n = storage.pull(["forecasts/manifest.json", "openmeteo_ledger.json", "obs/imgw_hourly/"], tmp_path, s3=s3)
     assert n == 3  # the missing ledger is not an error (first run)
     assert (tmp_path / "obs" / "imgw_hourly" / "2026-10-12.parquet").read_bytes() == b"p2"
     assert not (tmp_path / "obs" / "imerg").exists()
-    assert storage.push(tmp_path, client=s3) == 0
+    assert storage.push(tmp_path, s3=s3) == 0
 
 
 def test_push_all(tmp_path):
     s3 = FakeS3()
     (tmp_path / "x").write_text("x")
     storage.snapshot(tmp_path)
-    assert storage.push(tmp_path, everything=True, client=s3) == 1
+    assert storage.push(tmp_path, everything=True, s3=s3) == 1

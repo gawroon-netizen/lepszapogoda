@@ -24,4 +24,4 @@ extend-exclude = ["spike"]
 select = ["E", "F", "I", "B", "UP", "SIM"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests", "pipeline/tests"]
+testpaths = ["tests", "pipeline/tests", "web/tests"]

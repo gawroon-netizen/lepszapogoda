@@ -17,6 +17,9 @@ Porównywarka trafności modeli pogodowych dla Polski. Wymagania: [docs/SPEC.md]
   - `ingest/satellite.py`: IMERG (opady, D-2) i MODIS Terra/Aqua (chmury, D-4) per komórka z Earth Engine.
   - `grid/build_stations.py`: lista stacji IMGW ze współrzędnymi, zapisywana w `lepszapogoda/data/imgw_stations.json`.
   - `storage.py`: synchronizacja `data/` z R2 (`pull` na starcie, `push` na końcu przebiegu w CI).
+  - `verify/`: weryfikacja i ranking. Wartości dobowe z prognoz (`aggregate`), składniki dzienne (`components`), ranking i wagi średniej (`ranking`), zadanie (`run`).
+  - `publish.py`: paczka z rankingiem do R2 (`publish/`) z bramką jakości.
+- `web/cron/pull_rankings.py`: cron hostingu, pobiera opublikowany ranking i podmienia `web/data/rankings/`.
 - `.github/workflows/`:
   - `ci.yml`: ruff i pytest na Pythonie 3.11 przy każdym pushu.
   - `pipeline-hourly.yml`: co godzinę o :07. Odpytanie IMGW, potem pobieranie prognoz w ramach godzinowego limitu Open-Meteo.

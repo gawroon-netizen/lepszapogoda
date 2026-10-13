@@ -1,0 +1,3 @@
+# Web host (mydevil, FreeBSD), SPEC §7.4. Pure-Python packages only where possible (no compiled extensions).
+boto3  # web/cron/pull_rankings.py, read-only R2 token
+# Etap 2: flask, jinja2, requests, redis, geoip2 (gunicorn only for local tests)

@@ -245,8 +245,10 @@ Obszar to zbiór komórek z wagami. Definicja w `web/data/regions.json` i `pipel
 - `obs/{source}/{date}.parquet` — cell_id, time, cloud | precip | temp | flashes (liczba wyładowań w oknie 3 h)
 - `verification/{date}.parquet` — cell_id, model, var (`cloud|precip|temp|storm`), lead_h, mae, bias, hits, misses, false_alarms, correct_negatives, n, timing_err — **składniki, nie tylko metryki**, żeby obszary (§8.7) i sezonowe okna burzowe (§8.9) dało się policzyć bez ponownej weryfikacji
 
+**Publikacja (R2, `lepszapogoda/publication.py`):** `publish/meta.json` (meta + `archive`, `sha256`, `files`, `published`) wskazuje na `publish/archives/rankings-{czas}.tar.gz` (`cells/*.json` + `meta.json`); hosting pobiera je cronem `web/cron/pull_rankings.py`.
+
 **Hosting (JSON, `web/data/`):**
-- `rankings/{cell_id}.json`:
+- `rankings/cells/{cell_id}.json` (aktualny format: `pipeline/verify/ranking.py`; poniżej przykład z v0.6, pola `optimistic` i `storm` już nieaktualne):
   ```json
   {"grid_version":"latlon01","cell":"522_209","computed":"2026-09-28T05:10Z","window_days":30,
    "accurate":[{"model":"icon_d2","score":91,"cloud_mae":11.2,"precip_ets":0.58,"temp_mae":1.3}, ...],
