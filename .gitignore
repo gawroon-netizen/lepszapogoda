@@ -19,3 +19,7 @@ web/tmp/
 
 # private, local only
 docs/history/
+
+# wrangler local state
+.wrangler/
+node_modules/

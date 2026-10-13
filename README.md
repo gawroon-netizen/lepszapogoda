@@ -23,6 +23,13 @@ Porównywarka trafności modeli pogodowych dla Polski. Wymagania: [docs/SPEC.md]
   - `pipeline-daily.yml`: codziennie o 05:30 UTC. Dobowe Tmax/Tmin, paczki IMGW, obserwacje satelitarne (gdy jest konto serwisowe GEE).
   - `setup-check.yml`: ręczna kontrola sekretów R2 i GEE (bez wypisywania wartości).
 - `tools/check_setup.py`: kod kontroli sekretów.
+- `workers/imgw-poller/`: Cloudflare Worker odpytujący API IMGW o :05 i :35 i zapisujący surowe odpowiedzi do R2. Wdrożenie (Node.js; w PowerShellu `npx.cmd`, bo `npx.ps1` blokuje zasada wykonywania skryptów):
+
+  ```powershell
+  cd workers\imgw-poller
+  npx.cmd --yes wrangler@4 login    # raz, logowanie w przeglądarce
+  npx.cmd --yes wrangler@4 deploy
+  ```
 - `tests/`, `pipeline/tests/`: testy.
 - `spike/`: jednorazowe eksperymenty z Etapów 0a i 0b oraz testu GEE. Nie są częścią produktu.
 
