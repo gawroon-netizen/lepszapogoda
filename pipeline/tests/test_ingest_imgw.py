@@ -38,6 +38,21 @@ def test_parse_api_and_store_dedup(tmp_path):
     assert imgw.store_hourly(df, tmp_path) == 0  # same poll twice adds nothing
 
 
+def test_ingest_raw_worker_files(tmp_path):
+    import json
+
+    raw = tmp_path / "obs" / "imgw_raw" / "2026-10-13"
+    raw.mkdir(parents=True)
+    (raw / "1005.json").write_text(json.dumps([api_row("12375", "2026-10-13", 9, 8.1)]), encoding="utf-8")
+    # the :35 poll of the same hour returns the same observation plus a late station
+    (raw / "1035.json").write_text(
+        json.dumps([api_row("12375", "2026-10-13", 9, 8.1), api_row("12295", "2026-10-13", 9, 6.0)]), encoding="utf-8"
+    )
+    (raw / "1105.json").write_text("<html>gateway timeout</html>", encoding="utf-8")
+    assert imgw.ingest_raw(tmp_path) == (3, 2)
+    assert imgw.ingest_raw(tmp_path) == (3, 0)  # idempotent
+
+
 def hourly(day_prev: str, day: str, temps_prev: dict[int, float], temps: dict[int, float]) -> list[dict]:
     rows = [api_row("12375", day_prev, h, t) for h, t in temps_prev.items()]
     return rows + [api_row("12375", day, h, t) for h, t in temps.items()]

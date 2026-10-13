@@ -101,6 +101,21 @@ def poll(session: requests.Session | None = None, data_dir: Path = DATA_DIR) -> 
     return store_hourly(parse_api(payload), data_dir)
 
 
+def ingest_raw(data_dir: Path = DATA_DIR) -> tuple[int, int]:
+    """Convert raw API responses saved by the Cloudflare Worker (obs/imgw_raw/{date}/{HHMM}.json, workers/imgw-poller)
+    into the hourly store. Idempotent: rows already stored are skipped. Returns (files read, new rows)."""
+    files = sorted((data_dir / "obs" / "imgw_raw").glob("*/*.json"))
+    frames = []
+    for f in files:
+        try:
+            frames.append(parse_api(json.loads(f.read_text(encoding="utf-8"))))
+        except (ValueError, TypeError):
+            continue  # a truncated or non-JSON file must not stop the rest
+    if not frames:
+        return len(files), 0
+    return len(files), store_hourly(pd.concat(frames, ignore_index=True), data_dir)
+
+
 def daily_from_hourly(day: date, data_dir: Path = DATA_DIR) -> pd.DataFrame:
     """Tmax/Tmin per station for `day` from stored hourly observations (see module docstring)."""
     frames = []
@@ -197,6 +212,7 @@ def main() -> None:
     p = argparse.ArgumentParser(description="IMGW synop observations")
     sub = p.add_subparsers(dest="cmd", required=True)
     sub.add_parser("poll")
+    sub.add_parser("ingest-raw")
     d = sub.add_parser("daily")
     d.add_argument("--date", type=date.fromisoformat, default=datetime.now(UTC).date() - timedelta(days=1))
     a = sub.add_parser("archive")
@@ -205,6 +221,9 @@ def main() -> None:
     args = p.parse_args()
     if args.cmd == "poll":
         print(f"new hourly rows: {poll()}")
+    elif args.cmd == "ingest-raw":
+        n_files, n_rows = ingest_raw()
+        print(f"raw files: {n_files}, new hourly rows: {n_rows}")
     elif args.cmd == "daily":
         df = daily_from_hourly(args.date)
         store_daily(df)

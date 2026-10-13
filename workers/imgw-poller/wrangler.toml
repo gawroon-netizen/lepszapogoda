@@ -1,0 +1,14 @@
+name = "lepszapogoda-imgw-poller"
+main = "src/index.js"
+compatibility_date = "2025-09-01"
+workers_dev = false  # no public HTTP endpoint; the worker only runs on the cron trigger
+
+[triggers]
+crons = ["5,35 * * * *"]  # twice an hour: a missed run still leaves the hour covered
+
+[[r2_buckets]]
+binding = "DATA"
+bucket_name = "lepszapogoda-data"
+
+[observability]
+enabled = true

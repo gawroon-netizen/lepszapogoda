@@ -31,9 +31,13 @@ jobs:
           cache: pip
       - run: pip install -r requirements-pipeline.txt -e .
       - name: pull state from R2
-        run: python -m pipeline.storage pull forecasts/manifest.json openmeteo_ledger.json obs/imgw_hourly/
-      - name: IMGW poll
-        run: python -m pipeline.ingest.imgw poll
+        run: |
+          python -m pipeline.storage pull forecasts/manifest.json openmeteo_ledger.json obs/imgw_hourly/ \
+            "obs/imgw_raw/$(date -u +%F)/" "obs/imgw_raw/$(date -u -d '-1 day' +%F)/"
+      - name: IMGW poll (backup to the Cloudflare Worker) and raw-file conversion
+        run: |
+          python -m pipeline.ingest.imgw poll
+          python -m pipeline.ingest.imgw ingest-raw
       - name: forecast ingest (within the hourly budget)
         run: python -m pipeline.ingest.forecasts --max-wait 120
       - name: push results to R2

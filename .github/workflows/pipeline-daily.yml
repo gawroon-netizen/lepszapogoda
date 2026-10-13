@@ -31,9 +31,12 @@ jobs:
           cache: pip
       - run: pip install -r requirements-pipeline.txt -e .
       - name: pull inputs from R2
-        run: python -m pipeline.storage pull obs/imgw_hourly/ obs/imgw_daily/ obs/imerg/ obs/modis_terra/ obs/modis_aqua/
+        run: |
+          python -m pipeline.storage pull obs/imgw_hourly/ obs/imgw_daily/ obs/imerg/ obs/modis_terra/ obs/modis_aqua/
+          for k in 0 1 2 3 4; do python -m pipeline.storage pull "obs/imgw_raw/$(date -u -d "-$k day" +%F)/"; done
       - name: IMGW daily Tmax/Tmin (last 3 days, late polls included)
         run: |
+          python -m pipeline.ingest.imgw ingest-raw
           for k in 1 2 3; do
             python -m pipeline.ingest.imgw daily --date "$(date -u -d "-$k day" +%F)"
           done
