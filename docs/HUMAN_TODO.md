@@ -17,8 +17,10 @@ Szczegóły w SPEC §9 i §16.
 
 ## Potrzebne do Etapu 2 (strona)
 
-- [ ] **mydevil:** domena typu Python 3.11, klucz SSH do deployu, Redis (§16 pkt 3 i 6). Klucze R2 tylko do odczytu na hosting.
-- [ ] **Domena** `lepszapogoda.pl`.
+- [x] **mydevil:** domena `lepszapogoda.pl` typu Python (DNS mydevil, wskazuje na web37), klucz SSH agenta dodany (2026-10-13).
+- [ ] **Token R2 tylko do odczytu** dla hostingu: Cloudflare → R2 → *Manage API tokens* → uprawnienie **Object Read only**, ograniczone do bucketu `lepszapogoda-data`. Wartości wpisujesz sam na serwerze do `~/.bash_profile` (nie do czatu):
+  `export R2_ENDPOINT=…`, `export R2_BUCKET=lepszapogoda-data`, `export R2_KEY_RO=…`, `export R2_SECRET_RO=…`
+- [ ] **Klucz SSH do deployu z GitHub Actions** (§16 pkt 3): osobny klucz jako sekret `DEPLOY_SSH_KEY`. Przygotuje go agent, gdy będzie gotowy `deploy.yml`.
 - [ ] Klucz licencyjny MaxMind GeoLite2.
 
 ## v1.1

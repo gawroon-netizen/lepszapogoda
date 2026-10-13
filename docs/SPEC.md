@@ -409,7 +409,7 @@ Porównanie rankingu z ręczną kontrolą dla 20 lokalizacji; korekta wag jeśli
 | Temperatura w rankingu | stacje IMGW, ≤ 60 km, inaczej poza rankingiem dla komórki |
 | Runner ciężkich zadań | GitHub Actions; kod uruchamialny lokalnie przez `make` |
 | Framework WWW | Flask + Jinja2, WSGI pod Passengerem; bez FastAPI/Django |
-| Cache | Redis na mydevil; fallback plikowy |
+| Cache | plikowy na mydevil (Redisa nie ma w panelu, sonda 2026-10-13); Redis jako opcja przy dużym ruchu |
 | Transfer runner → hosting | Cloudflare R2, hosting pobiera cronem (pull), bez SFTP |
 | Produkt chmurowy | MODIS Terra + Aqua (Etap 0: Meteosatu nie ma w GEE) |
 | Nazwy modeli w UI | prawdziwe (ICON-D2, ECMWF IFS…) z jednozdaniowym opisem w dymku |
