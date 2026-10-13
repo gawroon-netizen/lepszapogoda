@@ -49,6 +49,10 @@ jobs:
       - name: satellite observations (GEE)
         if: env.GEE_SERVICE_ACCOUNT_JSON != ''
         run: python -m pipeline.ingest.satellite
+      - name: verification and ranking (30-day window ending D-2)
+        run: |
+          python -m pipeline.storage pull forecasts/
+          python -m pipeline.verify.run
       - name: push results to R2
         if: always()
         run: python -m pipeline.storage push
