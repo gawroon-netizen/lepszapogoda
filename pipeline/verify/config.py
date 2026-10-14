@@ -4,7 +4,7 @@ docs/DECISIONS.md."""
 WINDOW_DAYS = 30
 MIN_DAYS = 20  # days with data per (cell, model) to enter the ranking (§8.4)
 RANK_LEADS = (1, 2, 3)  # 24/48/72 h, pooled (§8.3)
-LEAD_GROUPS = {"1-2": (1, 2), "3-4": (3, 4), "5-7": (5, 6, 7)}  # blend weight groups (§8.10)
+from lepszapogoda.blend import LEAD_GROUPS  # noqa: E402, F401 - blend weight groups, shared with the web app (§8.10)
 
 PRECIP_THRESHOLD_MM = 1.0
 CLOUD_CLEAR_MAX = 25.0  # %, class "pogodnie" below

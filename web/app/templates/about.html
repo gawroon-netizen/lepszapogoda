@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}O projekcie · lepszapogoda.pl{% endblock %}
+{% block body_class %}page-text{% endblock %}
+{% block body %}
+<header class="top"><a class="logo" href="/">lepsza<b>pogoda</b>.pl</a></header>
+<main class="text">
+  <h1>O projekcie</h1>
+  <p>lepszapogoda.pl sprawdza codziennie, jak trafnie prognozowało pięć modeli pogodowych w każdym miejscu Polski
+    (siatka ok. 10 × 10 km), i na tej podstawie pokazuje prognozę. Kod jest otwarty:
+    <a href="https://github.com/gawroon-netizen/lepszapogoda">github.com/gawroon-netizen/lepszapogoda</a>.</p>
+
+  <h2>Jak liczymy trafność</h2>
+  <ul>
+    <li><b>Opady</b>: porównujemy prognozy na 1–3 dni naprzód z opadem zmierzonym z satelitów (NASA IMERG). Liczy się przede wszystkim to, czy padało (≥ 1 mm na dobę), a w mniejszym stopniu ilość.</li>
+    <li><b>Zachmurzenie</b>: porównujemy z obrazami satelitów MODIS (Terra i Aqua) w chwili ich przelotu, przed południem i w południe.</li>
+    <li><b>Temperatura</b>: porównujemy z pomiarami stacji synoptycznych IMGW w promieniu 60 km.</li>
+    <li>Okno to ostatnie 30 dni. Model musi mieć co najmniej 20 dni danych.</li>
+  </ul>
+
+  <h2>Dlaczego „najbardziej trafna” to średnia modeli</h2>
+  <p>W naszych testach (57 stacji IMGW, lipiec–wrzesień 2026) średnia z kilku modeli myliła się rzadziej niż model, który był najlepszy w poprzednim miesiącu. Zwycięzca często zmienia się z miesiąca na miesiąc. Dlatego pokazujemy średnią, a przy temperaturze dajemy większą wagę modelom, które ostatnio trafiały w Twojej okolicy lepiej.</p>
+
+  <h2>Ile warta jest prognoza na 7 dni</h2>
+  <p>Temperatura jest wyraźnie lepsza od „typowej pogody dla tej daty” przez cały tydzień. Ilość opadu od 5. dnia jest tak niepewna, że zamiast milimetrów pokazujemy szansę opadu, czyli ile modeli przewiduje co najmniej 1 mm. Ulew na 6–7 dni naprzód modele praktycznie nie przewidują.</p>
+
+  <h2>Zastrzeżenia</h2>
+  <ul>
+    <li>Pomiar opadu z satelity zaniża słabe opady i myli się przy śniegu.</li>
+    <li>Siatka ok. 10 km nie widzi pojedynczej burzy nad jedną wsią.</li>
+    <li>Ranking temperatury jest regionalny (stacje IMGW), a nie lokalny.</li>
+    <li>Zachmurzenie oceniamy tylko w dzień.</li>
+    <li>Wiatr nie jest weryfikowany i nie wpływa na ranking.</li>
+    <li><b>{{ T.disclaimer }}</b></li>
+  </ul>
+
+  <h2>Modele</h2>
+  <dl>{% for key, (name, desc) in models.items() %}<dt>{{ name }}</dt><dd>{{ desc }}</dd>{% endfor %}</dl>
+
+  <h2>Źródła i licencje</h2>
+  <ul class="small">
+    <li>Prognozy: Open-Meteo.com (CC BY 4.0) oraz ECMWF, DWD, NOAA, Météo-France</li>
+    <li>Dane pomiarowe: IMGW-PIB</li>
+    <li>Opady satelitarne: NASA GPM IMERG; zachmurzenie: NASA MODIS (przez Google Earth Engine)</li>
+    <li>Mapa: © OpenStreetMap contributors, OpenFreeMap</li>
+    <li>Sentinel-2 cloudless by EOX: contains modified Copernicus Sentinel data (CC BY-NC-SA 4.0)</li>
+    <li>Wyszukiwarka: Photon (Komoot), dane © OpenStreetMap contributors</li>
+  </ul>
+</main>
+{% endblock %}

@@ -1,3 +1,7 @@
-# Web host (mydevil, FreeBSD), SPEC §7.4. Pure-Python packages only where possible (no compiled extensions).
+# Web host (mydevil, FreeBSD), SPEC §7.4. Checked by tools/hosting_probe.py (docs/hosting-capabilities.md).
+flask
+jinja2
+requests
 boto3  # web/cron/pull_rankings.py, read-only R2 token
-# Etap 2: flask, jinja2, requests, redis, geoip2 (gunicorn only for local tests)
+tzdata  # Europe/Warsaw where the OS has no tz database (Windows dev machines)
+# later: geoip2 (MaxMind licence needed); redis only if the file cache stops being enough

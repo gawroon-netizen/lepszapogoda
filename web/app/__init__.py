@@ -1,0 +1,62 @@
+"""Flask application for lepszapogoda.pl (SPEC §5, §6, §7.4)."""
+
+from __future__ import annotations
+
+import os
+from pathlib import Path
+
+from flask import Flask
+
+from lepszapogoda import openmeteo
+from lepszapogoda.forecast import ForecastService
+
+WEB_DIR = Path(__file__).resolve().parents[1]
+
+# MapLibre needs blob: workers; tiles, glyphs and the geocoder are fetched from the browser (SPEC §5)
+CSP = "; ".join(
+    [
+        "default-src 'self'",
+        "script-src 'self'",
+        "style-src 'self'",
+        "img-src 'self' data: blob: https://tiles.openfreemap.org https://tiles.maps.eox.at",
+        "connect-src 'self' https://tiles.openfreemap.org https://tiles.maps.eox.at https://photon.komoot.io",
+        "worker-src 'self' blob:",
+        "child-src blob:",
+        "font-src 'self'",
+        "frame-ancestors 'none'",
+        "base-uri 'self'",
+        "form-action 'self'",
+    ]
+)
+
+
+def create_app(config: dict | None = None) -> Flask:
+    app = Flask(__name__, static_folder="static", template_folder="templates")
+    data_dir = Path(os.environ.get("WEB_DATA_DIR", WEB_DIR / "data"))
+    var_dir = Path(os.environ.get("WEB_VAR_DIR", WEB_DIR / "var"))
+    app.config.update(
+        RANKINGS_DIR=data_dir / "rankings",
+        CACHE_DIR=var_dir / "cache",
+        SEND_FILE_MAX_AGE_DEFAULT=86400,  # SPEC §14: static files cached for a day
+        JSON_AS_ASCII=False,
+    )
+    if config:
+        app.config.update(config)
+    if "FORECAST_SERVICE" not in app.config:
+        budget = openmeteo.Budget(ledger_path=var_dir / "openmeteo_ledger.json", safety=0.9, max_wait_s=5)
+        client = openmeteo.OpenMeteoClient(budget=budget, timeout_s=20, retries=1)
+        app.config["FORECAST_SERVICE"] = ForecastService(client, app.config["CACHE_DIR"])
+
+    @app.after_request
+    def security_headers(resp):
+        resp.headers.setdefault("Content-Security-Policy", CSP)
+        resp.headers.setdefault("X-Content-Type-Options", "nosniff")
+        resp.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+        resp.headers.setdefault("X-Frame-Options", "DENY")
+        resp.headers.setdefault("Permissions-Policy", "geolocation=(self), camera=(), microphone=()")
+        return resp
+
+    from web.app.routes import bp
+
+    app.register_blueprint(bp)
+    return app

@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}{{ place }}: prognoza 7 dni ({{ modes[v.mode]|lower }}) · lepszapogoda.pl{% endblock %}
+{% block head %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='vendor/uplot/uPlot.min.css') }}">
+{% endblock %}
+{% block body_class %}page-forecast{% endblock %}
+{% block body %}
+<header class="top">
+  <a class="logo" href="/">lepsza<b>pogoda</b>.pl</a>
+</header>
+
+<main class="forecast">
+  <section class="head">
+    <h1>{{ place }} <a class="change" href="/#{{ lat }},{{ lon }}">{{ T.change }}</a></h1>
+    <nav class="mode-switch" aria-label="Rodzaj prognozy">
+      {% for key, label in modes.items() %}
+        <a href="/prognoza/{{ slug }}/{{ coords }}/{{ key }}{% if n_arg %}?n={{ n_arg|urlencode }}{% endif %}"
+           {% if key == v.mode %}aria-current="page" class="active"{% endif %}>{{ label }}</a>
+      {% endfor %}
+    </nav>
+    {% for text in v.texts %}<p class="explain">{{ text }}</p>{% endfor %}
+    {% if stale %}<p class="warn">{{ T.stale }}</p>{% endif %}
+
+    <details class="ranking">
+      <summary>{{ T.ranking_title }}</summary>
+      {% if v.ranking %}
+        <table>
+          <thead><tr><th>#</th><th>Model</th><th>Wynik</th><th>Opady (ETS)</th><th>Chmury (trafność klas)</th><th>Temperatura (MAE)</th></tr></thead>
+          <tbody>
+          {% for r in v.ranking %}
+            <tr{% if r.model == v.model %} class="current"{% endif %}>
+              <td>{{ loop.index }}</td>
+              <td><abbr title="{{ models[r.model][1] }}">{{ models[r.model][0] }}</abbr></td>
+              <td><b>{{ r.score }}</b></td>
+              <td>{{ '%.2f'|format(r.get('precip_ets')) if r.get('precip_ets') is not none else '–' }}</td>
+              <td>{{ ('%.0f%%'|format(100 * r.get('cloud_class_acc'))) if r.get('cloud_class_acc') is not none else '–' }}</td>
+              <td>{{ ('%.1f °C'|format(r.get('temp_mae'))) if r.get('temp_mae') is not none else '–' }}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+        {% if not v.temp_source %}<p class="note">{{ T.temp_none }}</p>{% endif %}
+      {% else %}
+        <p>{{ T.ranking_none }}</p>
+      {% endif %}
+    </details>
+  </section>
+
+  <section class="days" aria-label="Prognoza na 7 dni">
+    {% for d in v.days %}
+      <button type="button" class="day{% if d.uncertain %} uncertain{% endif %}{% if loop.first %} active{% endif %}" data-date="{{ d.date }}">
+        <span class="dname">{{ 'dziś' if loop.first else d.weekday }} {{ d.day_of_month }}</span>
+        <img src="{{ url_for('static', filename='icons/' ~ d.icon ~ '.svg') }}" alt="{{ d.icon_label }}" width="48" height="48">
+        <span class="temps"><b>{{ d.tmax }}°</b> {{ d.tmin }}°</span>
+        <span class="precip">
+          {% if d.uncertain and d.precip_chance is not none %}{{ T.precip_chance.format(p=d.precip_chance) }}
+          {% else %}{{ '%.1f'|format(d.precip) }} mm{% endif %}
+        </span>
+        {% if d.gust is not none %}<span class="gust">porywy {{ d.gust }} km/h</span>{% endif %}
+        {% if d.storm %}<span class="storm">⚡ {{ T.storm_likely if d.storm == 'likely' else T.storm_possible }}</span>{% endif %}
+        {% if d.uncertain %}<span class="unc">{{ T.uncertain }}</span>{% endif %}
+      </button>
+    {% endfor %}
+  </section>
+
+  <section class="charts" aria-label="Szczegóły dnia">
+    <div id="chart-temp"></div>
+    <div id="chart-precip"></div>
+    <div id="chart-wind"></div>
+    <p class="note">{{ T.wind_note }} <a href="/o-projekcie">{{ T.about }}</a></p>
+    <noscript><p class="note">Wykresy godzinowe wymagają JavaScriptu.</p></noscript>
+  </section>
+
+  <p class="meta">{{ T.run_time.format(t=fetched) }} · Open-Meteo</p>
+</main>
+
+<footer class="disclaimer">{{ T.disclaimer }} <a href="/o-projekcie">{{ T.about }}</a></footer>
+
+<script type="application/json" id="fc-data">{{ v.hourly|tojson }}</script>
+<script src="{{ url_for('static', filename='vendor/uplot/uPlot.iife.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+{% endblock %}
