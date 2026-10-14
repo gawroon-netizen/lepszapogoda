@@ -58,7 +58,12 @@ def _safe_extract(data: bytes, dest: Path) -> None:
 def pull(s3, bucket: str, web_data: Path = WEB_DATA_DIR) -> str:
     current = web_data / "rankings"
     local_meta = current / "meta.json"
-    remote = json.loads(s3.get_object(Bucket=bucket, Key=publication.META_KEY)["Body"].read())
+    try:
+        remote = json.loads(s3.get_object(Bucket=bucket, Key=publication.META_KEY)["Body"].read())
+    except Exception as e:  # noqa: BLE001 - boto3's NoSuchKey class lives on the client
+        if "NoSuchKey" in str(e) or "404" in str(e):
+            return "nothing published yet"  # bootstrap: the pipeline has not published a ranking
+        raise
     if local_meta.exists() and json.loads(local_meta.read_text(encoding="utf-8")).get("sha256") == remote["sha256"]:
         return "up-to-date"
     data = s3.get_object(Bucket=bucket, Key=remote["archive"])["Body"].read()

@@ -32,6 +32,11 @@ def test_round_trip_and_idempotence(tmp_path, published):
     assert not (web / "rankings.tmp").exists() and not (web / "rankings.old").exists()
 
 
+def test_nothing_published_yet_is_not_an_error(tmp_path, fake_s3):
+    assert pull_rankings.pull(fake_s3, "b", tmp_path / "web") == "nothing published yet"
+    assert not (tmp_path / "web" / "rankings").exists()
+
+
 def test_corrupted_archive_keeps_current_rankings(tmp_path, published):
     web = tmp_path / "web"
     pull_rankings.pull(published, "b", web)
