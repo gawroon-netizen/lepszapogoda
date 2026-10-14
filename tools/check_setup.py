@@ -94,6 +94,42 @@ def check_r2() -> None:
     print("OK")
 
 
+def check_r2_readonly() -> None:
+    """Host token (R2_KEY_RO/R2_SECRET_RO): list and get must work, put must be refused."""
+    import boto3
+    from botocore.exceptions import BotoCoreError, ClientError
+
+    for name in ("R2_ENDPOINT", "R2_BUCKET", "R2_KEY_RO", "R2_SECRET_RO"):
+        print(f"{name}: {'set' if os.environ.get(name, '').strip() else 'MISSING'}")
+    try:
+        s3 = boto3.client(
+            "s3",
+            endpoint_url=os.environ["R2_ENDPOINT"].strip(),
+            aws_access_key_id=os.environ["R2_KEY_RO"].strip(),
+            aws_secret_access_key=os.environ["R2_SECRET_RO"].strip(),
+            region_name="auto",
+        )
+        bucket = os.environ["R2_BUCKET"].strip()
+        listing = s3.list_objects_v2(Bucket=bucket, Prefix="pipeline/obs/imgw_raw/", MaxKeys=1)
+        print(f"list: OK ({listing.get('KeyCount', 0)} object(s) under pipeline/obs/imgw_raw/)")
+        if listing.get("Contents"):
+            s3.get_object(Bucket=bucket, Key=listing["Contents"][0]["Key"])["Body"].read(100)
+            print("get: OK")
+    except KeyError as e:
+        fail(f"missing environment variable {e} (is ~/.bash_profile sourced?)")
+    except ClientError as e:
+        fail(f"R2 error {e.response.get('Error', {}).get('Code', '?')} on read")
+    except BotoCoreError as e:
+        fail(f"R2 connection problem ({type(e).__name__}) - check R2_ENDPOINT")
+    try:
+        s3.put_object(Bucket=bucket, Key=f"_setup_check/ro-{uuid.uuid4().hex}.txt", Body=b"must fail")
+    except ClientError as e:
+        print(f"put: refused as expected ({e.response.get('Error', {}).get('Code', '?')})")
+        print("OK")
+        return
+    fail("put SUCCEEDED - this token can write; create a token with Object Read only")
+
+
 def check_gee() -> None:
     import ee
 
@@ -110,4 +146,4 @@ def check_gee() -> None:
 
 
 if __name__ == "__main__":
-    {"secrets": check_secrets, "r2": check_r2, "gee": check_gee}[sys.argv[1]]()
+    {"secrets": check_secrets, "r2": check_r2, "r2-ro": check_r2_readonly, "gee": check_gee}[sys.argv[1]]()
