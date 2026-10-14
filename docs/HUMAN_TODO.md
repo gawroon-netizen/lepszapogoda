@@ -19,7 +19,7 @@ Szczegóły w SPEC §9 i §16.
 
 - [x] **mydevil:** domena `lepszapogoda.pl` typu Python (DNS mydevil, wskazuje na web37), klucz SSH agenta dodany (2026-10-13).
 - [x] **Token R2 tylko do odczytu** w `~/.bash_profile` na serwerze. `python -m tools.check_setup r2-ro`: odczyt OK, zapis odrzucony (2026-10-14).
-- [ ] **Panel DevilWEB → WWW → lepszapogoda.pl → plik wykonywalny Python:** wybrać własny i wpisać `/usr/home/mojabramka/domains/lepszapogoda.pl/venv/bin/python` (virtualenv z bibliotekami strony, utworzony przez agenta).
+- [x] ~~Plik wykonywalny Python w panelu~~: niepotrzebne. mydevil pozwala go ustawić tylko przy dodawaniu strony (`devil www add … python <plik> <konfiguracja>`), więc `passenger_wsgi.py` sam przełącza się na `venv/bin/python` (`os.execl`, standardowy wzorzec Passengera).
 - [ ] **Klucz SSH do deployu z GitHub Actions** (§16 pkt 3): osobny klucz jako sekret `DEPLOY_SSH_KEY`. Przygotuje go agent, gdy będzie gotowy `deploy.yml`.
 - [ ] Klucz licencyjny MaxMind GeoLite2.
 
