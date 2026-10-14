@@ -20,6 +20,8 @@ Szczegóły w SPEC §9 i §16.
 - [x] **mydevil:** domena `lepszapogoda.pl` typu Python (DNS mydevil, wskazuje na web37), klucz SSH agenta dodany (2026-10-13).
 - [x] **Token R2 tylko do odczytu** w `~/.bash_profile` na serwerze. `python -m tools.check_setup r2-ro`: odczyt OK, zapis odrzucony (2026-10-14).
 - [x] ~~Plik wykonywalny Python w panelu~~: niepotrzebne. mydevil pozwala go ustawić tylko przy dodawaniu strony (`devil www add … python <plik> <konfiguracja>`), więc `passenger_wsgi.py` sam przełącza się na `venv/bin/python` (`os.execl`, standardowy wzorzec Passengera).
+- [x] **HTTPS** dla lepszapogoda.pl (Let's Encrypt, włączony w panelu, 2026-10-14), http → https działa.
+- [ ] **Sprawdź mapę na https://lepszapogoda.pl** w zwykłej przeglądarce (komputer i telefon): czy widać mapę Polski, czy działa wyszukiwarka, kliknięcie i przyciski. Automatyczny podgląd agenta nie renderował mapy w karcie w tle.
 - [ ] **Klucz SSH do deployu z GitHub Actions** (§16 pkt 3): osobny klucz jako sekret `DEPLOY_SSH_KEY`. Przygotuje go agent, gdy będzie gotowy `deploy.yml`.
 - [ ] Klucz licencyjny MaxMind GeoLite2.
 

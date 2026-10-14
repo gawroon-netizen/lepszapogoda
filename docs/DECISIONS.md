@@ -59,6 +59,20 @@ Format: data · kontekst · wybór · alternatywy.
 - **Hosting (sonda 2026-10-13, `docs/hosting-capabilities.md`):** Python 3.11.13 na FreeBSD 14.3, wszystkie biblioteki strony instalują się, a numpy, pandas i pyarrow nie mają gotowych pakietów, więc zostają poza hostingiem (§14). **Cache prognoz plikowy zamiast Redis**, bo Redisa nie ma w panelu i wymagałby własnego procesu na zarezerwowanym porcie (§15 zmienione). **Limit 40 procesów na całe konto** z innymi stronami: Passenger z małą liczbą workerów, crony krótkie i z `nice`.
 - **Dostęp agenta do hostingu:** osobny klucz SSH `~/.ssh/lepszapogoda_mydevil` (ed25519, bez hasła) w `authorized_keys` konta. Zmiany wyłącznie w `~/domains/lepszapogoda.pl`, bo na koncie są inne strony człowieka.
 - **Virtualenv na mydevil wybierany w `passenger_wsgi.py`, nie w panelu.** Kontekst: plik wykonywalny strony typu Python ustawia się tylko przy `devil www add`; zmiana wymagałaby usunięcia i ponownego dodania domeny (ryzyko utraty ustawień, np. SSL). `passenger_wsgi.py` robi `os.execl` na `~/domains/lepszapogoda.pl/venv/bin/python`, gdy uruchomiono go innym interpreterem.
+- **Etap 2, strona (2026-10-14).** Odstępstwa od SPEC w MVP:
+  - **bez geolokalizacji po IP:** wymaga licencji MaxMind, a ip-api oznaczałoby wysyłanie IP odwiedzających do zewnętrznej usługi. Start na środku Polski, przycisk „Użyj mojej lokalizacji”, link „zmień” wraca z pinezką;
+  - **bez podsumowania „Ten tydzień”:** wymaga norm IMGW na hostingu, do zrobienia jako osobny plik danych z potoku;
+  - **Photon bez `lang=pl`** (Photon zwraca 400 dla `pl`; bez parametru i tak daje polskie nazwy);
+  - **warstwa „Satelita” bez etykiet OpenFreeMap na wierzchu** (do dopracowania);
+  - **nazwa miejscowości w URL jako `?n=`** (slug traci polskie znaki), ograniczona do 80 znaków i escapowana przez Jinja.
+- **Budżet Open-Meteo strony:** osobny rejestr w `web/var/openmeteo_ledger.json`, 90 % limitów (inne IP niż potok w Actions), czekanie maks. 5 s. Jedno wyświetlenie = 5 modeli × waga zmiennych, cache 1 h na punkt zaokrąglony do 0,01°.
+- **Wdrożenie na mydevil:**
+  - `deploy/deploy.sh` (git reset do `origin/main`, pip, linki, restart, `/healthz`);
+  - `public_python/passenger_wsgi.py` i `public_python/public/static` to dowiązania do repozytorium;
+  - zastępcza strona mydevil `public/index.html` przeniesiona do `mydevil-placeholder-index.html`, bo przesłaniała `/`.
+
+  Deploy na razie ręcznie przez SSH. `deploy.yml` w Actions dojdzie z osobnym kluczem (§16 pkt 3).
+- **Cron na hostingu (za zgodą człowieka):** dwie linie oznaczone `# lepszapogoda` dopisane na końcu crontaba konta (`pull_rankings` co 30 min, `cleanup` 4:20), kopia poprzedniego crontaba w `~/domains/lepszapogoda.pl/crontab-backup-*.txt`. 10 zadań innych stron bez zmian.
 - **Bez migracji lokalnych danych do R2.** Kontekst: klucze R2 są tylko w sekretach GitHuba. Koszt: ~1 dzień budżetu na ponowne pobranie prognoz i kilka godzin pomiarów IMGW z lokalnego odpytywania. Dane lokalne w `data/` zostają jako kopia, nieużywana przez potok.
 - **Publiczne repozytorium, autor commitów z adresem noreply GitHuba, prywatna rozmowa (`docs/history/`) poza repozytorium** (decyzje człowieka 2026-10-12). Historia gita przepisana przed pierwszym pushem.
 - **Testy pakietu współdzielonego w `tests/`** (SPEC §10 przewidywał tylko `pipeline/tests` i `web/tests`).
