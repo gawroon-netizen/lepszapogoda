@@ -49,9 +49,9 @@ def get_published_meta(s3, bucket: str) -> dict | None:
 def publish(rankings_dir: Path, s3, bucket: str, force: bool = False, now: datetime | None = None) -> dict:
     meta = json.loads((rankings_dir / "meta.json").read_text(encoding="utf-8"))
     prev = get_published_meta(s3, bucket)
-    if prev is None and meta.get("cells_ranked", 0) == 0:
-        # Bootstrap (forecast backfill still running): nothing to publish yet, and nothing published to protect
-        return {"status": "skipped", "reason": "no ranked cells yet, nothing published before"}
+    if meta.get("cells_ranked", 0) == 0 and (prev is None or prev.get("cells_ranked", 0) == 0) and not force:
+        # Bootstrap (forecast backfill still running): nothing to publish yet, and no ranking published to protect
+        return {"status": "skipped", "reason": "no ranked cells yet, none published before"}
     if not force:
         check_gate(meta, prev)
     data = publication.build_archive(rankings_dir)

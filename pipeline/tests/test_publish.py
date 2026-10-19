@@ -75,6 +75,20 @@ def test_bootstrap_without_rankings_is_skipped_not_failed(tmp_path, fake_s3):
     assert fake_s3.objects == {}
 
 
+def test_empty_after_empty_is_skipped_but_empty_after_ranking_is_refused(tmp_path, fake_s3):
+    write_rankings(tmp_path / "full", CELLS)
+    write_rankings(tmp_path / "empty", [])
+    publish.publish(tmp_path / "full", fake_s3, "b", now=NOW)
+    with pytest.raises(publish.GateError, match="no ranked"):
+        publish.publish(tmp_path / "empty", fake_s3, "b", now=NOW + timedelta(days=1))
+    # an intended withdrawal (force) publishes the empty ranking; after that, empty runs are quiet skips
+    assert (
+        publish.publish(tmp_path / "empty", fake_s3, "b", force=True, now=NOW + timedelta(days=1))["status"]
+        == "published"
+    )
+    assert publish.publish(tmp_path / "empty", fake_s3, "b", now=NOW + timedelta(days=2))["status"] == "skipped"
+
+
 def test_unchanged_is_not_republished(tmp_path, fake_s3):
     write_rankings(tmp_path, CELLS)
     publish.publish(tmp_path, fake_s3, "b", now=NOW)

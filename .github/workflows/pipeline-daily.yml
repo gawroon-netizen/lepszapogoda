@@ -5,6 +5,11 @@ on:
   schedule:
     - cron: "30 5 * * *"
   workflow_dispatch:
+    inputs:
+      force_publish:
+        description: "Publish even if the data-quality gate refuses (intended changes only)"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -54,7 +59,7 @@ jobs:
           python -m pipeline.storage pull forecasts/
           python -m pipeline.verify.run
       - name: publish rankings for the web host (data-quality gate, SPEC §12)
-        run: python -m pipeline.publish
+        run: python -m pipeline.publish ${{ inputs.force_publish && '--force' || '' }}
       - name: push results to R2
         if: always()
         run: python -m pipeline.storage push

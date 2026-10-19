@@ -175,6 +175,9 @@ def test_blend_weights_inverse_mse_and_equal_fallback():
 # ---------------------------------------------------------------- end to end and reproducibility (§12 e)
 
 
+THREE = ("ecmwf_ifs", "gfs_seamless", "icon_seamless")
+
+
 def synthetic_components():
     rng = np.random.default_rng(1)
     ob = rng.exponential(2, 30) * (rng.random(30) > 0.5)
@@ -193,8 +196,8 @@ def synthetic_components():
 def test_build_end_to_end_and_reproducible():
     comp = synthetic_components()
     empty = pd.DataFrame(columns=["station_id", "model", "lead_day", "date", "var", *components.COUNT_COLS])
-    cells1, meta1 = ranking.build(comp, empty, {}, END, "2026-10-01T05:00Z")
-    cells2, _ = ranking.build(comp.sample(frac=1, random_state=3), empty, {}, END, "2026-10-01T05:00Z")
+    cells1, meta1 = ranking.build(comp, empty, {}, END, "2026-10-01T05:00Z", THREE)
+    cells2, _ = ranking.build(comp.sample(frac=1, random_state=3), empty, {}, END, "2026-10-01T05:00Z", THREE)
     j = cells1[CELL]
     assert [x["model"] for x in j["accurate"]][0] == "ecmwf_ifs"
     assert j["temp_source"] is None and j["window"] == {"from": "2026-09-01", "to": "2026-09-30", "days": 30}
@@ -207,5 +210,13 @@ def test_minimum_days():
     comp = synthetic_components()
     short = comp[comp["date"] >= END - timedelta(days=cfg.MIN_DAYS - 2)]  # 19 days
     empty = pd.DataFrame(columns=["station_id", "model", "lead_day", "date", "var", *components.COUNT_COLS])
-    cells, _ = ranking.build(short, empty, {}, END, "x")
+    cells, _ = ranking.build(short, empty, {}, END, "x", THREE)
     assert cells == {}
+
+
+def test_cell_without_all_models_is_not_ranked():
+    comp = synthetic_components()
+    empty = pd.DataFrame(columns=["station_id", "model", "lead_day", "date", "var", *components.COUNT_COLS])
+    cells, meta = ranking.build(comp[comp["model"] != "icon_seamless"], empty, {}, END, "x", THREE)
+    assert cells == {} and meta["cells_ranked"] == 0
+    assert ranking.build(comp, empty, {}, END, "x", THREE)[1]["cells_ranked"] == 1

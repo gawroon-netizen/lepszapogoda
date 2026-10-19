@@ -168,8 +168,13 @@ def build(
     stations: dict[str, dict],
     end: date,
     computed: str,
+    required_models: tuple[str, ...] = cfg.REQUIRED_MODELS,
 ) -> tuple[dict[str, dict], dict]:
-    """All cell JSONs and meta.json for the window ending at `end`."""
+    """All cell JSONs and meta.json for the window ending at `end`.
+
+    A cell is ranked only when every required model meets the minimum: a ranking of two models out of five
+    (e.g. during the backfill, which fetches model by model) would be misleading.
+    """
     start = end - timedelta(days=cfg.WINDOW_DAYS - 1)
     cells = [c.cell_id for c in grid.poland_cells()]
     cp = add_metrics(pooled(cell_comp, "cell_id", start, end, cfg.RANK_LEADS))
@@ -196,8 +201,8 @@ def build(
     out: dict[str, dict] = {}
     for cid, models in sorted(by_cell.items()):
         eligible = {m: v for m, v in models.items() if v.get("n_days", 0) >= cfg.MIN_DAYS}
-        if len(eligible) < 2:
-            continue  # SPEC §8.4: no file when no model meets the minimum
+        if len(eligible) < 2 or not set(required_models) <= set(eligible):
+            continue  # SPEC §8.4: no file unless all models meet the minimum
         ranking = rank_cell(eligible)
         if not ranking:
             continue
