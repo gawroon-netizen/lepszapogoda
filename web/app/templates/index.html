@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block head %}
-  <link rel="stylesheet" href="{{ url_for('static', filename='vendor/maplibre/maplibre-gl.css') }}">
+  <link rel="stylesheet" href="{{ asset('vendor/maplibre/maplibre-gl.css') }}">
 {% endblock %}
 {% block body_class %}page-map{% endblock %}
 {% block body %}
@@ -13,25 +13,18 @@
   <button type="button" data-layer="sat">{{ T.layer_sat }}</button>
 </div>
 
-<section class="panel" aria-labelledby="question">
-  <div class="search">
-    <input id="place" type="search" autocomplete="off" placeholder="{{ T.search_placeholder }}"
-           aria-label="{{ T.search_placeholder }}" aria-controls="suggestions" aria-expanded="false">
-    <ul id="suggestions" role="listbox" hidden></ul>
-  </div>
-  <button type="button" id="locate" class="link">{{ T.use_location }}</button>
-  <h1 id="question">{{ T.question }}</h1>
-  <div class="modes">
-    {% for key, label in modes.items() %}
-      <a class="mode mode-{{ key }} disabled" data-mode="{{ key }}" aria-disabled="true" href="#">{{ label }}</a>
-    {% endfor %}
-  </div>
-  <p id="hint" class="hint">{{ T.pick_first }}</p>
-  <noscript><p class="hint">Mapa i wyszukiwarka wymagają JavaScriptu.</p></noscript>
-</section>
+<form class="search" id="search" role="search" autocomplete="off">
+  <input id="place" type="search" placeholder="{{ T.search_placeholder }}" aria-label="{{ T.search_placeholder }}"
+         aria-controls="suggestions" aria-expanded="false">
+  <button type="submit" id="go" class="go" aria-label="{{ T.show_forecast }}" title="{{ T.show_forecast }}" hidden>
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+  <ul id="suggestions" role="listbox" hidden></ul>
+  <noscript><p class="nojs">Mapa i wyszukiwarka wymagają JavaScriptu.</p></noscript>
+</form>
 
 <a class="about-link" href="/o-projekcie">{{ T.about }}</a>
 
-<script src="{{ url_for('static', filename='vendor/maplibre/maplibre-gl.js') }}"></script>
-<script src="{{ url_for('static', filename='js/map.js') }}"></script>
+<script src="{{ asset('vendor/maplibre/maplibre-gl.js') }}"></script>
+<script src="{{ asset('js/map.js') }}"></script>
 {% endblock %}

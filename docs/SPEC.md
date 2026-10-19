@@ -68,10 +68,10 @@ Osoby szukające „po prostu pogody”; rolnicy, ogrodnicy, rowerzyści, żegla
 ## 5. Widok 1 — ekran główny
 
 ### Układ
-Pełnoekranowa mapa. Na niej, u góry na środku: pole lokalizacji; pod nim nagłówek „Jaką pogodę chcesz oglądać?” i trzy przyciski w rzędzie (na < 640 px w kolumnie). [v1.1] Czwarty, „Najlepsza na burze”, pod nimi jako mniejszy, wyróżniony ikoną błyskawicy; poza sezonem burzowym szary z podpisem „ranking burzowy od kwietnia”. Logo w lewym górnym rogu, „O projekcie” w prawym dolnym. Panel z polem i przyciskami ma półprzezroczyste tło i cień (czytelność na zdjęciu satelitarnym).
+Pełnoekranowa mapa. Na niej, u góry na środku, **tylko jedno pole tekstowe**: półprzezroczyste (rozmyte tło, mapa prześwituje), zaokrąglone, ze strzałką „Pokaż prognozę”, która pojawia się dopiero, gdy pole jest wypełnione (decyzja człowieka 2026-10-19). Strzałka i Enter otwierają prognozę w trybie „Najbardziej trafna”; tryby przełącza się na stronie prognozy (§6). Logo w lewym górnym rogu, przełącznik warstw w prawym górnym, „O projekcie” w prawym dolnym. [v1.1] Wybór trybu burzowego również na stronie prognozy.
 
 ### Warstwy mapy (MapLibre GL JS, self-host pliku JS)
-- **Bazowa „Mapa”** (domyślna): OpenFreeMap, styl `liberty` lub `bright`, kolory lekko wyciszone własnym nadpisaniem stylu.
+- **Bazowa „Mapa”** (domyślna): OpenFreeMap, styl `liberty`; **etykiety po polsku**: `text-field` warstw z nazwami podmieniony na `coalesce(name:pl, name)` (styl domyślnie używa `name_en`). Wyciszenie kolorów: do zrobienia.
 - **Bazowa „Satelita”**: EOX Sentinel-2 cloudless, WMTS, bez klucza; na wierzchu warstwa OpenFreeMap tylko z granicami, drogami i nazwami. Fallback: Esri World Imagery z kluczem ArcGIS Location Platform (darmowy plan).
 - **[v1.1] Nakładka „Chmury teraz”**: EUMETView (WMS/WMTS, Meteosat, co 15 min). RGB w dzień, IR 10.8 w nocy, przełączenie automatyczne. Krycie 60 %, suwak. Widoczna tylko przy zoomie ≤ 9. Znacznik czasu obrazu w rogu. Animacja 6 ostatnich klatek po „▶”. Fallback: RainViewer IR.
 - Wybór warstw zapamiętany w localStorage. Kafelki zawsze prosto z przeglądarki, nigdy przez hosting.
@@ -79,17 +79,17 @@ Pełnoekranowa mapa. Na niej, u góry na środku: pole lokalizacji; pod nim nag�
 
 ### Zachowanie
 - Start: przybliżenie do lokalizacji z IP (zoom 9); przy błędzie środek Polski, zoom 6. Nie ustawia pinezki.
-- Przycisk „Użyj mojej lokalizacji” → HTML5 Geolocation.
+- Ikona lokalizacji w kontrolkach mapy (MapLibre GeolocateControl) → HTML5 Geolocation, ustawia punkt i wypełnia pole.
 - Kliknięcie na mapie stawia pinezkę i wypełnia pole wynikiem reverse geocodingu (Photon).
-- Przyciski nieaktywne do wyboru lokalizacji.
+- Strzałka niewidoczna przy pustym polu. Wpisany tekst bez wybranej podpowiedzi: strzałka bierze pierwszy wynik wyszukiwania. Punkt poza Polską: pole czyszczone z komunikatem w placeholderze.
 
 ### Geolokalizacja po IP (Flask)
 MaxMind GeoLite2-City z pliku `.mmdb` (biblioteka `geoip2`), plik odświeżany co miesiąc przez cron na hostingu (`tools/update_geoip.py`, klucz licencyjny w env). Fallback: ip-api.com (limit 45/min, cache 24 h w Redis pod kluczem SHA-256 z IP, bez zapisu samego IP).
 
 ### Autocomplete
-Photon (publiczna instancja Komoot) wywoływany z przeglądarki, `lang=pl`, bbox Polski, `limit=6`, debounce 250 ms, od 2 znaków, cache odpowiedzi w localStorage 7 dni. Fallback offline: `public/data/places-pl.json` (miejscowości z OSM, nazwa + gmina + województwo + lat/lon, ~40 tys. rekordów, indeks prefiksowy budowany w JS przy pierwszym użyciu). Wyświetlanie: nazwa, gmina/powiat, województwo. W MVP wybór podpowiedzi zawsze ustawia punkt. [v1.1] Jeśli podpowiedź odpowiada miastu lub gminie z `regions.json` (§8.7), pokazuje się z ikoną obszaru i wybór ustawia tryb **obszar** (na mapie rysowany jest kontur, nie pinezka). Mały przełącznik pod polem: „punkt / cały obszar” — widoczny tylko wtedy, gdy oba są dostępne. Kliknięcie na mapie zawsze daje punkt.
+Photon (publiczna instancja Komoot) wywoływany z przeglądarki, `lang=default` (nazwy lokalne, czyli „Warszawa”; `lang=pl` nie istnieje, a bez parametru Photon bierze język przeglądarki i zwraca „Warsaw”), podpowiedzi o tej samej nazwie, powiecie i województwie scalane w jedną, bbox Polski, `limit=6`, debounce 250 ms, od 2 znaków, cache odpowiedzi w localStorage 7 dni. Fallback offline: `public/data/places-pl.json` (miejscowości z OSM, nazwa + gmina + województwo + lat/lon, ~40 tys. rekordów, indeks prefiksowy budowany w JS przy pierwszym użyciu). Wyświetlanie: nazwa, gmina/powiat, województwo. W MVP wybór podpowiedzi zawsze ustawia punkt. [v1.1] Jeśli podpowiedź odpowiada miastu lub gminie z `regions.json` (§8.7), pokazuje się z ikoną obszaru i wybór ustawia tryb **obszar** (na mapie rysowany jest kontur, nie pinezka). Mały przełącznik pod polem: „punkt / cały obszar” — widoczny tylko wtedy, gdy oba są dostępne. Kliknięcie na mapie zawsze daje punkt.
 
-### Trzy przyciski
+### Tryby prognozy (przełącznik na stronie prognozy, §6)
 
 | Przycisk | Logika |
 |---|---|

@@ -73,6 +73,9 @@ Format: data · kontekst · wybór · alternatywy.
 
   Deploy na razie ręcznie przez SSH. `deploy.yml` w Actions dojdzie z osobnym kluczem (§16 pkt 3).
 - **Cron na hostingu (za zgodą człowieka):** dwie linie oznaczone `# lepszapogoda` dopisane na końcu crontaba konta (`pull_rankings` co 30 min, `cleanup` 4:20), kopia poprzedniego crontaba w `~/domains/lepszapogoda.pl/crontab-backup-*.txt`. 10 zadań innych stron bez zmian.
+- **Ekran główny minimalny (decyzja człowieka, 2026-10-19).** Zamiast panelu z nagłówkiem i trzema przyciskami: jedno półprzezroczyste pole ze strzałką, która prowadzi do trybu „trafna”. Tryby wybiera się na stronie prognozy. „Użyj mojej lokalizacji” jako ikona w kontrolkach mapy.
+- **Polskie etykiety na mapie i w wyszukiwarce.** Styl OpenFreeMap używa `name_en`, więc w JS podmieniamy na `coalesce(name:pl, name)`. Photon dostaje `lang=default`, a duplikaty (miasto, gmina, powiat o tej samej nazwie) są scalane. Klucz cache podpowiedzi w przeglądarce zmieniony na `lp-q3:`, żeby wyrzucić stare angielskie wyniki.
+- **Adresy plików statycznych z hashem treści (`?v=`)**, bo pliki mają cache na dobę; bez tego odwiedzający widzieliby stary JS po wdrożeniu.
 - **Bez migracji lokalnych danych do R2.** Kontekst: klucze R2 są tylko w sekretach GitHuba. Koszt: ~1 dzień budżetu na ponowne pobranie prognoz i kilka godzin pomiarów IMGW z lokalnego odpytywania. Dane lokalne w `data/` zostają jako kopia, nieużywana przez potok.
 - **Publiczne repozytorium, autor commitów z adresem noreply GitHuba, prywatna rozmowa (`docs/history/`) poza repozytorium** (decyzje człowieka 2026-10-12). Historia gita przepisana przed pierwszym pushem.
 - **Testy pakietu współdzielonego w `tests/`** (SPEC §10 przewidywał tylko `pipeline/tests` i `web/tests`).

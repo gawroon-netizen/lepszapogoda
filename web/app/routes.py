@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import re
-import time
 from datetime import UTC, datetime
 
 from flask import Blueprint, abort, current_app, jsonify, redirect, render_template, request
@@ -63,7 +62,7 @@ def forecast(slug: str, coords: str, mode: str):
         fc = current_app.config["FORECAST_SERVICE"].get(lat, lon)
     except ForecastUnavailable:
         return render_template("error.html", T=pl.T, message=pl.T["unavailable"]), 503
-    v = view.build(fc, mode, cell, int(time.time()))
+    v = view.build(fc, mode, cell, int(current_app.config["CLOCK"]()))
     fetched = datetime.fromtimestamp(fc["fetched"], view.TZ).strftime("%d.%m %H:%M")
     return render_template(
         "forecast.html",
@@ -96,7 +95,7 @@ def api_forecast():
         fc = current_app.config["FORECAST_SERVICE"].get(lat, lon)
     except ForecastUnavailable:
         abort(503)
-    return jsonify(view.build(fc, mode, cell, int(time.time())))
+    return jsonify(view.build(fc, mode, cell, int(current_app.config["CLOCK"]())))
 
 
 @bp.get("/o-projekcie")

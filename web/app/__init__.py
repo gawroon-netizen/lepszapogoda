@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+import hashlib
 import os
+import time
+from functools import lru_cache
 from pathlib import Path
 
-from flask import Flask
+from flask import Flask, url_for
 
 from lepszapogoda import openmeteo
 from lepszapogoda.forecast import ForecastService
@@ -39,6 +42,7 @@ def create_app(config: dict | None = None) -> Flask:
         CACHE_DIR=var_dir / "cache",
         SEND_FILE_MAX_AGE_DEFAULT=86400,  # SPEC §14: static files cached for a day
         JSON_AS_ASCII=False,
+        CLOCK=time.time,  # injectable for tests
     )
     if config:
         app.config.update(config)
@@ -46,6 +50,19 @@ def create_app(config: dict | None = None) -> Flask:
         budget = openmeteo.Budget(ledger_path=var_dir / "openmeteo_ledger.json", safety=0.9, max_wait_s=5)
         client = openmeteo.OpenMeteoClient(budget=budget, timeout_s=20, retries=1)
         app.config["FORECAST_SERVICE"] = ForecastService(client, app.config["CACHE_DIR"])
+
+    @lru_cache(maxsize=256)
+    def _version(filename: str) -> str:
+        path = Path(app.static_folder) / filename
+        return hashlib.sha256(path.read_bytes()).hexdigest()[:10] if path.is_file() else "0"
+
+    @app.context_processor
+    def asset_helper():
+        # Static files are cached for a day; the content hash in the URL makes a changed file a new URL
+        def asset(filename: str) -> str:
+            return url_for("static", filename=filename, v=_version(filename))
+
+        return {"asset": asset}
 
     @app.after_request
     def security_headers(resp):

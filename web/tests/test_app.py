@@ -65,7 +65,9 @@ class FakeService:
 def app(tmp_path):
     rankings = tmp_path / "rankings"
     (rankings / "cells").mkdir(parents=True)
-    return create_app({"FORECAST_SERVICE": FakeService(), "RANKINGS_DIR": rankings, "TESTING": True})
+    return create_app(
+        {"FORECAST_SERVICE": FakeService(), "RANKINGS_DIR": rankings, "TESTING": True, "CLOCK": lambda: NOW}
+    )
 
 
 @pytest.fixture
@@ -85,6 +87,13 @@ def write_cell(app, cell_id, accurate, temp_weights=None):
 
 
 # ---------------------------------------------------------------- routes and validation
+
+
+def test_index_is_minimal_search(client):
+    html = client.get("/").get_data(as_text=True)
+    assert 'id="place"' in html and 'id="go"' in html
+    assert "data-mode=" not in html  # modes are switched on the forecast page only
+    assert "/static/js/map.js?v=" in html  # content-hashed URL defeats the 1-day browser cache
 
 
 def test_index_and_about(client):

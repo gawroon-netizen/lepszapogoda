@@ -1,10 +1,12 @@
-// Map page (SPEC §5): map, place search (Photon), click / geolocation, three mode buttons.
+// Map page (SPEC §5): map with Polish labels, one search field; the arrow opens the forecast ("trafna" mode;
+// the other modes are switched on the forecast page). A point comes from a suggestion, a map click or geolocation.
 (function () {
   "use strict";
 
   var BBOX = [13.9, 48.9, 24.2, 55.0];
   var MARGIN = 0.5;
   var PHOTON = "https://photon.komoot.io";
+  var LANG = "default"; // local names ("Warszawa"); without it Photon follows the browser language ("Warsaw")
   var STYLES = {
     map: "https://tiles.openfreemap.org/styles/liberty",
     sat: {
@@ -21,6 +23,8 @@
       layers: [{ id: "eox", type: "raster", source: "eox" }],
     },
   };
+  // OpenFreeMap "liberty" labels prefer English (name_en); use Polish, then the local name
+  var LABEL = ["coalesce", ["get", "name:pl"], ["get", "name"]];
 
   function store(key, value) {
     try {
@@ -38,14 +42,26 @@
     zoom: 5.6,
     attributionControl: { compact: true },
   });
-  map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "bottom-right");
   window.lpMap = map; // handle for debugging in the browser console
+  map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "bottom-right");
+  var geolocate = new maplibregl.GeolocateControl({ positionOptions: { timeout: 10000 }, showUserLocation: false });
+  map.addControl(geolocate, "bottom-right");
+
+  function polishLabels() {
+    (map.getStyle().layers || []).forEach(function (l) {
+      if (l.type !== "symbol" || !l.layout || !l.layout["text-field"]) return;
+      if (JSON.stringify(l.layout["text-field"]).indexOf("name") === -1) return; // road numbers etc.
+      map.setLayoutProperty(l.id, "text-field", LABEL);
+    });
+  }
+  map.on("style.load", polishLabels);
 
   var marker = null;
+  var point = null; // {lat, lon, name} chosen for the current text
+  var form = document.getElementById("search");
   var input = document.getElementById("place");
+  var go = document.getElementById("go");
   var list = document.getElementById("suggestions");
-  var hint = document.getElementById("hint");
-  var modes = document.querySelectorAll(".mode");
 
   // ---------- layers ----------
   document.querySelectorAll(".layer-switch button").forEach(function (b) {
@@ -60,7 +76,7 @@
     });
   });
 
-  // ---------- point selection ----------
+  // ---------- point and navigation ----------
   var PL = "ąćęłńóśźżĄĆĘŁŃÓŚŹŻ", AS = "acelnoszzacelnoszz";
   function slugify(name) {
     var s = (name || "").split("").map(function (c) {
@@ -74,26 +90,33 @@
     return lat >= BBOX[1] - MARGIN && lat <= BBOX[3] + MARGIN && lon >= BBOX[0] - MARGIN && lon <= BBOX[2] + MARGIN;
   }
 
+  function refreshArrow() {
+    go.hidden = input.value.trim().length === 0;
+  }
+
   function setPoint(lat, lon, name, fly) {
     if (!marker) marker = new maplibregl.Marker({ color: "#1f6feb" });
     marker.setLngLat([lon, lat]).addTo(map);
     if (fly) map.flyTo({ center: [lon, lat], zoom: Math.max(map.getZoom(), 10) });
-    var ok = inside(lat, lon);
-    var label = name || lat.toFixed(3) + ", " + lon.toFixed(3);
-    hint.textContent = ok ? label : "Ten punkt leży poza obszarem prognoz (Polska).";
-    modes.forEach(function (a) {
-      if (!ok) {
-        a.classList.add("disabled");
-        a.setAttribute("aria-disabled", "true");
-        return;
-      }
-      var href = "/prognoza/" + slugify(name || "punkt") + "/" + lat.toFixed(3) + "," + lon.toFixed(3) + "/" + a.dataset.mode;
-      if (name) href += "?n=" + encodeURIComponent(name);
-      a.href = href;
-      a.classList.remove("disabled");
-      a.removeAttribute("aria-disabled");
-    });
-    if (!name && ok) reverse(lat, lon);
+    if (!inside(lat, lon)) {
+      point = null;
+      input.value = "";
+      input.placeholder = "Ten punkt leży poza Polską. Wybierz miejsce w Polsce.";
+      input.setAttribute("aria-invalid", "true");
+      refreshArrow();
+      return;
+    }
+    input.removeAttribute("aria-invalid");
+    point = { lat: lat, lon: lon, name: name || "" };
+    input.value = name || lat.toFixed(3) + ", " + lon.toFixed(3);
+    refreshArrow();
+    if (!name) reverse(lat, lon);
+  }
+
+  function open(p) {
+    var href = "/prognoza/" + slugify(p.name || "punkt") + "/" + p.lat.toFixed(3) + "," + p.lon.toFixed(3) + "/trafna";
+    if (p.name) href += "?n=" + encodeURIComponent(p.name);
+    location.href = href;
   }
 
   function placeName(p) {
@@ -101,33 +124,21 @@
   }
 
   function reverse(lat, lon) {
-    fetch(PHOTON + "/reverse?lat=" + lat + "&lon=" + lon + "&limit=1")
+    fetch(PHOTON + "/reverse?lat=" + lat + "&lon=" + lon + "&limit=1&lang=" + LANG)
       .then(function (r) { return r.json(); })
       .then(function (j) {
         var f = j.features && j.features[0];
         var n = f ? placeName(f.properties) : "";
-        if (n) {
+        if (n && point && point.lat === lat && point.lon === lon) {
+          point.name = n;
           input.value = n;
-          setPoint(lat, lon, n, false);
         }
       })
       .catch(function () { /* keep coordinates */ });
   }
 
-  map.on("click", function (e) {
-    input.value = "";
-    setPoint(e.lngLat.lat, e.lngLat.lng, null, false);
-  });
-
-  document.getElementById("locate").addEventListener("click", function () {
-    if (!navigator.geolocation) return;
-    hint.textContent = "Ustalam lokalizację…";
-    navigator.geolocation.getCurrentPosition(
-      function (pos) { setPoint(pos.coords.latitude, pos.coords.longitude, null, true); },
-      function () { hint.textContent = "Nie udało się ustalić lokalizacji. Wpisz miejscowość albo kliknij na mapie."; },
-      { timeout: 10000 }
-    );
-  });
+  map.on("click", function (e) { setPoint(e.lngLat.lat, e.lngLat.lng, null, false); });
+  geolocate.on("geolocate", function (pos) { setPoint(pos.coords.latitude, pos.coords.longitude, null, true); });
 
   // "zmień" link from the forecast page: /#lat,lon
   var m = location.hash.match(/^#(-?\d+\.\d+),(-?\d+\.\d+)$/);
@@ -138,7 +149,7 @@
 
   function cached(q) {
     try {
-      var c = JSON.parse(store("lp-q:" + q) || "null");
+      var c = JSON.parse(store("lp-q3:" + q) || "null");
       if (c && Date.now() - c.t < 7 * 864e5) return c.v;
     } catch (e) { /* ignore */ }
     return null;
@@ -165,40 +176,68 @@
   function choose(i) {
     var f = items[i];
     if (!f) return;
-    var c = f.geometry.coordinates, n = placeName(f.properties);
-    input.value = n;
+    var c = f.geometry.coordinates;
     items = [];
     render();
-    setPoint(c[1], c[0], n, true);
+    setPoint(c[1], c[0], placeName(f.properties), true);
   }
 
   function search(q) {
     var hit = cached(q);
-    if (hit) { items = hit; active = -1; render(); return; }
-    var url = PHOTON + "/api/?q=" + encodeURIComponent(q) + "&limit=6&bbox=" + BBOX.join(",");
-    fetch(url)
+    if (hit) return Promise.resolve(hit);
+    var url = PHOTON + "/api/?q=" + encodeURIComponent(q) + "&limit=6&lang=" + LANG + "&bbox=" + BBOX.join(",");
+    return fetch(url)
       .then(function (r) { return r.json(); })
       .then(function (j) {
-        items = (j.features || []).filter(function (f) { return f.properties.countrycode === "PL"; });
-        active = -1;
-        store("lp-q:" + q, JSON.stringify({ t: Date.now(), v: items }));
-        render();
-      })
-      .catch(function () { items = []; render(); });
+        // OSM has the same place as a city, a commune and a county: keep one entry per visible label
+        var seen = {};
+        var found = (j.features || []).filter(function (f) {
+          var p = f.properties;
+          var key = [placeName(p), p.county, p.state].join("|");
+          if (p.countrycode !== "PL" || seen[key]) return false;
+          seen[key] = true;
+          return true;
+        });
+        store("lp-q3:" + q, JSON.stringify({ t: Date.now(), v: found }));
+        return found;
+      });
   }
 
   input.addEventListener("input", function () {
+    point = null; // typed text no longer matches the chosen point
+    input.removeAttribute("aria-invalid");
+    refreshArrow();
     clearTimeout(timer);
     var q = input.value.trim();
     if (q.length < 2) { items = []; render(); return; }
-    timer = setTimeout(function () { search(q); }, 250);
+    timer = setTimeout(function () {
+      search(q).then(function (found) { items = found; active = -1; render(); }).catch(function () { items = []; render(); });
+    }, 250);
   });
+
   input.addEventListener("keydown", function (e) {
     if (!items.length) return;
     if (e.key === "ArrowDown") { active = (active + 1) % items.length; render(); e.preventDefault(); }
     else if (e.key === "ArrowUp") { active = (active - 1 + items.length) % items.length; render(); e.preventDefault(); }
-    else if (e.key === "Enter") { choose(active >= 0 ? active : 0); e.preventDefault(); }
     else if (e.key === "Escape") { items = []; render(); }
   });
+
+  // Arrow or Enter: open the forecast for the chosen point, or for the best match of the typed text
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    if (items.length && active >= 0) { choose(active); }
+    if (point) { open(point); return; }
+    var q = input.value.trim();
+    if (q.length < 2) return;
+    search(q).then(function (found) {
+      if (!found.length) {
+        input.setAttribute("aria-invalid", "true");
+        return;
+      }
+      var c = found[0].geometry.coordinates;
+      open({ lat: c[1], lon: c[0], name: placeName(found[0].properties) });
+    });
+  });
+
   input.addEventListener("blur", function () { setTimeout(function () { items = []; render(); }, 150); });
 })();

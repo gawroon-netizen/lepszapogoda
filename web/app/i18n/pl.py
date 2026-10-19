@@ -39,10 +39,8 @@ ICONS = {
 
 T = {
     "title": "lepszapogoda.pl: który model pogody trafia u Ciebie",
-    "question": "Jaką pogodę chcesz oglądać?",
     "search_placeholder": "Wpisz miejscowość albo kliknij na mapie",
-    "use_location": "Użyj mojej lokalizacji",
-    "pick_first": "Najpierw wybierz miejsce",
+    "show_forecast": "Pokaż prognozę",
     "about": "O projekcie",
     "change": "zmień",
     "layer_map": "Mapa",

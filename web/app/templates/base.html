@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}{{ T.title }}{% endblock %}</title>
   <meta name="description" content="Który model pogodowy trafiał ostatnio najlepiej w Twojej okolicy. Prognoza 7 dni z najtrafniejszych modeli.">
-  <link rel="icon" href="{{ url_for('static', filename='icons/logo.svg') }}" type="image/svg+xml">
+  <link rel="icon" href="{{ asset('icons/logo.svg') }}" type="image/svg+xml">
   {% block head %}{% endblock %}
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="{{ asset('css/style.css') }}">
 </head>
 <body class="{% block body_class %}{% endblock %}">
 {% block body %}{% endblock %}
