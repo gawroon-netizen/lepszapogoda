@@ -82,6 +82,14 @@ Format: data · kontekst · wybór · alternatywy.
   - **Filtr miast po `teryt:simc`:** wycina zagraniczne miasta z komórek przygranicznych (Brześć, Frankfurt, Görlitz). Koszt: brak Zgorzelca, który w OSM nie ma węzła miejscowości z TERYT; jego nazwa pojawia się przy większym zoomie z kafelków.
   - **Siatka 0,1° rysowana na mapie i kliknięcie dwustopniowe:** najpierw przybliżenie, potem wybór kwadratu.
   - **Prognozy tylko dla kwadratów z `pl_frac > 0`:** zamiast prostokąta z marginesem 0,5°, także w walidacji URL.
+- **Ranking tylko przy komplecie 5 modeli** (2026-10-20). Pierwsza publikacja (2 513 komórek) porównywała tylko AIFS z IFS (i GFS w 250 komórkach), bo pobieranie wstecz idzie model po modelu. Niepełny ranking zdjęty wymuszoną publikacją pustego (`force_publish`). Pusty po pustym to pominięcie, a pusty po niepustym blokuje bramka.
+- **Rozdzielczość siatki rankingu zostaje 0,1°** (2026-10-20, pytanie człowieka o 2–4 km). Powody:
+  - sędzia opadu (IMERG) ma 0,1°, więc mniejsza komórka powtórzyłaby ten sam piksel;
+  - większość modeli ma 7–28 km (ICON-D2 2 km tylko na zachodzie i na 2 dni);
+  - siatka 0,05° to 4 razy więcej zapytań Open-Meteo, ponad darmowy limit;
+  - prognoza na stronie i tak jest dla dokładnego punktu, w natywnej rozdzielczości modelu, z korektą wysokości.
+
+  Lepsza droga do szczegółu: kolejne modele wysokiej rozdzielczości. W Open-Meteo całą Polskę obejmują KNMI i DMI HARMONIE-AROME Europe (~3 dni) oraz UKMO 10 km (7 dni). ICM UM 4 km nie jest w Open-Meteo.
 - **Bez migracji lokalnych danych do R2.** Kontekst: klucze R2 są tylko w sekretach GitHuba. Koszt: ~1 dzień budżetu na ponowne pobranie prognoz i kilka godzin pomiarów IMGW z lokalnego odpytywania. Dane lokalne w `data/` zostają jako kopia, nieużywana przez potok.
 - **Publiczne repozytorium, autor commitów z adresem noreply GitHuba, prywatna rozmowa (`docs/history/`) poza repozytorium** (decyzje człowieka 2026-10-12). Historia gita przepisana przed pierwszym pushem.
 - **Testy pakietu współdzielonego w `tests/`** (SPEC §10 przewidywał tylko `pipeline/tests` i `web/tests`).
