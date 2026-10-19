@@ -76,6 +76,12 @@ Format: data · kontekst · wybór · alternatywy.
 - **Ekran główny minimalny (decyzja człowieka, 2026-10-19).** Zamiast panelu z nagłówkiem i trzema przyciskami: jedno półprzezroczyste pole ze strzałką, która prowadzi do trybu „trafna”. Tryby wybiera się na stronie prognozy. „Użyj mojej lokalizacji” jako ikona w kontrolkach mapy.
 - **Polskie etykiety na mapie i w wyszukiwarce.** Styl OpenFreeMap używa `name_en`, więc w JS podmieniamy na `coalesce(name:pl, name)`. Photon dostaje `lang=default`, a duplikaty (miasto, gmina, powiat o tej samej nazwie) są scalane. Klucz cache podpowiedzi w przeglądarce zmieniony na `lp-q3:`, żeby wyrzucić stare angielskie wyniki.
 - **Adresy plików statycznych z hashem treści (`?v=`)**, bo pliki mają cache na dobę; bez tego odwiedzający widzieliby stary JS po wdrożeniu.
+- **Mapa (2026-10-20, uwagi człowieka):**
+  - **Styl przerabiany raz i podawany jako obiekt:** wcześniej po powrocie z „Satelity” MapLibre ładował oryginalny styl, z angielskimi nazwami.
+  - **Własna warstwa miast z OSM:** kafelki OpenFreeMap przy małym zoomie nie zawierają Poznania czy Wrocławia.
+  - **Filtr miast po `teryt:simc`:** wycina zagraniczne miasta z komórek przygranicznych (Brześć, Frankfurt, Görlitz). Koszt: brak Zgorzelca, który w OSM nie ma węzła miejscowości z TERYT; jego nazwa pojawia się przy większym zoomie z kafelków.
+  - **Siatka 0,1° rysowana na mapie i kliknięcie dwustopniowe:** najpierw przybliżenie, potem wybór kwadratu.
+  - **Prognozy tylko dla kwadratów z `pl_frac > 0`:** zamiast prostokąta z marginesem 0,5°, także w walidacji URL.
 - **Bez migracji lokalnych danych do R2.** Kontekst: klucze R2 są tylko w sekretach GitHuba. Koszt: ~1 dzień budżetu na ponowne pobranie prognoz i kilka godzin pomiarów IMGW z lokalnego odpytywania. Dane lokalne w `data/` zostają jako kopia, nieużywana przez potok.
 - **Publiczne repozytorium, autor commitów z adresem noreply GitHuba, prywatna rozmowa (`docs/history/`) poza repozytorium** (decyzje człowieka 2026-10-12). Historia gita przepisana przed pierwszym pushem.
 - **Testy pakietu współdzielonego w `tests/`** (SPEC §10 przewidywał tylko `pipeline/tests` i `web/tests`).

@@ -41,6 +41,7 @@ T = {
     "title": "lepszapogoda.pl: który model pogody trafia u Ciebie",
     "search_placeholder": "Wpisz miejscowość albo kliknij na mapie",
     "show_forecast": "Pokaż prognozę",
+    "outside": "Prognozy są dostępne tylko dla miejsc w Polsce.",
     "about": "O projekcie",
     "change": "zmień",
     "layer_map": "Mapa",

@@ -111,6 +111,9 @@ def test_index_and_about(client):
         ("/prognoza/warszawa/40.000,21.010/trafna", 400),  # outside Poland + margin
         ("/prognoza/warszawa/52.2;drop,21.0/trafna", 400),
         ("/prognoza/warszawa/52.230,121.010/trafna", 400),
+        ("/prognoza/praga/50.080,14.420/trafna", 400),  # inside the bbox, but Czechia
+        ("/prognoza/krolewiec/54.710,20.510/trafna", 400),  # inside the bbox, but Russia
+        ("/prognoza/hel/54.610,18.800/trafna", 200),  # coastal cell, partly sea
     ],
 )
 def test_forecast_route_validation(client, url, code):
@@ -121,6 +124,19 @@ def test_non_canonical_coordinates_redirect(client):
     r = client.get("/prognoza/warszawa/52.23,21.01/trafna?n=Warszawa")
     assert r.status_code == 301
     assert r.headers["Location"].endswith("/prognoza/warszawa/52.230,21.010/trafna?n=Warszawa")
+
+
+def test_outside_poland_message(client):
+    r = client.get("/prognoza/praga/50.080,14.420/trafna")
+    assert "tylko dla miejsc w Polsce" in r.get_data(as_text=True)
+
+
+def test_cells_json_for_the_map(client):
+    r = client.get("/dane/komorki.json")
+    j = r.get_json()
+    assert j["step"] == 0.1 and j["grid_version"] == grid.GRID_VERSION
+    assert len(j["cells"]) == len(grid.poland_cells()) and "522_210" in j["cells"] and "500_144" not in j["cells"]
+    assert "max-age" in r.headers["Cache-Control"]
 
 
 def test_security_headers(client):

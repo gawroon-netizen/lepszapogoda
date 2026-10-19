@@ -71,8 +71,9 @@ Osoby szukające „po prostu pogody”; rolnicy, ogrodnicy, rowerzyści, żegla
 Pełnoekranowa mapa. Na niej, u góry na środku, **tylko jedno pole tekstowe**: półprzezroczyste (rozmyte tło, mapa prześwituje), zaokrąglone, ze strzałką „Pokaż prognozę”, która pojawia się dopiero, gdy pole jest wypełnione (decyzja człowieka 2026-10-19). Strzałka i Enter otwierają prognozę w trybie „Najbardziej trafna”; tryby przełącza się na stronie prognozy (§6). Logo w lewym górnym rogu, przełącznik warstw w prawym górnym, „O projekcie” w prawym dolnym. [v1.1] Wybór trybu burzowego również na stronie prognozy.
 
 ### Warstwy mapy (MapLibre GL JS, self-host pliku JS)
-- **Bazowa „Mapa”** (domyślna): OpenFreeMap, styl `liberty`; **etykiety po polsku**: `text-field` warstw z nazwami podmieniony na `coalesce(name:pl, name)` (styl domyślnie używa `name_en`). Wyciszenie kolorów: do zrobienia.
-- **Bazowa „Satelita”**: EOX Sentinel-2 cloudless, WMTS, bez klucza; na wierzchu warstwa OpenFreeMap tylko z granicami, drogami i nazwami. Fallback: Esri World Imagery z kluczem ArcGIS Location Platform (darmowy plan).
+- **Bazowa „Mapa”** (domyślna): OpenFreeMap `liberty`, pobierany raz i przerabiany w przeglądarce: **etykiety po polsku** (`coalesce(name:pl, name)` zamiast `name_en`), **bez nazw województw**, miasteczka od zoomu 5, wsie od 8. **Własna warstwa miast** z `static/data/places-pl.json` (1 018 polskich miast z liczbą ludności z OSM, `tools/build_places.py`): > 100 tys. od widoku kraju, 40–100 tys. od zoomu 6, 15–40 tys. od 7, reszta od 8, bo kafelki OpenFreeMap przy małym zoomie mają tylko kilka metropolii. Wyciszenie kolorów: do zrobienia.
+- **Siatka**: kwadraty 0,1° dotykające Polski (`/dane/komorki.json`) od zoomu 7, podświetlenie kwadratu pod kursorem i wybranego.
+- **Bazowa „Satelita”**: EOX Sentinel-2 cloudless, WMTS, bez klucza; na wierzchu granice i polskie etykiety z tego samego przerobionego stylu oraz warstwa miast. Fallback: Esri World Imagery z kluczem ArcGIS Location Platform (darmowy plan).
 - **[v1.1] Nakładka „Chmury teraz”**: EUMETView (WMS/WMTS, Meteosat, co 15 min). RGB w dzień, IR 10.8 w nocy, przełączenie automatyczne. Krycie 60 %, suwak. Widoczna tylko przy zoomie ≤ 9. Znacznik czasu obrazu w rogu. Animacja 6 ostatnich klatek po „▶”. Fallback: RainViewer IR.
 - Wybór warstw zapamiętany w localStorage. Kafelki zawsze prosto z przeglądarki, nigdy przez hosting.
 - Atrybucje wszystkich źródeł w kontrolce mapy (§11).
@@ -80,7 +81,8 @@ Pełnoekranowa mapa. Na niej, u góry na środku, **tylko jedno pole tekstowe**:
 ### Zachowanie
 - Start: przybliżenie do lokalizacji z IP (zoom 9); przy błędzie środek Polski, zoom 6. Nie ustawia pinezki.
 - Ikona lokalizacji w kontrolkach mapy (MapLibre GeolocateControl) → HTML5 Geolocation, ustawia punkt i wypełnia pole.
-- Kliknięcie na mapie stawia pinezkę i wypełnia pole wynikiem reverse geocodingu (Photon).
+- Kliknięcie przy widoku kraju (zoom < 8) tylko przybliża w to miejsce (zoom 9,5). Przy widocznych kwadratach kliknięcie wybiera kwadrat (podświetlenie + pinezka) i wpisuje do pola nazwę najbliższej **miejscowości** (Photon reverse `layer=city`, promień 15 km), a nie najbliższego obiektu (sklep, bank).
+- Wybór możliwy tylko w kwadratach dotykających Polski (także na serwerze: `parse_coords` odrzuca punkty spoza nich, np. Czechy czy obwód królewiecki w prostokącie Polski).
 - Strzałka niewidoczna przy pustym polu. Wpisany tekst bez wybranej podpowiedzi: strzałka bierze pierwszy wynik wyszukiwania. Punkt poza Polską: pole czyszczone z komunikatem w placeholderze.
 
 ### Geolokalizacja po IP (Flask)

@@ -17,7 +17,6 @@ from web.app.i18n import pl
 bp = Blueprint("main", __name__)
 
 COORDS_RE = re.compile(r"^(-?\d{1,2}(?:\.\d{1,6})?),(-?\d{1,3}(?:\.\d{1,6})?)$")
-MARGIN = 0.5  # degrees around the Polish bbox accepted in URLs (SPEC §0 pt 8)
 NAME_MAX = 80
 
 
@@ -26,8 +25,9 @@ def parse_coords(text: str) -> tuple[float, float] | None:
     if not m:
         return None
     lat, lon = float(m.group(1)), float(m.group(2))
-    lat0, lon0, lat1, lon1 = grid.BBOX
-    if not (lat0 - MARGIN <= lat <= lat1 + MARGIN and lon0 - MARGIN <= lon <= lon1 + MARGIN):
+    # Only points in a grid cell that touches Poland: the bbox alone would let in Czechia or Kaliningrad
+    cell = grid.cell_id_for(lat, lon)
+    if cell is None or grid.pl_frac(cell) == 0:
         return None
     return lat, lon
 
@@ -49,7 +49,7 @@ def forecast(slug: str, coords: str, mode: str):
         abort(404)
     point = parse_coords(coords)
     if point is None:
-        abort(400)
+        return render_template("error.html", T=pl.T, message=pl.T["outside"]), 400
     lat, lon = point
     canonical = f"{lat:.3f},{lon:.3f}"
     if coords != canonical:
@@ -96,6 +96,20 @@ def api_forecast():
     except ForecastUnavailable:
         abort(503)
     return jsonify(view.build(fc, mode, cell, int(current_app.config["CLOCK"]())))
+
+
+@bp.get("/dane/komorki.json")
+def cells_json():
+    """Grid cells touching Poland, for drawing and hit-testing the squares on the map (map.js builds polygons)."""
+    resp = jsonify(
+        {
+            "grid_version": grid.GRID_VERSION,
+            "step": 0.1,
+            "cells": [c.cell_id for c in grid.poland_cells()],
+        }
+    )
+    resp.headers["Cache-Control"] = "public, max-age=86400"
+    return resp
 
 
 @bp.get("/o-projekcie")
