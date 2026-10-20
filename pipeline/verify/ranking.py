@@ -177,35 +177,58 @@ def build(
     """
     start = end - timedelta(days=cfg.WINDOW_DAYS - 1)
     cells = [c.cell_id for c in grid.poland_cells()]
-    cp = add_metrics(pooled(cell_comp, "cell_id", start, end, cfg.RANK_LEADS))
-    sp = pooled(station_comp, "station_id", start, end, cfg.RANK_LEADS)
     smap = station_map(cells, stations)
-    temp = cell_temperature(sp, smap)
     temp_groups = {
         g: cell_temperature(pooled(station_comp, "station_id", start, end, leads), smap)
         for g, leads in cfg.LEAD_GROUPS.items()
     }
     nearest = smap.sort_values("dist_km").drop_duplicates("cell_id").set_index("cell_id")
 
-    by_cell: dict[str, dict[str, dict]] = {}
-    for r in cp.itertuples():
-        d = by_cell.setdefault(r.cell_id, {}).setdefault(r.model, {})
-        if r.var == "precip":
-            d.update(precip_ets=_r(r.ets, 3), precip_mae=_r(r.mae, 3), n_days=int(r.n_days))
-        elif r.var == "cloud" and r.n_days >= cfg.MIN_DAYS:
-            d.update(cloud_class_acc=_r(r.class_acc, 3), cloud_sde=_r(r.sde, 2), cloud_bias=_r(r.bias, 2))
-    for r in temp.itertuples():
-        if r.cell_id in by_cell and r.model in by_cell[r.cell_id]:
-            by_cell[r.cell_id][r.model]["temp_mae"] = _r(r.temp_mae, 3)
+    def metrics_by_cell(leads) -> dict[str, dict[str, dict]]:
+        cp = add_metrics(pooled(cell_comp, "cell_id", start, end, leads))
+        temp = cell_temperature(pooled(station_comp, "station_id", start, end, leads), smap)
+        by_cell: dict[str, dict[str, dict]] = {}
+        for r in cp.itertuples():
+            d = by_cell.setdefault(r.cell_id, {}).setdefault(r.model, {})
+            if r.var == "precip":
+                d.update(precip_ets=_r(r.ets, 3), precip_mae=_r(r.mae, 3), n_days=int(r.n_days))
+            elif r.var == "cloud" and r.n_days >= cfg.MIN_DAYS:
+                d.update(cloud_class_acc=_r(r.class_acc, 3), cloud_sde=_r(r.sde, 2), cloud_bias=_r(r.bias, 2))
+        for r in temp.itertuples():
+            if r.cell_id in by_cell and r.model in by_cell[r.cell_id]:
+                by_cell[r.cell_id][r.model]["temp_mae"] = _r(r.temp_mae, 3)
+        return by_cell
+
+    # Shown metrics: each model pooled over the ranking leads it has. Score: models are compared lead by lead
+    # (min-max within each lead) and a model's score is the mean over its leads, so a model archived only at
+    # +24 h (KNMI) is compared with the others' +24 h, not with their harder +48/+72 h (2026-10-20).
+    display = metrics_by_cell(cfg.RANK_LEADS)
+    per_lead = {d: metrics_by_cell((d,)) for d in cfg.RANK_LEADS}
 
     out: dict[str, dict] = {}
-    for cid, models in sorted(by_cell.items()):
+    for cid, models in sorted(display.items()):
         eligible = {m: v for m, v in models.items() if v.get("n_days", 0) >= cfg.MIN_DAYS}
         if len(eligible) < 2 or not set(required_models) <= set(eligible):
             continue  # SPEC §8.4: no file unless all models meet the minimum
-        ranking = rank_cell(eligible)
-        if not ranking:
+        scores: dict[str, list[int]] = {m: [] for m in eligible}
+        leads_of: dict[str, list[int]] = {m: [] for m in eligible}
+        for d, lead_cells in per_lead.items():
+            at_lead = {
+                m: v for m, v in lead_cells.get(cid, {}).items() if m in eligible and v.get("n_days", 0) >= cfg.MIN_DAYS
+            }
+            if len(at_lead) < 2:
+                continue
+            for row in rank_cell(at_lead):
+                scores[row["model"]].append(row["score"])
+                leads_of[row["model"]].append(d)
+        ranking = [
+            {"model": m, "score": round(sum(sc) / len(sc)), "leads_days": leads_of[m], **eligible[m]}
+            for m, sc in scores.items()
+            if sc
+        ]
+        if len(ranking) < 2:
             continue
+        ranking.sort(key=lambda x: (-x["score"], x["model"]))
         has_temp = all(v.get("temp_mae") is not None for v in eligible.values())
         src = None
         if has_temp and cid in nearest.index:

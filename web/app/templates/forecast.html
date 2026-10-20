@@ -30,7 +30,7 @@
           {% for r in v.ranking %}
             <tr{% if r.model == v.model %} class="current"{% endif %}>
               <td>{{ loop.index }}</td>
-              <td><abbr title="{{ models[r.model][1] }}">{{ models[r.model][0] }}</abbr></td>
+              <td><abbr title="{{ models[r.model][1] }}">{{ models[r.model][0] }}</abbr>{% if r.get('leads_days') == [1] %} <small title="W archiwum prognoz są tylko prognozy na 24 h, więc model porównujemy z innymi na tym wyprzedzeniu.">(24 h)</small>{% endif %}</td>
               <td><b>{{ r.score }}</b></td>
               <td>{{ '%.2f'|format(r.get('precip_ets')) if r.get('precip_ets') is not none else '–' }}</td>
               <td>{{ ('%.0f%%'|format(100 * r.get('cloud_class_acc'))) if r.get('cloud_class_acc') is not none else '–' }}</td>

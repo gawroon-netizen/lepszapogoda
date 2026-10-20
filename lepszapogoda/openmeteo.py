@@ -27,13 +27,21 @@ PREVIOUS_RUNS_URL = "https://previous-runs-api.open-meteo.com/v1/forecast"
 FORECAST_URL = "https://api.open-meteo.com/v1/forecast"
 
 # Models in the MVP (SPEC §4) and the longest lead (days) each one has in the Previous Runs API (Etap 0b)
-MODELS = ("ecmwf_ifs", "ecmwf_aifs025_single", "icon_seamless", "gfs_seamless", "meteofrance_seamless")
+MODELS = (
+    "ecmwf_ifs",
+    "ecmwf_aifs025_single",
+    "icon_seamless",
+    "gfs_seamless",
+    "meteofrance_seamless",
+    "knmi_harmonie_arome_europe",
+)
 MAX_LEAD_DAYS = {
     "ecmwf_ifs": 7,
     "ecmwf_aifs025_single": 7,
     "icon_seamless": 6,
     "gfs_seamless": 7,
     "meteofrance_seamless": 3,
+    "knmi_harmonie_arome_europe": 1,  # ~2.5-day forecasts: the archive keeps only previous_day1 (checked 2026-10-20)
 }
 
 # Verification requests (SPEC §7.3): UTC, nearest cell, no elevation downscaling (the response then

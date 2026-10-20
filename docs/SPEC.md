@@ -53,8 +53,8 @@ Osoby szukające „po prostu pogody”; rolnicy, ogrodnicy, rowerzyści, żegla
 
 **Jednostki prognozy:** (a) **punkt** — jedna komórka siatki (MVP); (b) **[v1.1] obszar** — zbiór komórek z wagami, np. całe miasto lub gmina (§8.7); obszary rysowane przez użytkownika — v2.
 
-**Modele (identyfikatory zgodne z Open-Meteo), 5 niezależnych:**
-`ecmwf_ifs` (ECMWF IFS HRES 9 km), `ecmwf_aifs025_single` (ECMWF AIFS — model AI, inny niż IFS), `icon_seamless` (DWD: ICON-D2 → ICON-EU → ICON global), `gfs_seamless` (NOAA GFS), `meteofrance_seamless` (Météo-France: AROME → ARPEGE). WeatherNext 3 — v2.
+**Modele (identyfikatory zgodne z Open-Meteo), 6 niezależnych:**
+`ecmwf_ifs` (ECMWF IFS HRES 9 km), `ecmwf_aifs025_single` (ECMWF AIFS — model AI, inny niż IFS), `icon_seamless` (DWD: ICON-D2 → ICON-EU → ICON global), `gfs_seamless` (NOAA GFS), `meteofrance_seamless` (Météo-France: AROME → ARPEGE), `knmi_harmonie_arome_europe` (KNMI HARMONIE-AROME Europe, 5,5 km, prognoza ~2,5 dnia; w archiwum tylko +24 h; dodany 2026-10-20 na prośbę człowieka). Następny kandydat: DMI HARMONIE-AROME (~2 km, ~3 dni), odłożony. WeatherNext 3 — v2.
 - `ecmwf_ifs025` **usunięty** (Etap 0b, `spike/model_families.py`): to ten sam model IFS co `ecmwf_ifs`, tylko w grubszej siatce wyjściowej — korelacja błędów 0,90–0,94 (inne pary modeli: 0,6–0,8). W średniej liczyłby IFS podwójnie; bez niego średnia jest tak samo dobra lub lepsza, a budżet API mniejszy o 1/6.
 - „Seamless” to nie warianty, tylko sklejka różnych modeli jednego ośrodka: najdokładniejszy regionalny tak długo, jak sięga, potem coraz grubszy. `icon_d2` pokrywa tylko zachód Polski (do ok. 20,3°E), `meteofrance_arome_france_hd` tylko okolice Szczecina — dlatego wchodzą wyłącznie przez „seamless”.
 - **Horyzonty (Forecast API, sprawdzone 2026-10-11):** ECMWF IFS/AIFS i GFS ≥ 15 dni, ICON ~7,5 dnia, **Météo-France ~4 dni (103 h)**. Jedyny model krótszy niż 7 dni to Météo-France: w średniej (§8.10) od 5. dnia wagi renormalizują się na pozostałe 4 modele; w trybach jednomodelowych (optymistyczny, najmniej trafny) prognoza kończy się na horyzoncie modelu z adnotacją „ten model liczy prognozę tylko na 4 dni”.
@@ -202,7 +202,7 @@ Wiatr: brak obserwacji nad lądem — poza rankingiem.
 - Temperatura: MAE dobowej max i min [°C].
 
 ### 8.4 Wskaźnik łączony
-Każda metryka normalizowana do 0–1 względem najgorszego i najlepszego modelu w komórce (1 = najlepszy). Wagi: zachmurzenie 0,40 · opady 0,40 · temperatura 0,20; jeśli temperatury brak (brak stacji ≤ 60 km), wagi 0,5/0,5 i `temp_source: null`. Wynik × 100, zaokrąglony do całości. Wagi w `pipeline/config.yaml`.
+Każda metryka normalizowana do 0–1 względem najgorszego i najlepszego modelu w komórce (1 = najlepszy). **Normalizacja i wynik osobno dla każdego wyprzedzenia (24/48/72 h), wynik modelu = średnia z wyprzedzeń, które ma** (od 2026-10-20: KNMI ma w archiwum tylko +24 h i przy łączeniu wyprzedzeń miałby fory, bo prognoza na 24 h jest zawsze najtrafniejsza). Pokazywane metryki (ETS, MAE) są liczone łącznie dla wyprzedzeń danego modelu. Wagi: zachmurzenie 0,40 · opady 0,40 · temperatura 0,20; jeśli temperatury brak (brak stacji ≤ 60 km), wagi 0,5/0,5 i `temp_source: null`. Wynik × 100, zaokrąglony do całości. Wagi w `pipeline/config.yaml`.
 
 Warunek minimalny: ≥ 20 dni z danymi dla komórki i modelu; modele poniżej progu wypadają z rankingu tej komórki. Jeśli żaden nie spełnia — brak pliku dla komórki.
 

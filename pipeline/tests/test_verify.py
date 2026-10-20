@@ -206,6 +206,27 @@ def test_build_end_to_end_and_reproducible():
     assert h(cells1) == h(cells2)
 
 
+def test_model_with_only_24h_archive_is_compared_at_24h_only():
+    # KNMI is archived only at +24 h. Here it is the worst model at +24 h, but its pooled error (24 h only) is
+    # smaller than the others' pooled 24-72 h error: pooling across leads would wrongly favour it.
+    rng = np.random.default_rng(5)
+    ob = rng.exponential(2, 30) * (rng.random(30) > 0.4)
+    noise = {("a", 1): 0.1, ("a", 2): 2.0, ("a", 3): 3.0, ("b", 1): 0.3, ("b", 2): 2.5, ("b", 3): 3.5, ("knmi", 1): 0.6}
+    parts = []
+    for (model, lead), sd in noise.items():
+        fc = np.clip(ob + rng.normal(0, sd, 30), 0, None)
+        daily = pd.DataFrame({"cell_id": CELL, "lead_day": lead, "date": DAYS, "precip": fc})
+        obs = pd.DataFrame({"cell_id": CELL, "date": DAYS, "precip": ob})
+        parts.append(components.finalize(components.precip_components(daily, obs, model), "cell_id"))
+    comp = pd.concat(parts, ignore_index=True)
+    empty = pd.DataFrame(columns=["station_id", "model", "lead_day", "date", "var", *components.COUNT_COLS])
+    cells, _ = ranking.build(comp, empty, {}, END, "x", ("a", "b", "knmi"))
+    acc = {r["model"]: r for r in cells[CELL]["accurate"]}
+    assert acc["knmi"]["leads_days"] == [1] and acc["a"]["leads_days"] == [1, 2, 3]
+    assert acc["knmi"]["precip_mae"] < acc["b"]["precip_mae"]  # pooled MAE flatters KNMI...
+    assert acc["knmi"]["score"] == min(r["score"] for r in acc.values())  # ...the lead-by-lead score does not
+
+
 def test_minimum_days():
     comp = synthetic_components()
     short = comp[comp["date"] >= END - timedelta(days=cfg.MIN_DAYS - 2)]  # 19 days

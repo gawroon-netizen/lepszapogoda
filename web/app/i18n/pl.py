@@ -12,6 +12,10 @@ MODELS = {
         "Météo-France",
         "Modele francuskiej służby meteorologicznej (AROME, ARPEGE); prognoza na 4 dni.",
     ),
+    "knmi_harmonie_arome_europe": (
+        "KNMI HARMONIE-AROME",
+        "Model holenderskiej służby KNMI dla Europy w rozdzielczości 5,5 km; prognoza na ok. 2,5 dnia.",
+    ),
 }
 
 MODES = {

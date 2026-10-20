@@ -25,6 +25,7 @@ Pobierane: 3 zmienne (temperatura, opad, zachmurzenie) × wyprzedzenia do horyzo
 | ecmwf_ifs, ecmwf_aifs025_single, gfs_seamless | 1–7 | 21 | 2,1 |
 | icon_seamless | 1–6 | 18 | 1,8 |
 | meteofrance_seamless | 1–3 | 9 | 1,0 |
+| knmi_harmonie_arome_europe (od 2026-10-20) | 1 | 3 | 1,0 |
 
 Komórki: 4 313 dotykających Polski.
 
@@ -38,7 +39,7 @@ Pierwszy prawdziwy przebieg (2026-10-11): 2 zapytania po 50 komórek, AIFS, 30 d
 
 ## Koszt strony (Widok 2)
 
-Jedno wyświetlenie prognozy dla punktu = zapytanie Forecast API o 5 modeli. Przy ok. 8 zmiennych na 7 dni to **5 wywołań**. Cache 1 h na komórkę (SPEC §7.4).
+Jedno wyświetlenie prognozy dla punktu = zapytanie Forecast API o 6 modeli. Przy ok. 9 zmiennych na 8 dni to **6 wywołań**. Cache 1 h na komórkę (SPEC §7.4).
 
 Po odjęciu weryfikacji zostaje ok. 215 tys. wywołań na miesiąc, czyli ok. **1 400 nowych komórek dziennie** bez trafienia w cache. Przy większym ruchu: dłuższy TTL (SPEC §7.4) albo płatny plan.
 
