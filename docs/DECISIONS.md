@@ -90,6 +90,7 @@ Format: data · kontekst · wybór · alternatywy.
   - prognoza na stronie i tak jest dla dokładnego punktu, w natywnej rozdzielczości modelu, z korektą wysokości.
 
   Lepsza droga do szczegółu: kolejne modele wysokiej rozdzielczości. W Open-Meteo całą Polskę obejmują KNMI i DMI HARMONIE-AROME Europe (~3 dni) oraz UKMO 10 km (7 dni). ICM UM 4 km nie jest w Open-Meteo.
+- **Nazwa klikniętego miejsca = miejscowość, w której leży punkt** (2026-10-20, błąd zgłoszony przez człowieka: Ursynów pokazywał się jako „Dawidy”). Photon reverse bez filtra zwraca najbliższy obiekt, a z jego adresu bierzemy `city` (+ `district` w dużych miastach: „Warszawa – Ursynów”). Najbliższy punkt miejscowości (`layer=city`) zostaje tylko jako zapas, gdy w pobliżu nie ma adresów (las). Wcześniejsze podejście myliło się na obrzeżach miast, bo punkt środka Warszawy jest dalej niż punkt sąsiedniej wsi.
 - **Bez migracji lokalnych danych do R2.** Kontekst: klucze R2 są tylko w sekretach GitHuba. Koszt: ~1 dzień budżetu na ponowne pobranie prognoz i kilka godzin pomiarów IMGW z lokalnego odpytywania. Dane lokalne w `data/` zostają jako kopia, nieużywana przez potok.
 - **Publiczne repozytorium, autor commitów z adresem noreply GitHuba, prywatna rozmowa (`docs/history/`) poza repozytorium** (decyzje człowieka 2026-10-12). Historia gita przepisana przed pierwszym pushem.
 - **Testy pakietu współdzielonego w `tests/`** (SPEC §10 przewidywał tylko `pipeline/tests` i `web/tests`).

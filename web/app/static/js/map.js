@@ -218,18 +218,36 @@
     return p.name || p.city || p.town || p.village || p.county || "";
   }
 
-  // nearest town or village, not the nearest shop or bank (layer=city covers towns and villages)
-  function reverse(lat, lon) {
-    fetch(PHOTON + "/reverse?lat=" + lat + "&lon=" + lon + "&limit=1&layer=city&radius=15&lang=" + LANG)
+  // The place the point lies IN, not the nearest place point: the nearest object's address carries its town
+  // ("city") and, in big cities, the district ("Warszawa – Ursynów"). The nearest place node would be wrong at
+  // city edges (Ursynów is closer to the village Dawidy than to the centre of Warsaw).
+  function containingPlace(p) {
+    if (p.city) return p.district && p.district !== p.city ? p.city + " – " + p.district : p.city;
+    if (["city", "district", "locality"].indexOf(p.type) !== -1 && p.name) return p.name; // the hit is a place itself
+    return "";
+  }
+
+  function reverseQuery(lat, lon, extra) {
+    return fetch(PHOTON + "/reverse?lat=" + lat + "&lon=" + lon + "&limit=1&lang=" + LANG + (extra || ""))
       .then(function (r) { return r.json(); })
-      .then(function (j) {
-        if (!point || point.lat !== lat || point.lon !== lon) return;
-        var f = j.features && j.features[0];
-        point.name = f ? placeName(f.properties) : "";
-        input.value = point.name || lat.toFixed(3) + ", " + lon.toFixed(3);
+      .then(function (j) { return j.features && j.features[0] ? j.features[0].properties : null; });
+  }
+
+  function reverse(lat, lon) {
+    var current = function () { return point && point.lat === lat && point.lon === lon; };
+    reverseQuery(lat, lon)
+      .then(function (p) {
+        var name = p ? containingPlace(p) : "";
+        // fallback (e.g. a forest far from any address): the nearest town or village
+        return name || reverseQuery(lat, lon, "&layer=city&radius=15").then(function (q) { return q ? placeName(q) : ""; });
+      })
+      .then(function (name) {
+        if (!current()) return;
+        point.name = name;
+        input.value = name || lat.toFixed(3) + ", " + lon.toFixed(3);
       })
       .catch(function () {
-        if (point && point.lat === lat) input.value = lat.toFixed(3) + ", " + lon.toFixed(3);
+        if (current()) input.value = lat.toFixed(3) + ", " + lon.toFixed(3);
       });
   }
 
