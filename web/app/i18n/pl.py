@@ -16,6 +16,10 @@ MODELS = {
         "KNMI HARMONIE-AROME",
         "Model holenderskiej służby KNMI dla Europy w rozdzielczości 5,5 km; prognoza na ok. 2,5 dnia.",
     ),
+    "ncep_aigfs025": (
+        "NOAA AIGFS",
+        "Model amerykańskiej NOAA oparty na sztucznej inteligencji; startuje z tych samych danych co GFS.",
+    ),
 }
 
 MODES = {

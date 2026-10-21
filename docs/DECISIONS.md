@@ -104,6 +104,12 @@ Format: data · kontekst · wybór · alternatywy.
   - **Bez oceny poza średnią:** „Najbardziej trafna” ma opierać się na sprawdzonych modelach, a model bez historii mógłby ją pogorszyć. W trybie „optymistyczna” model bez oceny bierze udział, bo ten tryb nie opiera się na trafności.
   - **Kolejność pobierania:** zapytania modeli podstawowych idą przed dodatkowymi, żeby rozruch nowego modelu nie zjadał budżetu bieżącej aktualizacji rankingu.
   - **Koszt:** przez kilka dni pobierania wstecz model dodatkowy może być w rankingu części komórek, a w innych jeszcze nie. W każdej komórce porównanie jest uczciwe, bo wynik liczymy osobno dla każdego wyprzedzenia. Zmieniają się tylko liczby zwycięstw w `meta.json`.
+- **Dodany NOAA AIGFS (`ncep_aigfs025`) jako model dodatkowy** (decyzja człowieka, 2026-10-21). Drugi model AI obok ECMWF AIFS, z innego ośrodka.
+  - **Archiwum** Previous Runs API ma wszystkie 7 wyprzedzeń, więc AIGFS porównujemy na 24/48/72 h jak pozostałe.
+  - **Opad** jest 6-godzinny, rozłożony równo na godziny. Bloki kończą się o 00/06/12/18 UTC, więc sumy dobowe 06–06 się zgadzają, ale godzinowy wykres opadu jest „schodkowy”.
+  - **Forecast API nie ma** porywów, temperatury odczuwalnej i CAPE. Średnia liczy każdą zmienną z modeli, które ją mają; w widoku pojedynczego modelu karta dnia nie pokazuje porywów.
+  - **Koszt:** rozruch ok. 19 tys. ważonych wywołań (~2,5 dnia budżetu, po modelach podstawowych i KNMI), potem ok. 650 na dobę. Strona: 7 wywołań na wyświetlenie zamiast 6.
+  - **Do sprawdzenia, gdy będą dane:** korelacja błędów AIGFS z GFS (ten sam start z GDAS). Jeśli będzie tak wysoka jak IFS z IFS 0,25° (0,9+), średnia liczyłaby NOAA podwójnie (por. Etap 0b).
 - **Bez migracji lokalnych danych do R2.** Kontekst: klucze R2 są tylko w sekretach GitHuba. Koszt: ~1 dzień budżetu na ponowne pobranie prognoz i kilka godzin pomiarów IMGW z lokalnego odpytywania. Dane lokalne w `data/` zostają jako kopia, nieużywana przez potok.
 - **Publiczne repozytorium, autor commitów z adresem noreply GitHuba, prywatna rozmowa (`docs/history/`) poza repozytorium** (decyzje człowieka 2026-10-12). Historia gita przepisana przed pierwszym pushem.
 - **Testy pakietu współdzielonego w `tests/`** (SPEC §10 przewidywał tylko `pipeline/tests` i `web/tests`).

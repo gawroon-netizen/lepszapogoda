@@ -55,8 +55,9 @@ def test_initial_backfill_fetches_every_cell_and_model_once(tmp_path):
     assert {(t.start, t.end) for t in tasks} == {fc.target_range(TODAY)}
     assert all(len(t.cell_ids) <= openmeteo.MAX_POINTS_PER_REQUEST for t in tasks)
     total = sum(t.cost for t in tasks)
-    # ~100k weighted calls: about 12 days at 80 % of the 10k daily limit (SPEC §7.3)
-    assert 80_000 < total < 110_000
+    # ~113k weighted calls for 7 models: about 14 days at 80 % of the 10k daily limit (SPEC §7.3); a new model
+    # added later costs only its own share (AIGFS ~19k)
+    assert 100_000 < total < 125_000
 
 
 def simulate(days: int, start: date, tmp_path) -> list[float]:

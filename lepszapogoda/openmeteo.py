@@ -36,7 +36,7 @@ CORE_MODELS = (
     "gfs_seamless",
     "meteofrance_seamless",
 )
-EXTRA_MODELS = ("knmi_harmonie_arome_europe",)
+EXTRA_MODELS = ("knmi_harmonie_arome_europe", "ncep_aigfs025")
 MODELS = CORE_MODELS + EXTRA_MODELS
 MAX_LEAD_DAYS = {
     "ecmwf_ifs": 7,
@@ -45,6 +45,9 @@ MAX_LEAD_DAYS = {
     "gfs_seamless": 7,
     "meteofrance_seamless": 3,
     "knmi_harmonie_arome_europe": 1,  # ~2.5-day forecasts: the archive keeps only previous_day1 (checked 2026-10-20)
+    # NOAA's AI model; 6-hourly precipitation spread evenly over hours, blocks end at 00/06/12/18 UTC, so 06-06
+    # daily sums are exact; no gusts, apparent temperature or CAPE in the Forecast API (checked 2026-10-21)
+    "ncep_aigfs025": 7,
 }
 
 # Verification requests (SPEC §7.3): UTC, nearest cell, no elevation downscaling (the response then

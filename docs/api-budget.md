@@ -26,20 +26,21 @@ Pobierane: 3 zmienne (temperatura, opad, zachmurzenie) × wyprzedzenia do horyzo
 | icon_seamless | 1–6 | 18 | 1,8 |
 | meteofrance_seamless | 1–3 | 9 | 1,0 |
 | knmi_harmonie_arome_europe (od 2026-10-20) | 1 | 3 | 1,0 |
+| ncep_aigfs025 (od 2026-10-21) | 1–7 | 21 | 2,1 |
 
 Komórki: 4 313 dotykających Polski.
 
 | Faza | Koszt (wywołania ważone) | Czas przy 8 000/dobę |
 |---|---|---|
-| Rozruch: 30 dni wstecz, wszystkie komórki i modele | **84 104** (plan z 2026-10-11) | ~11 dni |
-| Stan ustalony: 1/14 komórek dziennie, okna 14-dniowe | ok. **2 800/dobę** (≈ 4 313/14 × suma mnożników 9,1) | — |
-| Miesięcznie w stanie ustalonym | ok. 84 000 | 28 % limitu miesięcznego |
+| Rozruch: 30 dni wstecz, wszystkie komórki i modele | **84 104** (plan z 2026-10-11, 5 modeli); KNMI +9 tys., AIGFS +19 tys. | ~11 dni + ~3,5 dnia |
+| Stan ustalony: 1/14 komórek dziennie, okna 14-dniowe | ok. **3 700/dobę** (≈ 4 313/14 × suma mnożników 12,2 dla 7 modeli) | — |
+| Miesięcznie w stanie ustalonym | ok. 113 000 | 38 % limitu miesięcznego |
 
 Pierwszy prawdziwy przebieg (2026-10-11): 2 zapytania po 50 komórek, AIFS, 30 dni, koszt 450, 504 000 wierszy, 0 braków, 0,93 MB Parquet.
 
 ## Koszt strony (Widok 2)
 
-Jedno wyświetlenie prognozy dla punktu = zapytanie Forecast API o 6 modeli. Przy ok. 9 zmiennych na 8 dni to **6 wywołań**. Cache 1 h na komórkę (SPEC §7.4).
+Jedno wyświetlenie prognozy dla punktu = zapytanie Forecast API o 7 modeli. Przy ok. 9 zmiennych na 8 dni to **7 wywołań**. Cache 1 h na komórkę (SPEC §7.4).
 
 Po odjęciu weryfikacji zostaje ok. 215 tys. wywołań na miesiąc, czyli ok. **1 400 nowych komórek dziennie** bez trafienia w cache. Przy większym ruchu: dłuższy TTL (SPEC §7.4) albo płatny plan.
 
