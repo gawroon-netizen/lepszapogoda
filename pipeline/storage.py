@@ -7,6 +7,7 @@ Keys in the bucket mirror paths under DATA_DIR, under the prefix `pipeline/`.
     python -m pipeline.storage pull forecasts/manifest.json openmeteo_ledger.json obs/imgw_hourly/
     python -m pipeline.storage push            # files changed since the last pull/snapshot
     python -m pipeline.storage push --all      # everything (one-off migration of local data)
+    python -m pipeline.storage prune obs/imgw_meteo_raw/ --keep-days 14   # delete old {date}/ folders in R2
 
 Credentials from R2_ENDPOINT, R2_KEY, R2_SECRET, R2_BUCKET (SPEC §9).
 """
@@ -16,6 +17,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 
 from pipeline.paths import DATA_DIR
@@ -98,6 +100,26 @@ def push(data_dir: Path = DATA_DIR, everything: bool = False, s3=None) -> int:
     return len(files)
 
 
+def prune(prefix: str, keep_days: int, today: date | None = None, s3=None) -> int:
+    """Delete objects under `prefix` whose next path segment is a date older than `keep_days` (raw polls that
+    were already converted to Parquet). Keys without a date segment are left alone. Returns objects deleted."""
+    s3 = s3 or client()
+    bucket = bucket_name()
+    cutoff = (today or datetime.now(UTC).date()) - timedelta(days=keep_days)
+    old = []
+    for page in s3.get_paginator("list_objects_v2").paginate(Bucket=bucket, Prefix=PREFIX + prefix):
+        for o in page.get("Contents", []):
+            segment = o["Key"][len(PREFIX + prefix) :].split("/")[0]
+            try:
+                if date.fromisoformat(segment) < cutoff:
+                    old.append(o["Key"])
+            except ValueError:
+                continue
+    for i in range(0, len(old), 1000):  # DeleteObjects takes at most 1000 keys
+        s3.delete_objects(Bucket=bucket, Delete={"Objects": [{"Key": k} for k in old[i : i + 1000]], "Quiet": True})
+    return len(old)
+
+
 def main() -> None:
     p = argparse.ArgumentParser(description="Sync DATA_DIR with R2")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -105,9 +127,14 @@ def main() -> None:
     pl.add_argument("paths", nargs="+")
     ps = sub.add_parser("push")
     ps.add_argument("--all", action="store_true")
+    pr = sub.add_parser("prune")
+    pr.add_argument("prefix")
+    pr.add_argument("--keep-days", type=int, required=True)
     a = p.parse_args()
     if a.cmd == "pull":
         print(f"pulled {pull(a.paths)} files")
+    elif a.cmd == "prune":
+        print(f"deleted {prune(a.prefix, a.keep_days)} objects older than {a.keep_days} days under {a.prefix}")
     else:
         print(f"pushed {push(everything=a.all)} files")
 

@@ -1,6 +1,7 @@
 name: pipeline-daily
 
-# Once a day: daily Tmax/Tmin from the hourly IMGW polls, IMGW monthly archives, satellite observations (GEE).
+# Once a day: daily Tmax/Tmin from the hourly IMGW polls, IMGW monthly archives, IMGW automatic stations
+# (10-minute polls, collected only), satellite observations (GEE).
 on:
   schedule:
     - cron: "30 5 * * *"
@@ -39,12 +40,25 @@ jobs:
         run: |
           python -m pipeline.storage pull obs/imgw_hourly/ obs/imgw_daily/ obs/imerg/ obs/modis_terra/ obs/modis_aqua/
           for k in 0 1 2 3 4; do python -m pipeline.storage pull "obs/imgw_raw/$(date -u -d "-$k day" +%F)/"; done
+          python -m pipeline.storage pull obs/imgw_meteo_stations.json
+          for k in 0 1 2; do python -m pipeline.storage pull "obs/imgw_meteo_raw/$(date -u -d "-$k day" +%F)/"; done
+          for k in 0 1 2 3 4; do
+            d=$(date -u -d "-$k day" +%F)
+            python -m pipeline.storage pull "obs/imgw_meteo_10min/$d.parquet" "obs/imgw_meteo_daily/$d.parquet"
+          done
       - name: IMGW daily Tmax/Tmin (last 3 days, late polls included)
         run: |
           python -m pipeline.ingest.imgw ingest-raw
           for k in 1 2 3; do
             python -m pipeline.ingest.imgw daily --date "$(date -u -d "-$k day" +%F)"
           done
+      - name: IMGW automatic stations (10-minute polls -> daily; precipitation 06-06 UTC complete for D-2)
+        run: |
+          python -m pipeline.ingest.imgw_meteo ingest-raw
+          for k in 1 2 3; do
+            python -m pipeline.ingest.imgw_meteo daily --date "$(date -u -d "-$k day" +%F)"
+          done
+          python -m pipeline.storage prune obs/imgw_meteo_raw/ --keep-days 14
       - name: IMGW monthly archives (previous two months; skipped until published)
         run: |
           for k in 1 2; do

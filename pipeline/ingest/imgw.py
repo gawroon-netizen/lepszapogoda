@@ -126,14 +126,21 @@ def daily_from_hourly(day: date, data_dir: Path = DATA_DIR) -> pd.DataFrame:
     cols = ["station_id", "date", "tmax", "tmin", "n_tmax", "n_tmin", "source"]
     if not frames:
         return pd.DataFrame(columns=cols)
-    h = pd.concat(frames).dropna(subset=["temperature"])
+    return tmax_tmin(pd.concat(frames), day).assign(source="api_hourly")[cols]
+
+
+def tmax_tmin(h: pd.DataFrame, day: date) -> pd.DataFrame:
+    """Tmax/Tmin of `day` per station from full-hour temperatures (columns station_id, time, temperature);
+    windows and MIN_HOURS as in the module docstring. Also used for the automatic stations (imgw_meteo)."""
+    h = h.dropna(subset=["temperature"])
+    h = h[(h["time"].dt.minute == 0) & (h["time"].dt.second == 0)]
     d0 = pd.Timestamp(day, tz=UTC)
     day_win = h[(h["time"] >= d0 + pd.Timedelta(hours=6)) & (h["time"] <= d0 + pd.Timedelta(hours=18))]
     night_win = h[(h["time"] >= d0 - pd.Timedelta(hours=6)) & (h["time"] <= d0 + pd.Timedelta(hours=6))]
     tx = day_win.groupby("station_id")["temperature"].agg(["max", "count"])
     tn = night_win.groupby("station_id")["temperature"].agg(["min", "count"])
     out = tx.join(tn, how="outer", lsuffix="_x", rsuffix="_n").reset_index()
-    out = pd.DataFrame(
+    return pd.DataFrame(
         {
             "station_id": out["station_id"],
             "date": day,
@@ -141,10 +148,8 @@ def daily_from_hourly(day: date, data_dir: Path = DATA_DIR) -> pd.DataFrame:
             "tmin": out["min"].where(out["count_n"] >= MIN_HOURS),
             "n_tmax": out["count_x"].fillna(0).astype(int),
             "n_tmin": out["count_n"].fillna(0).astype(int),
-            "source": "api_hourly",
         }
     )
-    return out[cols]
 
 
 # ---------------------------------------------------------------- archive

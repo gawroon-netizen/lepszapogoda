@@ -196,6 +196,8 @@ Wiatr: brak obserwacji nad lądem — poza rankingiem.
 
 **Konwencje IMGW (sprawdzone w Etapie 0a):** dane dobowe synop `s_d` w miesięcznych paczkach `danepubliczne.imgw.pl/data/dane_pomiarowo_obserwacyjne/dane_meteorologiczne/dobowe/synop/{rok}/`, publikowane z opóźnieniem do ~5 tygodni, kodowanie CP1250; status `8` = brak pomiaru, `9` = zjawisko nie wystąpiło (opad = 0). Suma opadu `SMDB` dnia D obejmuje 06 UTC D → 06 UTC D+1. Tmax liczyć z 06–18 UTC, Tmin z 18 UTC D−1 – 06 UTC D. Współrzędne stacji: identyfikator WMO = `12` + trzy ostatnie cyfry kodu IMGW. Do bieżących danych (bez czekania na paczkę miesięczną) sprawdzić `api/data/synop`.
 
+**Stacje automatyczne IMGW (zbierane od 2026-10-21, jeszcze nie w rankingu):** `api/data/meteo`, ok. 790 stacji, wartości 10-minutowe w UTC (temperatura ok. 315 stacji, opad ok. 700). Worker zapisuje odczyt co 5 minut, a `pipeline/ingest/imgw_meteo.py` liczy Tmax/Tmin oraz opad 06–06 UTC (dzień ważny przy ≥ 138/144 interwałów). Plan: gęstsza weryfikacja temperatury (stacja ≤ 20 km zamiast ≤ 60 km) i deszczomierze jako drugie źródło opadu obok IMERG, gdy będzie ≥ 20 dni danych i kontrola jakości deszczomierzy (DECISIONS 2026-10-21).
+
 ### 8.3 Metryki (okno 30 dni, wyprzedzenia 24/48/72 h uśrednione)
 - Zachmurzenie: trafność klasy (pogodnie < 25 %, pochmurno > 75 %, pośrednie) jako miara główna oraz MAE frakcji [%] **po odjęciu biasu modelu z okna**. Powód (Etap 0a): różne definicje „zachmurzenia/usłonecznienia” w modelu i w obserwacji dają systematyczny bias rzędu dziesiątek procent, który zwykły MAE traktuje jak błąd prognozy i który sam rozstrzygał ranking. Bias raportujemy osobno.
 - Opady: ETS dla progu ≥ 1 mm/dobę (waga 0,7) i MAE sumy dobowej (waga 0,3).

@@ -21,6 +21,10 @@ class FakeS3:
         with open(filename, "wb") as f:
             f.write(self.objects[key])
 
+    def delete_objects(self, Bucket, Delete):  # noqa: N803 - boto3 signature
+        for o in Delete["Objects"]:
+            self.objects.pop(o["Key"], None)
+
     def get_paginator(self, name):
         objects = self.objects
 
@@ -71,3 +75,19 @@ def test_push_all(tmp_path):
     (tmp_path / "x").write_text("x")
     storage.snapshot(tmp_path)
     assert storage.push(tmp_path, everything=True, s3=s3) == 1
+
+
+def test_prune_deletes_only_old_date_folders():
+    from datetime import date
+
+    s3 = FakeS3()
+    s3.objects = {
+        "pipeline/obs/imgw_meteo_raw/2026-10-01/0000.json.gz": b"old",
+        "pipeline/obs/imgw_meteo_raw/2026-10-06/0005.json.gz": b"kept: exactly keep_days old",
+        "pipeline/obs/imgw_meteo_raw/2026-10-20/0005.json.gz": b"new",
+        "pipeline/obs/imgw_meteo_raw/README": b"no date segment",
+        "pipeline/obs/imgw_raw/2026-09-01/0005.json": b"other prefix",
+    }
+    assert storage.prune("obs/imgw_meteo_raw/", 14, today=date(2026, 10, 20), s3=s3) == 1
+    assert "pipeline/obs/imgw_meteo_raw/2026-10-01/0000.json.gz" not in s3.objects
+    assert len(s3.objects) == 4
