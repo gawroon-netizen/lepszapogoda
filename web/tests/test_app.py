@@ -176,6 +176,18 @@ def test_least_accurate_uses_ranking(app, client):
     assert "NOAA GFS przewidywał" in html
 
 
+def test_blend_uses_only_ranked_models_and_names_the_others(app, client):
+    # Météo-France plays an extra model still collecting data: not in the ranking, so not in the blend
+    cell = grid.cell_id_for(52.23, 21.01)
+    write_cell(app, cell, [{"model": "ecmwf_ifs", "score": 100}, {"model": "gfs_seamless", "score": 0}])
+    v = view.build(fc(), "trafna", json.loads((app.config["RANKINGS_DIR"] / "cells" / f"{cell}.json").read_text()), NOW)
+    assert v["hourly"]["temperature_2m"][0] == pytest.approx(12.0)  # (10 + 14) / 2, without Météo-France's 12
+    assert v["unranked"] == ["meteofrance_seamless"]
+    assert v["days"][0]["precip_chance"] == 50  # 1 of the 2 blended models
+    html = client.get("/prognoza/warszawa/52.230,21.010/trafna").get_data(as_text=True)
+    assert "Prognoza łączy 2 modeli" in html and "Bez oceny, bo zbieramy jeszcze dane: Météo-France" in html
+
+
 def test_view_uncertain_days_and_precip_chance():
     v = view.build(fc(), "trafna", None, NOW)
     assert [d["uncertain"] for d in v["days"]] == [False] * 4 + [True] * 3

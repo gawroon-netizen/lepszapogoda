@@ -20,6 +20,7 @@ WEIGHTS = {"cloud": 0.4, "precip": 0.4, "temp": 0.2}
 PRECIP_ETS_WEIGHT = 0.7  # within precipitation: ETS 0.7, MAE 0.3 (§8.3)
 CLOUD_CLASS_WEIGHT = 0.5  # within cloud: class accuracy 0.5, error SD 0.5 (bias-robust, Etap 0a)
 
-# A cell is ranked only when all these models have >= MIN_DAYS of data (2026-10-20: the first publication
-# compared only the ECMWF models, because the backfill fetches model by model)
-from lepszapogoda.openmeteo import MODELS as REQUIRED_MODELS  # noqa: E402, F401
+# A cell is ranked only when all core models have >= MIN_DAYS of data (2026-10-20: the first publication
+# compared only the ECMWF models, because the backfill fetches model by model). Extra models join when they
+# have enough data, so a newly added model does not block publication (2026-10-21).
+from lepszapogoda.openmeteo import CORE_MODELS as REQUIRED_MODELS  # noqa: E402, F401

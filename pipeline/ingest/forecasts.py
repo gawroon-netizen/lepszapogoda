@@ -127,7 +127,8 @@ class Task:
 
 
 def plan(today: date, cell_ids: list[str], models: list[str], manifest: Manifest) -> list[Task]:
-    """Requests to make today, oldest gaps first, batched by identical span."""
+    """Requests to make today: core models first (a new extra model's backfill must not delay the daily
+    update of the ranked ones), then oldest gaps first, batched by identical span."""
     t_start, t_end = target_range(today)
     slot = today.toordinal() % ROTATION_DAYS
     groups: dict[tuple[str, date, date], list[str]] = defaultdict(list)
@@ -140,7 +141,8 @@ def plan(today: date, cell_ids: list[str], models: list[str], manifest: Manifest
             if gap_days >= ROTATION_DAYS or rotation_slot(cid) == slot:
                 groups[(model, *span)].append(cid)
     tasks = []
-    for (model, s, e), cids in sorted(groups.items(), key=lambda kv: (kv[0][1], kv[0][0])):
+    core = set(openmeteo.CORE_MODELS)
+    for (model, s, e), cids in sorted(groups.items(), key=lambda kv: (kv[0][0] not in core, kv[0][1], kv[0][0])):
         for k in range(0, len(cids), openmeteo.MAX_POINTS_PER_REQUEST):
             tasks.append(Task(model, s, e, tuple(cids[k : k + openmeteo.MAX_POINTS_PER_REQUEST])))
     return tasks

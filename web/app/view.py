@@ -109,6 +109,7 @@ def build(fc: dict, mode: str, cell: dict | None, now: int) -> dict:
     ranking = cell["accurate"] if cell else None
     rank_pos = {r["model"]: k + 1 for k, r in enumerate(ranking or [])}
     info: dict = {"mode": mode, "model": None, "texts": [], "blend": False}
+    members = models
 
     if mode == "optymistyczna":
         m = most_optimistic(models, times, today)
@@ -133,9 +134,12 @@ def build(fc: dict, mode: str, cell: dict | None, now: int) -> dict:
     else:
         info["blend"] = True
         weights = (cell or {}).get("blend", {}).get("temp")
-        series = blend(models, times, now, weights)
+        # with a ranking, only the models verified in this cell take part (an extra model collecting data does not)
+        if ranking and len(set(models) & set(rank_pos)) >= 2:
+            members = {m: v for m, v in models.items() if m in rank_pos}
+        series = blend(members, times, now, weights)
         key = "blend_intro" if cell else "blend_equal"
-        info["texts"] = [pl.T[key].format(n=len(models)), *([pl.T["blend_why"]] if cell else []), *info["texts"]]
+        info["texts"] = [pl.T[key].format(n=len(members)), *([pl.T["blend_why"]] if cell else []), *info["texts"]]
 
     by_day = _day_indices(times)
     days = []
@@ -143,7 +147,7 @@ def build(fc: dict, mode: str, cell: dict | None, now: int) -> dict:
         d = date.fromordinal(today.toordinal() + k)
         idx = by_day.get(d, [])
         if idx and series.get("temperature_2m") and any(series["temperature_2m"][i] is not None for i in idx):
-            days.append(day_summary(series, idx, times, d, k, models if info["blend"] else None))
+            days.append(day_summary(series, idx, times, d, k, members if info["blend"] else None))
 
     keep = (
         "temperature_2m",
@@ -166,5 +170,7 @@ def build(fc: dict, mode: str, cell: dict | None, now: int) -> dict:
         "days": days,
         "hourly": hourly,
         "ranking": ranking,
+        # forecast models without a ranking entry here yet (an extra model collecting data)
+        "unranked": [m for m in models if m not in rank_pos] if ranking else [],
         "temp_source": cell.get("temp_source") if cell else None,
     }

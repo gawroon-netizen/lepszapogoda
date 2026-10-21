@@ -39,6 +39,7 @@
           {% endfor %}
           </tbody>
         </table>
+        {% if v.unranked %}<p class="note">{% set names %}{% for m in v.unranked %}{{ models[m][0] if m in models else m }}{{ ', ' if not loop.last }}{% endfor %}{% endset %}{{ T.unranked.format(models=names) }}</p>{% endif %}
         {% if not v.temp_source %}<p class="note">{{ T.temp_none }}</p>{% endif %}
       {% else %}
         <p>{{ T.ranking_none }}</p>

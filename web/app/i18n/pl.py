@@ -67,6 +67,7 @@ T = {
         "Ranking dla tej okolicy jeszcze powstaje. "
         "Pierwsze wyniki pojawią się po zebraniu 20 dni porównań prognoz z pomiarami."
     ),
+    "unranked": "Bez oceny, bo zbieramy jeszcze dane: {models}. Nie wchodzą do prognozy łączonej.",
     "temp_none": "Temperatura poza rankingiem dla tej okolicy (brak stacji IMGW w promieniu 60 km lub za mało danych).",
     "uncertain": "mniej pewne",
     "precip_chance": "szansa opadu {p}%",

@@ -162,11 +162,13 @@ def test_station_map_radius_and_weights():
 
 def test_blend_weights_inverse_mse_and_equal_fallback():
     groups = {
-        "1-2": pd.DataFrame({"cell_id": [CELL, CELL], "model": ["a", "b"], "temp_mse": [1.0, 3.0]}),
+        "1-2": pd.DataFrame(
+            {"cell_id": [CELL, CELL], "model": ["ecmwf_ifs", "meteofrance_seamless"], "temp_mse": [1.0, 3.0]}
+        ),
         "3-4": pd.DataFrame(columns=["cell_id", "model", "temp_mse"]),
     }
     b = ranking.blend_weights(groups, CELL, ["ecmwf_ifs", "meteofrance_seamless"])
-    assert b["temp"]["1-2"] == {"a": 0.75, "b": 0.25}
+    assert b["temp"]["1-2"] == {"ecmwf_ifs": 0.75, "meteofrance_seamless": 0.25}
     assert b["temp"]["3-4"] == {"ecmwf_ifs": 0.5, "meteofrance_seamless": 0.5}
     assert b["temp"]["5-7"] == {"ecmwf_ifs": 1.0}  # Météo-France ends at 3 days
     assert b["precip"] == "equal"
@@ -241,3 +243,30 @@ def test_cell_without_all_models_is_not_ranked():
     cells, meta = ranking.build(comp[comp["model"] != "icon_seamless"], empty, {}, END, "x", THREE)
     assert cells == {} and meta["cells_ranked"] == 0
     assert ranking.build(comp, empty, {}, END, "x", THREE)[1]["cells_ranked"] == 1
+
+
+def test_extra_model_joins_when_ready_and_never_blocks():
+    comp = synthetic_components()
+    core = ("ecmwf_ifs", "gfs_seamless")  # icon_seamless plays the extra model
+    empty = pd.DataFrame(columns=["station_id", "model", "lead_day", "date", "var", *components.COUNT_COLS])
+    # extra model still collecting data (19 days): the cell is ranked without it
+    young = comp[(comp["model"] != "icon_seamless") | (comp["date"] >= END - timedelta(days=cfg.MIN_DAYS - 2))]
+    cells, _ = ranking.build(young, empty, {}, END, "x", core)
+    assert {r["model"] for r in cells[CELL]["accurate"]} == set(core)
+    # once it has enough days it is ranked like the others
+    cells, _ = ranking.build(comp, empty, {}, END, "x", core)
+    assert {r["model"] for r in cells[CELL]["accurate"]} == set(THREE)
+    # a missing core model still blocks the cell
+    assert ranking.build(comp[comp["model"] != "gfs_seamless"], empty, {}, END, "x", core)[0] == {}
+
+
+def test_core_models_are_required_by_default():
+    from lepszapogoda.openmeteo import CORE_MODELS, EXTRA_MODELS, MODELS
+
+    assert cfg.REQUIRED_MODELS == CORE_MODELS and set(MODELS) == set(CORE_MODELS) | set(EXTRA_MODELS)
+    assert "knmi_harmonie_arome_europe" in EXTRA_MODELS
+
+
+def test_blend_weights_ignore_models_outside_the_ranking():
+    groups = {"1-2": pd.DataFrame({"cell_id": [CELL, CELL], "model": ["a", "new"], "temp_mse": [1.0, 0.5]})}
+    assert ranking.blend_weights(groups, CELL, ["a", "b"])["temp"]["1-2"] == {"a": 1.0}

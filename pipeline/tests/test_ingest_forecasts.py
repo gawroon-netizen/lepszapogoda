@@ -140,3 +140,11 @@ def test_to_frame_long_format():
     assert set(df["lead_day"]) == {1, 2, 3}
     assert set(df.columns) >= {"grid_version", "model", "cell_id", "valid_time", "lead_day", *fc.VARIABLES}
     assert str(df["valid_time"].dt.tz) == "UTC"
+
+
+def test_core_models_are_fetched_before_extra_ones(tmp_path):
+    m = fc.Manifest(tmp_path / "m.json")
+    extra = openmeteo.EXTRA_MODELS[0]
+    tasks = fc.plan(TODAY, CELLS[:200], [extra, "gfs_seamless", "ecmwf_ifs"], m)
+    order = [t.model for t in tasks]
+    assert order.index(extra) > max(i for i, x in enumerate(order) if x != extra)

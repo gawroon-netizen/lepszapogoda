@@ -55,6 +55,7 @@ Osoby szukające „po prostu pogody”; rolnicy, ogrodnicy, rowerzyści, żegla
 
 **Modele (identyfikatory zgodne z Open-Meteo), 6 niezależnych:**
 `ecmwf_ifs` (ECMWF IFS HRES 9 km), `ecmwf_aifs025_single` (ECMWF AIFS — model AI, inny niż IFS), `icon_seamless` (DWD: ICON-D2 → ICON-EU → ICON global), `gfs_seamless` (NOAA GFS), `meteofrance_seamless` (Météo-France: AROME → ARPEGE), `knmi_harmonie_arome_europe` (KNMI HARMONIE-AROME Europe, 5,5 km, prognoza ~2,5 dnia; w archiwum tylko +24 h; dodany 2026-10-20 na prośbę człowieka). Następny kandydat: DMI HARMONIE-AROME (~2 km, ~3 dni), odłożony. WeatherNext 3 — v2.
+- **Modele podstawowe i dodatkowe (od 2026-10-21):** podstawowe = pierwsze pięć (`CORE_MODELS` w `lepszapogoda/openmeteo.py`), dodatkowe = KNMI i każdy model dodany później (`EXTRA_MODELS`). Komórka trafia do rankingu, gdy wszystkie podstawowe mają ≥ 20 dni danych. Model dodatkowy dołącza do rankingu i do średniej w komórce, w której ma ≥ 20 dni, więc nowy model nie wstrzymuje publikacji na czas zbierania danych. Do tego czasu strona pokazuje go w prognozie z dopiskiem „bez oceny”, a w średniej nie bierze udziału. Pobieranie prognoz archiwalnych obsługuje najpierw modele podstawowe.
 - `ecmwf_ifs025` **usunięty** (Etap 0b, `spike/model_families.py`): to ten sam model IFS co `ecmwf_ifs`, tylko w grubszej siatce wyjściowej — korelacja błędów 0,90–0,94 (inne pary modeli: 0,6–0,8). W średniej liczyłby IFS podwójnie; bez niego średnia jest tak samo dobra lub lepsza, a budżet API mniejszy o 1/6.
 - „Seamless” to nie warianty, tylko sklejka różnych modeli jednego ośrodka: najdokładniejszy regionalny tak długo, jak sięga, potem coraz grubszy. `icon_d2` pokrywa tylko zachód Polski (do ok. 20,3°E), `meteofrance_arome_france_hd` tylko okolice Szczecina — dlatego wchodzą wyłącznie przez „seamless”.
 - **Horyzonty (Forecast API, sprawdzone 2026-10-11):** ECMWF IFS/AIFS i GFS ≥ 15 dni, ICON ~7,5 dnia, **Météo-France ~4 dni (103 h)**. Jedyny model krótszy niż 7 dni to Météo-France: w średniej (§8.10) od 5. dnia wagi renormalizują się na pozostałe 4 modele; w trybach jednomodelowych (optymistyczny, najmniej trafny) prognoza kończy się na horyzoncie modelu z adnotacją „ten model liczy prognozę tylko na 4 dni”.
@@ -206,7 +207,7 @@ Wiatr: brak obserwacji nad lądem — poza rankingiem.
 ### 8.4 Wskaźnik łączony
 Każda metryka normalizowana do 0–1 względem najgorszego i najlepszego modelu w komórce (1 = najlepszy). **Normalizacja i wynik osobno dla każdego wyprzedzenia (24/48/72 h), wynik modelu = średnia z wyprzedzeń, które ma** (od 2026-10-20: KNMI ma w archiwum tylko +24 h i przy łączeniu wyprzedzeń miałby fory, bo prognoza na 24 h jest zawsze najtrafniejsza). Pokazywane metryki (ETS, MAE) są liczone łącznie dla wyprzedzeń danego modelu. Wagi: zachmurzenie 0,40 · opady 0,40 · temperatura 0,20; jeśli temperatury brak (brak stacji ≤ 60 km), wagi 0,5/0,5 i `temp_source: null`. Wynik × 100, zaokrąglony do całości. Wagi w `pipeline/config.yaml`.
 
-Warunek minimalny: ≥ 20 dni z danymi dla komórki i modelu; modele poniżej progu wypadają z rankingu tej komórki. Jeśli żaden nie spełnia — brak pliku dla komórki.
+Warunek minimalny: ≥ 20 dni z danymi dla komórki i modelu. Komórka ma ranking tylko wtedy, gdy spełniają go wszystkie modele podstawowe (§4). Model dodatkowy poniżej progu wypada z rankingu tej komórki. W przeciwnym razie brak pliku dla komórki.
 
 ### 8.5 „Najbardziej optymistyczna”
 Liczone **w locie w Widoku 2** (`lepszapogoda/optimistic.py`), z prognoz wszystkich modeli pobranych dla punktu do średniej (§8.10) — bez dodatkowych wywołań API i bez crona. Dni 1–3 od jutra (wszystkie modele, także Météo-France, sięgają tak daleko). `t = mean(tmax)`, `p = sum(precip)`. Normalizacja min–max między modelami; `score = 0.5·t_norm + 0.5·(1−p_norm)`; remis → niższe zachmurzenie. Etykieta UI: „najcieplej i najsuszej”.
@@ -303,7 +304,7 @@ Komercyjne sieci (Vaisala GLD360, ENTLN) poza zakresem.
 
 Podstawa: `docs/reports/etap-0b.md` (średnia modeli najlepsza na każdym wyprzedzeniu 1–7 dni; ważenie pomaga tylko w temperaturze; wybór jednego zwycięzcy gorszy).
 
-- **Członkowie:** wszystkie modele z §4 dostępne dla danej godziny prognozy; gdy model kończy horyzont, wagi renormalizuje się na pozostałych.
+- **Członkowie:** modele z rankingu komórki (bez rankingu: wszystkie modele z §4) dostępne dla danej godziny prognozy; gdy model kończy horyzont, wagi renormalizuje się na pozostałych. Model dodatkowy, który zbiera jeszcze dane, nie bierze udziału (od 2026-10-21).
 - **Temperatura:** wagi ∝ 1/MSE z ostatnich 30 dni, osobno dla grup wyprzedzeń 1–2, 3–4, 5–7 dni, liczone z obserwacji stacyjnych przypisanych do komórki (§8.2). Brak danych → równe wagi.
 - **Opad, zachmurzenie, wiatr:** równe wagi (ważenie nie poprawiło wyniku; do ponownej oceny w Etapie 3 na pełnym roku). Kierunek wiatru — średnia wektorowa u/v.
 - **Ikona dnia** z wartości uśrednionych, nie z najczęstszej ikony.

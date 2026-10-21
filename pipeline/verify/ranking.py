@@ -150,7 +150,12 @@ def blend_weights(temp_by_group: dict[str, pd.DataFrame], cell_id: str, models: 
     out = {}
     for gname, leads in cfg.LEAD_GROUPS.items():
         df = temp_by_group.get(gname)
-        rows = df[df["cell_id"] == cell_id] if df is not None and not df.empty else pd.DataFrame()
+        # only the cell's ranked models: an extra model still collecting data gets no weight yet
+        rows = (
+            df[(df["cell_id"] == cell_id) & df["model"].isin(models)]
+            if df is not None and not df.empty
+            else pd.DataFrame()
+        )
         present = sorted(rows["model"]) if not rows.empty else []
         if present:
             inv = {r.model: 1 / max(r.temp_mse, 1e-6) for r in rows.itertuples()}
@@ -172,8 +177,9 @@ def build(
 ) -> tuple[dict[str, dict], dict]:
     """All cell JSONs and meta.json for the window ending at `end`.
 
-    A cell is ranked only when every required model meets the minimum: a ranking of two models out of five
-    (e.g. during the backfill, which fetches model by model) would be misleading.
+    A cell is ranked only when every required (core) model meets the minimum: a ranking of two models out of
+    five (e.g. during the backfill, which fetches model by model) would be misleading. Other models are ranked
+    in a cell once they meet the minimum there.
     """
     start = end - timedelta(days=cfg.WINDOW_DAYS - 1)
     cells = [c.cell_id for c in grid.poland_cells()]

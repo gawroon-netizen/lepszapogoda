@@ -98,6 +98,12 @@ Format: data · kontekst · wybór · alternatywy.
   - **Opad dnia D = suma 10-minutowych wartości ze znacznikiem w (06:00 D, 06:00 D+1] UTC**, jak w IMGW i IMERG (zakładamy, że znacznik to koniec interwału). Dzień jest ważny przy ≥ 138 ze 144 interwałów, bo pominiętego odczytu nie da się odtworzyć. Tmax i Tmin liczymy z pełnych godzin, w tych samych oknach co dla synop (wspólna funkcja `tmax_tmin`).
   - **Kontrola jakości na razie tylko czasowa:** odrzucamy wartości starsze niż 3 h w chwili odczytu, bo część stacji podaje pomiar sprzed miesięcy. Zacięte deszczomierze (same zera) odfiltrujemy przy weryfikacji, porównując stację z sąsiadami i z IMERG.
   - **Zapis dobowy zachowuje wartość policzoną z większej liczby danych**, więc ponowne liczenie przy brakującym pliku jej nie pogorszy.
+- **Modele podstawowe i dodatkowe** (decyzja człowieka, 2026-10-21). Reguła „ranking tylko przy komplecie modeli” sprawiała, że każdy nowy model wstrzymywał publikację o ~20 dni zbierania danych. Samo dodanie KNMI przesunęło pierwszy ranking o kilka dni.
+  - **Podstawowe** (pięć pierwszych) są wymagane w każdej komórce, tak jak dotąd.
+  - **Dodatkowe** (KNMI, potem AIGFS i inne) dołączają do rankingu i do średniej w komórce, gdy mają tam ≥ 20 dni. Wcześniej strona pokazuje je z dopiskiem „bez oceny”.
+  - **Bez oceny poza średnią:** „Najbardziej trafna” ma opierać się na sprawdzonych modelach, a model bez historii mógłby ją pogorszyć. W trybie „optymistyczna” model bez oceny bierze udział, bo ten tryb nie opiera się na trafności.
+  - **Kolejność pobierania:** zapytania modeli podstawowych idą przed dodatkowymi, żeby rozruch nowego modelu nie zjadał budżetu bieżącej aktualizacji rankingu.
+  - **Koszt:** przez kilka dni pobierania wstecz model dodatkowy może być w rankingu części komórek, a w innych jeszcze nie. W każdej komórce porównanie jest uczciwe, bo wynik liczymy osobno dla każdego wyprzedzenia. Zmieniają się tylko liczby zwycięstw w `meta.json`.
 - **Bez migracji lokalnych danych do R2.** Kontekst: klucze R2 są tylko w sekretach GitHuba. Koszt: ~1 dzień budżetu na ponowne pobranie prognoz i kilka godzin pomiarów IMGW z lokalnego odpytywania. Dane lokalne w `data/` zostają jako kopia, nieużywana przez potok.
 - **Publiczne repozytorium, autor commitów z adresem noreply GitHuba, prywatna rozmowa (`docs/history/`) poza repozytorium** (decyzje człowieka 2026-10-12). Historia gita przepisana przed pierwszym pushem.
 - **Testy pakietu współdzielonego w `tests/`** (SPEC §10 przewidywał tylko `pipeline/tests` i `web/tests`).

@@ -26,15 +26,18 @@ import requests
 PREVIOUS_RUNS_URL = "https://previous-runs-api.open-meteo.com/v1/forecast"
 FORECAST_URL = "https://api.open-meteo.com/v1/forecast"
 
-# Models in the MVP (SPEC §4) and the longest lead (days) each one has in the Previous Runs API (Etap 0b)
-MODELS = (
+# Models (SPEC §4) and the longest lead (days) each one has in the Previous Runs API (Etap 0b).
+# Core models must all have enough data before a cell is ranked; an extra model joins a cell's ranking (and the
+# blend) once it has enough data there, so adding one does not hold back publication (2026-10-21).
+CORE_MODELS = (
     "ecmwf_ifs",
     "ecmwf_aifs025_single",
     "icon_seamless",
     "gfs_seamless",
     "meteofrance_seamless",
-    "knmi_harmonie_arome_europe",
 )
+EXTRA_MODELS = ("knmi_harmonie_arome_europe",)
+MODELS = CORE_MODELS + EXTRA_MODELS
 MAX_LEAD_DAYS = {
     "ecmwf_ifs": 7,
     "ecmwf_aifs025_single": 7,
