@@ -230,6 +230,33 @@ def test_5xx_is_retried():
     assert len(session.calls) == 2
 
 
+class TruncatedResponse(FakeResponse):
+    def __init__(self):
+        super().__init__(200, None)
+
+    def json(self):
+        raise ValueError("Expecting ',' delimiter: line 1 column 320152 (char 320151)")
+
+
+def test_truncated_json_is_retried_and_charged_again():
+    clk = FakeClock()
+    session = FakeSession([TruncatedResponse(), FakeResponse(200, location(52.0, 21.0, {"time": []}))])
+    budget = Budget(clock=clk, sleep=clk.sleep)
+    client = OpenMeteoClient(budget, session=session, sleep=clk.sleep)
+    client.previous_runs("gfs_seamless", [(52.0, 21.0)], date(2026, 9, 1), date(2026, 9, 1), ["cloud_cover"], [1])
+    assert len(session.calls) == 2
+    assert budget.used(3_600) == 2
+
+
+def test_truncated_json_gives_up_after_retries():
+    clk = FakeClock()
+    session = FakeSession([TruncatedResponse() for _ in range(5)])
+    client = OpenMeteoClient(Budget(clock=clk, sleep=clk.sleep), session=session, sleep=clk.sleep, retries=2)
+    with pytest.raises(openmeteo.OpenMeteoError, match="invalid JSON"):
+        client.previous_runs("gfs_seamless", [(52.0, 21.0)], date(2026, 9, 1), date(2026, 9, 1), ["cloud_cover"], [1])
+    assert len(session.calls) == 3
+
+
 # ---------------------------------------------------------------- forecast (web)
 
 

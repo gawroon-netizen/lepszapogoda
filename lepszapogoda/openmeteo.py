@@ -240,7 +240,15 @@ class OpenMeteoClient:
                 self._sleep(10 * attempt)
                 continue
             if r.status_code == 200:
-                return r.json()
+                try:
+                    return r.json()
+                except ValueError as e:  # body cut off mid-transfer (seen in Actions, 2026-10-21)
+                    attempt += 1
+                    if attempt > self.retries:
+                        raise OpenMeteoError(f"invalid JSON after {attempt} attempts: {e}") from e
+                    self.budget.reserve(cost)  # the cut-off answer was most likely counted by Open-Meteo
+                    self._sleep(10 * attempt)
+                    continue
             reason = _reason(r)
             if r.status_code == 429:
                 # Our ledger disagrees with Open-Meteo (other users of the same IP, unknown counting rules)
