@@ -384,3 +384,18 @@ def test_status_page_renders_pipeline_state(app, client):
 def test_status_page_warns_when_stale(app, client):
     app.config["STATUS_PATH"].write_text(json.dumps({**STATUS, "generated": "2026-10-14T05:00Z"}), encoding="utf-8")
     assert "starsza niż 3 godziny" in client.get("/stan-danych").get_data(as_text=True)
+
+
+def test_status_page_names_a_run_of_an_invalid_workflow_file(app, client):
+    bad = {
+        "workflow": ".github/workflows/pipeline-daily.yml",
+        "event": "push",
+        "status": "completed",
+        "conclusion": "failure",
+        "started": "2026-10-14T05:00:00Z",
+        "updated": "x",
+        "url": "u",
+    }
+    app.config["STATUS_PATH"].write_text(json.dumps({**STATUS, "runs": [bad]}), encoding="utf-8")
+    html = client.get("/stan-danych").get_data(as_text=True)
+    assert "Błędny plik przebiegu" in html and ".github/workflows" not in html

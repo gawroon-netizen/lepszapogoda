@@ -100,6 +100,7 @@ STATUS_WORKFLOWS = {
     "pipeline-daily": "Obserwacje i ranking (codziennie)",
     "setup-check": "Kontrola konfiguracji",
 }
+STATUS_INVALID_WORKFLOW = "Błędny plik przebiegu"
 STATUS_RESULTS = {
     "success": "OK",
     "failure": "błąd",

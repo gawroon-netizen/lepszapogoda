@@ -146,7 +146,9 @@ def build(status: dict | None, now: datetime) -> dict:
     out["runs"] = (
         [
             {
-                "label": pl.STATUS_WORKFLOWS.get(x["workflow"], x["workflow"]),
+                # GitHub names a run of an unparsable workflow file after its path
+                "label": pl.STATUS_WORKFLOWS.get(x["workflow"])
+                or (pl.STATUS_INVALID_WORKFLOW if x["workflow"].startswith(".github/") else x["workflow"]),
                 "started": local(x.get("started")),
                 "result": pl.STATUS_RESULTS.get(x.get("conclusion") or x.get("status"), x.get("conclusion") or "–"),
                 "ok": x.get("conclusion") == "success",
