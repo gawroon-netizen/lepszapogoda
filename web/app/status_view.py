@@ -127,6 +127,7 @@ def build(status: dict | None, now: datetime) -> dict:
         {
             "label": pl.STATUS_SOURCES.get(o["key"], o["key"]),
             "latest": day(o.get("latest")),
+            "lag_days": (now.date() - date.fromisoformat(o["latest"])).days if o.get("latest") else None,
             "ok": bool(o.get("ok")),
         }
         for o in status.get("observations", [])

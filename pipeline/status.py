@@ -31,11 +31,11 @@ from pipeline import storage
 from pipeline.ingest import forecasts
 from pipeline.verify import config as vcfg
 
-# (key, R2 prefix under pipeline/, expected lag in days of the newest complete day)
+# (key, R2 prefix under pipeline/, usual lag in days of the newest complete day; GEE latency of IMERG and MODIS varies)
 OBSERVATIONS = (
-    ("imerg", "obs/imerg/", 2),
-    ("modis_terra", "obs/modis_terra/", 4),
-    ("modis_aqua", "obs/modis_aqua/", 4),
+    ("imerg", "obs/imerg/", 3),
+    ("modis_terra", "obs/modis_terra/", 5),
+    ("modis_aqua", "obs/modis_aqua/", 5),
     ("imgw_daily", "obs/imgw_daily/", 1),
     ("imgw_meteo_daily", "obs/imgw_meteo_daily/", 1),
 )

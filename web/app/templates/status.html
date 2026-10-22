@@ -55,16 +55,17 @@
     <h2>Obserwacje</h2>
     <div class="table-wrap">
     <table>
-      <thead><tr><th>Źródło</th><th>Najnowszy dzień</th><th>Stan</th></tr></thead>
+      <thead><tr><th>Źródło</th><th>Najnowszy dzień</th><th>Opóźnienie</th></tr></thead>
       <tbody>
       {% for o in s.observations %}
         <tr><td>{{ o.label }}</td><td>{{ o.latest }}</td>
-          <td><span class="dot {{ 'ok' if o.ok else 'bad' }}" aria-hidden="true"></span>{{ 'na bieżąco' if o.ok else 'opóźnienie' }}</td></tr>
+          <td><span class="dot {{ 'ok' if o.ok else 'wait' }}" aria-hidden="true"></span>{% if o.lag_days is none %}brak danych{% else %}{{ o.lag_days }} {{ 'dzień' if o.lag_days == 1 else 'dni' }} temu{% endif %}</td></tr>
       {% endfor %}
       </tbody>
     </table>
     </div>
-    <p class="small">Satelity mają naturalne opóźnienie: IMERG ok. 2 dni, MODIS ok. 4 dni.</p>
+    <p class="small">Dane satelitarne trafiają do Google Earth Engine z opóźnieniem: IMERG zwykle 2–4 dni, MODIS 4–7 dni.
+      Potok pobiera każdy dzień, gdy tylko jest kompletny. Żółta kropka oznacza opóźnienie większe niż zwykle.</p>
   </section>
 
   <section>

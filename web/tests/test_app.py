@@ -375,7 +375,7 @@ def test_status_page_renders_pipeline_state(app, client):
     assert "Jeszcze nieopublikowany" in html
     assert "NOAA AIGFS" in html and "dodatkowy" in html and "19 400" in html
     assert "ok. 3 dni" in html  # 19 400 / 8 000 per day
-    assert "Zachmurzenie: satelita MODIS Aqua" in html and "opóźnienie" in html
+    assert "Zachmurzenie: satelita MODIS Aqua" in html and "9 dni temu" in html  # 05.10 seen on 14.10
     assert "7 900 / 10 000" in html
     assert "Obserwacje i ranking (codziennie)" in html and ">błąd</a>" in html
     assert "style=" not in html  # CSP: style-src 'self' blocks inline styles
