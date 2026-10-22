@@ -116,6 +116,14 @@ Format: data · kontekst · wybór · alternatywy.
   - **Skąd strona stanu bierze dane:** stan liczy potok (`pipeline.status`) z tego, co jest w R2, a nie z lokalnych plików przebiegu, więc przebieg godzinowy i dzienny dają ten sam obraz. Hosting nie ma kluczy do zapisu ani tokenu GitHuba: dostaje gotowy `status.json`. Listę przebiegów Actions daje `GITHUB_TOKEN` przebiegu (uprawnienie `actions: read`).
   - **Paski postępu:** `<progress>` zamiast `<div style>`, bo CSP `style-src 'self'` blokuje style inline.
   - **Opóźnienie:** stan na stronie jest opóźniony o czas do następnego crona hostingu (do 30 min).
+- **Błąd synchronizacji z R2 w przebiegu dziennym (znaleziony przez stronę stanu, 2026-10-22).**
+  - **Objaw:** w R2 IMERG kończył się na 09.10, MODIS na 08.10, dobowe IMGW na 30.09, choć przebiegi dzienne kończyły się sukcesem.
+  - **Przyczyna:** krok weryfikacji robi drugi `storage pull forecasts/`, a `pull()` zapisywał migawkę całego katalogu. Wszystko, co przebieg policzył wcześniej, uznawał więc za wysłane, a `push` wysyłał tylko pliki zmienione później. Rankingu to nie zepsuło, bo nie był jeszcze publikowany.
+  - **Poprawka:** `pull()` oznacza jako zsynchronizowane tylko pliki, które sam pobrał (test `test_pull_mid_run_keeps_earlier_changes_pending`).
+  - **Odzyskanie danych:**
+    - satelity: same uzupełniają braki z 31 dni wstecz;
+    - dobowe IMGW: liczone teraz dla całego 30-dniowego okna z danych godzinowych, które w R2 są;
+    - stacje automatyczne: surowe odczyty z Workera leżą w R2 14 dni.
 - **Bez migracji lokalnych danych do R2.** Kontekst: klucze R2 są tylko w sekretach GitHuba. Koszt: ~1 dzień budżetu na ponowne pobranie prognoz i kilka godzin pomiarów IMGW z lokalnego odpytywania. Dane lokalne w `data/` zostają jako kopia, nieużywana przez potok.
 - **Publiczne repozytorium, autor commitów z adresem noreply GitHuba, prywatna rozmowa (`docs/history/`) poza repozytorium** (decyzje człowieka 2026-10-12). Historia gita przepisana przed pierwszym pushem.
 - **Testy pakietu współdzielonego w `tests/`** (SPEC §10 przewidywał tylko `pipeline/tests` i `web/tests`).

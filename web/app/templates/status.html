@@ -31,13 +31,12 @@
       Modele dodatkowe dołączają do rankingu, gdy uzbierają dane, i nie wstrzymują publikacji.</p>
     <div class="table-wrap">
     <table>
-      <thead><tr><th>Model</th><th>Kwadraty z ≥ {{ s.forecasts.min_days }} dniami</th><th>Pełne okno 30 dni</th><th>Do pobrania</th></tr></thead>
+      <thead><tr><th>Model</th><th>Kwadraty z ≥ {{ s.forecasts.min_days }} dniami</th><th>Do pobrania dziś</th></tr></thead>
       <tbody>
       {% for m in s.forecasts.models %}
         <tr>
           <td>{{ m.name }}{% if not m.core %} <small class="tag">dodatkowy</small>{% endif %}</td>
           <td><progress max="100" value="{{ m.ready_pct }}" aria-label="{{ m.name }}: {{ m.ready_pct }}%"></progress> {{ m.ready_pct }}%</td>
-          <td>{{ m.complete_pct }}%</td>
           <td>{{ '{:,}'.format(m.remaining).replace(',', ' ') if m.remaining else '–' }}</td>
         </tr>
       {% endfor %}

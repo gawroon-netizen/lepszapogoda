@@ -91,3 +91,14 @@ def test_prune_deletes_only_old_date_folders():
     assert storage.prune("obs/imgw_meteo_raw/", 14, today=date(2026, 10, 20), s3=s3) == 1
     assert "pipeline/obs/imgw_meteo_raw/2026-10-01/0000.json.gz" not in s3.objects
     assert len(s3.objects) == 4
+
+
+def test_pull_mid_run_keeps_earlier_changes_pending(tmp_path):
+    # the daily job: pull inputs, compute observations, pull forecasts for verification, push everything new
+    s3 = FakeS3()
+    s3.objects = {"pipeline/obs/imerg/2026-10-01.parquet": b"old", "pipeline/forecasts/manifest.json": b"{}"}
+    storage.pull(["obs/imerg/"], tmp_path, s3=s3)
+    (tmp_path / "obs" / "imerg" / "2026-10-20.parquet").write_bytes(b"new day")
+    storage.pull(["forecasts/"], tmp_path, s3=s3)
+    assert storage.push(tmp_path, s3=s3) == 1
+    assert s3.objects["pipeline/obs/imerg/2026-10-20.parquet"] == b"new day"

@@ -47,10 +47,10 @@ jobs:
             d=$(date -u -d "-$k day" +%F)
             python -m pipeline.storage pull "obs/imgw_meteo_10min/$d.parquet" "obs/imgw_meteo_daily/$d.parquet"
           done
-      - name: IMGW daily Tmax/Tmin (last 3 days, late polls included)
+      - name: IMGW daily Tmax/Tmin (whole 30-day window: cheap, and it repairs gaps; archive values take precedence)
         run: |
           python -m pipeline.ingest.imgw ingest-raw
-          for k in 1 2 3; do
+          for k in $(seq 1 30); do
             python -m pipeline.ingest.imgw daily --date "$(date -u -d "-$k day" +%F)"
           done
       - name: IMGW automatic stations (10-minute polls -> daily; precipitation 06-06 UTC complete for D-2)

@@ -56,6 +56,20 @@ def snapshot(data_dir: Path = DATA_DIR) -> None:
     (data_dir / SNAPSHOT).write_text(json.dumps(_local_state(data_dir)), encoding="utf-8")
 
 
+def _mark_synced(data_dir: Path, rels: list[str]) -> None:
+    """Record the current state of just these files in the snapshot. A pull in the middle of a run must not mark
+    files the run created or changed earlier as synced (2026-10-22: the daily job's second pull did exactly that,
+    and two weeks of observations were never pushed)."""
+    path = data_dir / SNAPSHOT
+    state = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+    for rel in rels:
+        p = data_dir / rel
+        if p.is_file():
+            state[rel] = [p.stat().st_size, p.stat().st_mtime]
+    data_dir.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(state), encoding="utf-8")
+
+
 def changed_files(data_dir: Path = DATA_DIR) -> list[str]:
     path = data_dir / SNAPSHOT
     before = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
@@ -66,7 +80,7 @@ def pull(paths: list[str], data_dir: Path = DATA_DIR, s3=None) -> int:
     """Download keys; a path ending in '/' is a prefix (all objects under it). Missing keys are fine."""
     s3 = s3 or client()
     bucket = bucket_name()
-    n = 0
+    pulled: list[str] = []
     for p in paths:
         if p.endswith("/"):
             keys = []
@@ -79,13 +93,13 @@ def pull(paths: list[str], data_dir: Path = DATA_DIR, s3=None) -> int:
             dest.parent.mkdir(parents=True, exist_ok=True)
             try:
                 s3.download_file(bucket, key, str(dest))
-                n += 1
+                pulled.append(key[len(PREFIX) :])
             except Exception as e:  # noqa: BLE001
                 if "404" in str(e) or "Not Found" in str(e):
                     continue  # first run: state does not exist yet
                 raise
-    snapshot(data_dir)
-    return n
+    _mark_synced(data_dir, pulled)
+    return len(pulled)
 
 
 def push(data_dir: Path = DATA_DIR, everything: bool = False, s3=None) -> int:

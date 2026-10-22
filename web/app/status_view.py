@@ -97,7 +97,6 @@ def build(status: dict | None, now: datetime) -> dict:
                 "name": pl.MODELS.get(m["model"], (m["model"],))[0],
                 "core": m.get("core", True),
                 "ready_pct": pct(m.get("cells_min_days", 0), total),
-                "complete_pct": pct(m.get("cells_complete", 0), total),
                 "remaining": m.get("remaining_cost", 0),
             }
             for m in fc.get("models", [])
