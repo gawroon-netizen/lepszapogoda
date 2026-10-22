@@ -83,3 +83,14 @@ def test_validate_detects_wrong_grid(tmp_path):
     (d / "cells" / "522_210.json").write_text(json.dumps({"grid_version": "old", "cell": "522_210", "accurate": [1]}))
     assert publication.validate_extracted(d, {"files": 1}) == ["522_210.json: grid_version old"]
     assert grid.GRID_VERSION == "latlon01"
+
+
+def test_status_is_copied_and_a_broken_one_keeps_the_old(tmp_path, fake_s3):
+    web = tmp_path / "web"
+    assert pull_rankings.pull_status(fake_s3, "b", web) == "status: none yet"
+    fake_s3.objects[publication.STATUS_KEY] = json.dumps({"generated": "2026-10-22T08:10Z"}).encode()
+    assert pull_rankings.pull_status(fake_s3, "b", web) == "status: updated"
+    fake_s3.objects[publication.STATUS_KEY] = b"[1, 2"
+    with pytest.raises(ValueError):
+        pull_rankings.pull_status(fake_s3, "b", web)
+    assert json.loads((web / "status.json").read_text(encoding="utf-8"))["generated"] == "2026-10-22T08:10Z"

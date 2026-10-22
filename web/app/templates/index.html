@@ -6,7 +6,7 @@
 {% block body %}
 <div id="map" aria-label="Mapa Polski" data-places="{{ asset('data/places-pl.json') }}"></div>
 
-<a class="logo" href="/">lepsza<b>pogoda</b>.pl</a>
+{% include "_brand.html" %}
 
 <div class="layer-switch" role="group" aria-label="Warstwa mapy">
   <button type="button" data-layer="map" class="active">{{ T.layer_map }}</button>
@@ -22,8 +22,6 @@
   <ul id="suggestions" role="listbox" hidden></ul>
   <noscript><p class="nojs">Mapa i wyszukiwarka wymagają JavaScriptu.</p></noscript>
 </form>
-
-<a class="about-link" href="/o-projekcie">{{ T.about }}</a>
 
 <script src="{{ asset('vendor/maplibre/maplibre-gl.js') }}"></script>
 <script src="{{ asset('js/map.js') }}"></script>

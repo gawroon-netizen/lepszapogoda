@@ -6,7 +6,7 @@
 {% block body_class %}page-forecast{% endblock %}
 {% block body %}
 <header class="top">
-  <a class="logo" href="/">lepsza<b>pogoda</b>.pl</a>
+  {% include "_brand.html" %}
 </header>
 
 <main class="forecast">
@@ -68,14 +68,14 @@
     <div id="chart-temp"></div>
     <div id="chart-precip"></div>
     <div id="chart-wind"></div>
-    <p class="note">{{ T.wind_note }} <a href="/o-projekcie">{{ T.about }}</a></p>
+    <p class="note">{{ T.wind_note }}</p>
     <noscript><p class="note">Wykresy godzinowe wymagają JavaScriptu.</p></noscript>
   </section>
 
   <p class="meta">{{ T.run_time.format(t=fetched) }} · Open-Meteo</p>
 </main>
 
-<footer class="disclaimer">{{ T.disclaimer }} <a href="/o-projekcie">{{ T.about }}</a></footer>
+<footer class="disclaimer">{{ T.disclaimer }}</footer>
 
 <script type="application/json" id="fc-data">{{ v.hourly|tojson }}</script>
 <script src="{{ asset('vendor/uplot/uPlot.iife.min.js') }}"></script>

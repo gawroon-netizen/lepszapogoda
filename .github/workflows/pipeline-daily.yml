@@ -14,6 +14,7 @@ on:
 
 permissions:
   contents: read
+  actions: read  # pipeline.status lists recent runs for the status page
 
 concurrency:
   group: pipeline-daily
@@ -77,3 +78,8 @@ jobs:
       - name: push results to R2
         if: always()
         run: python -m pipeline.storage push
+      - name: status for the web page (/stan-danych)
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python -m pipeline.status

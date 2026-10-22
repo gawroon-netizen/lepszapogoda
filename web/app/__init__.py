@@ -39,6 +39,7 @@ def create_app(config: dict | None = None) -> Flask:
     var_dir = Path(os.environ.get("WEB_VAR_DIR", WEB_DIR / "var"))
     app.config.update(
         RANKINGS_DIR=data_dir / "rankings",
+        STATUS_PATH=data_dir / "status.json",  # pipeline status, copied by web/cron/pull_rankings.py
         CACHE_DIR=var_dir / "cache",
         SEND_FILE_MAX_AGE_DEFAULT=86400,  # SPEC §14: static files cached for a day
         JSON_AS_ASCII=False,

@@ -84,3 +84,28 @@ T = {
     "unavailable": "Prognoza jest chwilowo niedostępna. Spróbuj ponownie za kilka minut.",
     "run_time": "Prognoza pobrana: {t}",
 }
+
+# /stan-danych: pipeline status page
+STATUS_SOURCES = {
+    "imerg": "Opady: satelity NASA IMERG",
+    "modis_terra": "Zachmurzenie: satelita MODIS Terra",
+    "modis_aqua": "Zachmurzenie: satelita MODIS Aqua",
+    "imgw_daily": "Temperatura: stacje synoptyczne IMGW",
+    "imgw_meteo_daily": "Stacje automatyczne IMGW (jeszcze poza rankingiem)",
+    "imgw_synop": "Stacje synoptyczne IMGW (co 30 min)",
+    "imgw_meteo": "Stacje automatyczne IMGW (co 5 min)",
+}
+STATUS_WORKFLOWS = {
+    "pipeline-hourly": "Pobieranie prognoz (co godzinę)",
+    "pipeline-daily": "Obserwacje i ranking (codziennie)",
+    "setup-check": "Kontrola konfiguracji",
+}
+STATUS_RESULTS = {
+    "success": "OK",
+    "failure": "błąd",
+    "cancelled": "przerwany",
+    "timed_out": "przekroczony czas",
+    "skipped": "pominięty",
+    "in_progress": "trwa",
+    "queued": "w kolejce",
+}

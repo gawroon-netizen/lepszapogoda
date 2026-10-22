@@ -110,6 +110,12 @@ Format: data · kontekst · wybór · alternatywy.
   - **Forecast API nie ma** porywów, temperatury odczuwalnej i CAPE. Średnia liczy każdą zmienną z modeli, które ją mają; w widoku pojedynczego modelu karta dnia nie pokazuje porywów.
   - **Koszt:** rozruch ok. 19 tys. ważonych wywołań (~2,5 dnia budżetu, po modelach podstawowych i KNMI), potem ok. 650 na dobę. Strona: 7 wywołań na wyświetlenie zamiast 6.
   - **Do sprawdzenia, gdy będą dane:** korelacja błędów AIGFS z GFS (ten sam start z GDAS). Jeśli będzie tak wysoka jak IFS z IFS 0,25° (0,9+), średnia liczyłaby NOAA podwójnie (por. Etap 0b).
+- **Menu pod logo i strona „Stan danych”, „O projekcie” ukryte** (decyzja człowieka, 2026-10-22).
+  - **Menu:** zrobione na `<details>`, więc działa bez JS i nie wymaga zmian w CSP. `menu.js` tylko zamyka je kliknięciem obok i klawiszem Esc.
+  - **„O projekcie”:** strona zostaje pod `/o-projekcie`, ale żadna strona do niej nie linkuje.
+  - **Skąd strona stanu bierze dane:** stan liczy potok (`pipeline.status`) z tego, co jest w R2, a nie z lokalnych plików przebiegu, więc przebieg godzinowy i dzienny dają ten sam obraz. Hosting nie ma kluczy do zapisu ani tokenu GitHuba: dostaje gotowy `status.json`. Listę przebiegów Actions daje `GITHUB_TOKEN` przebiegu (uprawnienie `actions: read`).
+  - **Paski postępu:** `<progress>` zamiast `<div style>`, bo CSP `style-src 'self'` blokuje style inline.
+  - **Opóźnienie:** stan na stronie jest opóźniony o czas do następnego crona hostingu (do 30 min).
 - **Bez migracji lokalnych danych do R2.** Kontekst: klucze R2 są tylko w sekretach GitHuba. Koszt: ~1 dzień budżetu na ponowne pobranie prognoz i kilka godzin pomiarów IMGW z lokalnego odpytywania. Dane lokalne w `data/` zostają jako kopia, nieużywana przez potok.
 - **Publiczne repozytorium, autor commitów z adresem noreply GitHuba, prywatna rozmowa (`docs/history/`) poza repozytorium** (decyzje człowieka 2026-10-12). Historia gita przepisana przed pierwszym pushem.
 - **Testy pakietu współdzielonego w `tests/`** (SPEC §10 przewidywał tylko `pipeline/tests` i `web/tests`).

@@ -1,4 +1,5 @@
-"""Host cron (every 30 min, SPEC §7.4): fetch the published rankings from R2 and swap them in.
+"""Host cron (every 30 min, SPEC §7.4): fetch the published rankings from R2 and swap them in, and the pipeline
+status (publish/status.json) for the /stan-danych page.
 
 Idempotent and safe to interrupt:
 - compares the published meta.json sha256 with the local one, does nothing when equal;
@@ -93,11 +94,34 @@ def pull(s3, bucket: str, web_data: Path = WEB_DATA_DIR) -> str:
     return f"updated: {remote['files']} cells, published {remote.get('published')}"
 
 
-def main() -> None:
+def pull_status(s3, bucket: str, web_data: Path = WEB_DATA_DIR) -> str:
+    """Copy publish/status.json to web/data/status.json (atomic replace; a broken file keeps the old one)."""
     try:
-        print(pull(_client(), os.environ["R2_BUCKET"].strip()))
-    except PullError as e:
-        print(f"ERROR: {e}", file=sys.stderr)
+        body = s3.get_object(Bucket=bucket, Key=publication.STATUS_KEY)["Body"].read()
+    except Exception as e:  # noqa: BLE001
+        if "NoSuchKey" in str(e) or "404" in str(e):
+            return "status: none yet"
+        raise
+    if not isinstance(json.loads(body), dict):
+        raise PullError("status.json is not a JSON object")
+    web_data.mkdir(parents=True, exist_ok=True)
+    tmp = web_data / "status.json.tmp"
+    tmp.write_bytes(body)
+    tmp.replace(web_data / "status.json")
+    return "status: updated"
+
+
+def main() -> None:
+    s3, bucket = _client(), os.environ["R2_BUCKET"].strip()
+    failed = False
+    # independent: a broken ranking publication must not freeze the status page, and vice versa
+    for job in (pull, pull_status):
+        try:
+            print(job(s3, bucket))
+        except (PullError, ValueError) as e:
+            print(f"ERROR ({job.__name__}): {e}", file=sys.stderr)
+            failed = True
+    if failed:
         sys.exit(1)
 
 

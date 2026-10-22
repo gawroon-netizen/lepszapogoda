@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}Stan danych · lepszapogoda.pl{% endblock %}
+{% block body_class %}page-text page-status{% endblock %}
+{% block body %}
+<header class="top">{% include "_brand.html" %}</header>
+<main class="text status">
+  <h1>Stan danych</h1>
+  {% if not s.available %}
+    <p>Stan potoku danych nie jest jeszcze dostępny. Pojawi się po najbliższym przebiegu (co godzinę).</p>
+  {% else %}
+  <p class="small">
+    Aktualizacja: {{ s.generated }} ({{ s.generated_ago }}){% if s.run_url %} · <a href="{{ s.run_url }}">przebieg w GitHub Actions</a>{% endif %}.
+    Strona odświeża się po każdym przebiegu potoku, z opóźnieniem do 30 min.
+  </p>
+  {% if s.stale %}<p class="warn">Ostatnia aktualizacja jest starsza niż 3 godziny: potok mógł się zatrzymać.</p>{% endif %}
+
+  <section>
+    <h2>Ranking trafności</h2>
+    {% if s.ranking %}
+      <p><span class="dot ok" aria-hidden="true"></span>Opublikowany {{ s.ranking.published }}, okno {{ s.ranking.window }}.
+        Ranking ma {{ s.ranking.cells_ranked }} z {{ s.ranking.cells_total }} kwadratów ({{ s.ranking.pct }}%).</p>
+    {% else %}
+      <p><span class="dot wait" aria-hidden="true"></span>Jeszcze nieopublikowany. Kwadrat dostaje ranking, gdy każdy model
+        podstawowy ma w nim co najmniej {{ s.forecasts.min_days }} dni prognoz porównanych z pomiarami.</p>
+    {% endif %}
+  </section>
+
+  <section>
+    <h2>Prognozy archiwalne</h2>
+    <p class="small">Prognozy z okna {{ s.forecasts.window }} dla {{ s.forecasts.cells_total }} kwadratów, pobierane z Open-Meteo.
+      Modele dodatkowe dołączają do rankingu, gdy uzbierają dane, i nie wstrzymują publikacji.</p>
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>Model</th><th>Kwadraty z ≥ {{ s.forecasts.min_days }} dniami</th><th>Pełne okno 30 dni</th><th>Do pobrania</th></tr></thead>
+      <tbody>
+      {% for m in s.forecasts.models %}
+        <tr>
+          <td>{{ m.name }}{% if not m.core %} <small class="tag">dodatkowy</small>{% endif %}</td>
+          <td><progress max="100" value="{{ m.ready_pct }}" aria-label="{{ m.name }}: {{ m.ready_pct }}%"></progress> {{ m.ready_pct }}%</td>
+          <td>{{ m.complete_pct }}%</td>
+          <td>{{ '{:,}'.format(m.remaining).replace(',', ' ') if m.remaining else '–' }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    </div>
+    {% if s.forecasts.remaining %}
+      <p class="small">Zostało ok. {{ '{:,}'.format(s.forecasts.remaining).replace(',', ' ') }} zapytań do Open-Meteo
+        (ważonych), czyli ok. {{ s.forecasts.eta_days }} {{ 'dzień' if s.forecasts.eta_days == 1 else 'dni' }} przy limicie potoku.</p>
+    {% else %}
+      <p class="small">Wszystkie prognozy w oknie pobrane; potok uzupełnia na bieżąco nowe dni.</p>
+    {% endif %}
+  </section>
+
+  <section>
+    <h2>Obserwacje</h2>
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>Źródło</th><th>Najnowszy dzień</th><th>Stan</th></tr></thead>
+      <tbody>
+      {% for o in s.observations %}
+        <tr><td>{{ o.label }}</td><td>{{ o.latest }}</td>
+          <td><span class="dot {{ 'ok' if o.ok else 'bad' }}" aria-hidden="true"></span>{{ 'na bieżąco' if o.ok else 'opóźnienie' }}</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    </div>
+    <p class="small">Satelity mają naturalne opóźnienie: IMERG ok. 2 dni, MODIS ok. 4 dni.</p>
+  </section>
+
+  <section>
+    <h2>Pomiary IMGW na żywo</h2>
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>Źródło</th><th>Ostatni odczyt</th><th>Odczytów dziś</th><th>Stan</th></tr></thead>
+      <tbody>
+      {% for p in s.pollers %}
+        <tr><td>{{ p.label }}</td><td>{{ p.last }} <small>{{ p.last_ago }}</small></td><td>{{ p.polls_today }}</td>
+          <td><span class="dot {{ 'ok' if p.ok else 'bad' }}" aria-hidden="true"></span>{{ 'działa' if p.ok else 'przerwa' }}</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Limit zapytań Open-Meteo</h2>
+    <p class="small">Darmowy plan; potok korzysta z najwyżej 80% limitu, resztę zostawia stronie.</p>
+    {% for b in s.budget %}
+      <div class="meter"><span class="meter-label">{{ b.label }}</span>
+        <progress max="100" value="{{ [b.pct, 100]|min }}" aria-label="{{ b.label }}: {{ b.pct }}%"></progress>
+        <span>{{ '{:,}'.format(b.used).replace(',', ' ') }} / {{ '{:,}'.format(b.limit).replace(',', ' ') }}</span></div>
+    {% endfor %}
+  </section>
+
+  {% if s.runs is not none %}
+  <section>
+    <h2>Ostatnie przebiegi</h2>
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>Zadanie</th><th>Start</th><th>Wynik</th></tr></thead>
+      <tbody>
+      {% for r in s.runs %}
+        <tr><td>{{ r.label }}</td><td>{{ r.started }}</td>
+          <td><span class="dot {{ 'wait' if r.running else ('ok' if r.ok else 'bad') }}" aria-hidden="true"></span>{% if r.url %}<a href="{{ r.url }}">{{ r.result }}</a>{% else %}{{ r.result }}{% endif %}</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    </div>
+  </section>
+  {% endif %}
+  {% endif %}
+</main>
+{% endblock %}

@@ -1,0 +1,7 @@
+<details class="brand">
+  <summary class="logo" title="Menu"><span>lepsza<b>pogoda</b>.pl</span><svg class="caret" viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>
+  <nav class="brand-menu" aria-label="Menu">
+    <a href="/"{% if nav == 'map' %} aria-current="page"{% endif %}>Mapa i prognoza</a>
+    <a href="/stan-danych"{% if nav == 'status' %} aria-current="page"{% endif %}>Stan danych</a>
+  </nav>
+</details>

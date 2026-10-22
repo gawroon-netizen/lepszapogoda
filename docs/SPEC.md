@@ -69,7 +69,7 @@ Osoby szukające „po prostu pogody”; rolnicy, ogrodnicy, rowerzyści, żegla
 ## 5. Widok 1 — ekran główny
 
 ### Układ
-Pełnoekranowa mapa. Na niej, u góry na środku, **tylko jedno pole tekstowe**: półprzezroczyste (rozmyte tło, mapa prześwituje), zaokrąglone, ze strzałką „Pokaż prognozę”, która pojawia się dopiero, gdy pole jest wypełnione (decyzja człowieka 2026-10-19). Strzałka i Enter otwierają prognozę w trybie „Najbardziej trafna”; tryby przełącza się na stronie prognozy (§6). Logo w lewym górnym rogu, przełącznik warstw w prawym górnym, „O projekcie” w prawym dolnym. [v1.1] Wybór trybu burzowego również na stronie prognozy.
+Pełnoekranowa mapa. Na niej, u góry na środku, **tylko jedno pole tekstowe**: półprzezroczyste (rozmyte tło, mapa prześwituje), zaokrąglone, ze strzałką „Pokaż prognozę”, która pojawia się dopiero, gdy pole jest wypełnione (decyzja człowieka 2026-10-19). Strzałka i Enter otwierają prognozę w trybie „Najbardziej trafna”; tryby przełącza się na stronie prognozy (§6). Logo w lewym górnym rogu, po kliknięciu rozwija menu („Mapa i prognoza”, „Stan danych”); przełącznik warstw w prawym górnym. Strona „O projekcie” istnieje, ale na razie nie jest linkowana (decyzja człowieka 2026-10-22). [v1.1] Wybór trybu burzowego również na stronie prognozy.
 
 ### Warstwy mapy (MapLibre GL JS, self-host pliku JS)
 - **Bazowa „Mapa”** (domyślna): OpenFreeMap `liberty`, pobierany raz i przerabiany w przeglądarce: **etykiety po polsku** (`coalesce(name:pl, name)` zamiast `name_en`), **bez nazw województw**, miasteczka od zoomu 5, wsie od 8. **Własna warstwa miast** z `static/data/places-pl.json` (1 018 polskich miast z liczbą ludności z OSM, `tools/build_places.py`): > 100 tys. od widoku kraju, 40–100 tys. od zoomu 6, 15–40 tys. od 7, reszta od 8, bo kafelki OpenFreeMap przy małym zoomie mają tylko kilka metropolii. Wyciszenie kolorów: do zrobienia.
@@ -119,7 +119,7 @@ Photon (publiczna instancja Komoot) wywoływany z przeglądarki, `lang=default` 
 3. **Szczegół dnia** (uPlot, self-host): temperatura + odczuwalna; opady mm/h (deszcz/śnieg kolorem); zachmurzenie 0–100 % (warstwy jako odcienie); wiatr — prędkość, porywy, strzałki kierunku pod osią.
 
 ### Zasady prezentacji
-°C, mm, km/h. Czas `Europe/Warsaw`. Widoczny czas przebiegu każdego użytego modelu. W trybie trafnym widok pokazuje średnią ważoną (§8.10), a na wykresach opadu i temperatury dodatkowo cienki pas min–max między modelami (niepewność prognozy); w pozostałych trybach — jeden model. Dla obszaru wykresy pokazują średnią, a przy opadach i wietrze dodatkowo cienki pas min–max między komórkami (rozrzut wewnątrz obszaru). Adnotacja przy wietrze: „wiatr nie wchodzi do rankingu” z linkiem do „O projekcie”. Widok działa bez JS w wersji podstawowej (SSR pasek dni w Jinja2; wykresy wymagają JS).
+°C, mm, km/h. Czas `Europe/Warsaw`. Widoczny czas przebiegu każdego użytego modelu. W trybie trafnym widok pokazuje średnią ważoną (§8.10), a na wykresach opadu i temperatury dodatkowo cienki pas min–max między modelami (niepewność prognozy); w pozostałych trybach — jeden model. Dla obszaru wykresy pokazują średnią, a przy opadach i wietrze dodatkowo cienki pas min–max między komórkami (rozrzut wewnątrz obszaru). Adnotacja przy wietrze: „wiatr nie wchodzi do rankingu” (link do „O projekcie” na razie ukryty). Widok działa bez JS w wersji podstawowej (SSR pasek dni w Jinja2; wykresy wymagają JS).
 
 ## 7. Architektura
 
@@ -155,7 +155,16 @@ Runner nie łączy się z hostingiem bezpośrednio. Publikuje wynik do R2; hosti
 
 ### 7.4 Strona WWW (Flask, Passenger)
 - `web/passenger_wsgi.py`: `from app import create_app; application = create_app()`. Domena w panelu DevilWEB jako typ „Python”, wskazująca na katalog `web/` i interpreter z virtualenva.
-- Trasy: `/` (Widok 1), `/prognoza/<slug>/<lat>,<lon>/<tryb>` (Widok 2), `/api/forecast` (JSON dla wykresów), `/o-projekcie`, `/healthz`. Statyczne pliki z `web/static/` (Passenger/nginx serwuje je bezpośrednio, jeśli hosting to wspiera — sprawdzić w sondzie).
+- Trasy: `/` (Widok 1), `/prognoza/<slug>/<lat>,<lon>/<tryb>` (Widok 2), `/api/forecast` (JSON dla wykresów), `/stan-danych`, `/o-projekcie`, `/healthz`.
+- **`/stan-danych`** (od 2026-10-22): stan potoku dla każdego. Pokazuje:
+  - publikację rankingu;
+  - postęp pobierania prognoz archiwalnych dla każdego modelu (kwadraty z ≥ 20 dniami, pełne okno, koszt do pobrania);
+  - najnowsze dni obserwacji;
+  - ostatnie odczyty IMGW przez Workera;
+  - zużycie limitu Open-Meteo;
+  - ostatnie przebiegi Actions.
+
+  Źródło: `publish/status.json`, pisany przez `pipeline.status` na końcu przebiegu godzinowego i dziennego, kopiowany na hosting przez `pull_rankings.py` co 30 min. Statyczne pliki z `web/static/` (Passenger/nginx serwuje je bezpośrednio, jeśli hosting to wspiera — sprawdzić w sondzie).
 - `lepszapogoda/forecast.py`: prognoza z Open-Meteo Forecast API dla `(model, lat, lon)`, cache w Redis pod kluczem `fc:{model}:{lat2}:{lon2}`, TTL 1 h; dla obszaru — jedno zapytanie wielopunktowe na centroidy komórek obszaru (max 50 punktów; większe obszary próbkowane co drugą komórkę, zapisane w DECISIONS), wynik agregowany wg §8.7 i cache'owany pod `fcr:{model}:{region_id}`; licznik dzienny `quota:{date}` w Redis; po 8 000 wywołań TTL rośnie do 3 h. Fallback cache plikowy w `web/var/cache/`, jeśli Redis niedostępny.
 - `lepszapogoda/ranking.py`: czyta `web/data/rankings/{cell_id}.json`; brak → średnia z równymi wagami i komunikat „zbieramy dane”.
 - `lepszapogoda/blend.py`: łączy prognozy modeli wg §8.10. W trybie trafnym Widok 2 potrzebuje prognoz wszystkich modeli — jedno zapytanie Forecast API z `models=` jako listą (cache per model jak wyżej; przy liczeniu budżetu traktować jako N wywołań).

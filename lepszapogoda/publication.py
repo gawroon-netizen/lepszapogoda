@@ -3,6 +3,7 @@
 R2 layout:
     publish/meta.json                              pointer to the current archive, written last
     publish/archives/rankings-{stamp}.tar.gz       cells/{cell_id}.json + meta.json
+    publish/status.json                            pipeline status for the /stan-danych page (pipeline.status)
 
 meta.json: the ranking meta (pipeline.verify.ranking) plus
     {"archive": "<key>", "sha256": "<hex>", "files": <number of cell files>, "published": "<UTC time>"}
@@ -25,6 +26,7 @@ from lepszapogoda import grid
 PREFIX = "publish/"
 META_KEY = PREFIX + "meta.json"
 ARCHIVE_DIR = PREFIX + "archives/"
+STATUS_KEY = PREFIX + "status.json"
 
 
 def archive_key(stamp: str) -> str:

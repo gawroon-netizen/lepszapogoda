@@ -66,7 +66,13 @@ def app(tmp_path):
     rankings = tmp_path / "rankings"
     (rankings / "cells").mkdir(parents=True)
     return create_app(
-        {"FORECAST_SERVICE": FakeService(), "RANKINGS_DIR": rankings, "TESTING": True, "CLOCK": lambda: NOW}
+        {
+            "FORECAST_SERVICE": FakeService(),
+            "RANKINGS_DIR": rankings,
+            "STATUS_PATH": tmp_path / "status.json",
+            "TESTING": True,
+            "CLOCK": lambda: NOW,
+        }
     )
 
 
@@ -298,3 +304,83 @@ def test_slugify():
 
 def test_now_is_inside_forecast():
     assert TIMES[0] <= NOW <= TIMES[-1] and timedelta(hours=HOURS) == timedelta(days=8)
+
+
+# ---------------------------------------------------------------- menu and status page
+
+
+def test_logo_menu_links_status_page_and_not_about(client):
+    for url in ("/", "/prognoza/warszawa/52.230,21.010/trafna"):
+        html = client.get(url).get_data(as_text=True)
+        assert '<details class="brand">' in html and 'href="/stan-danych"' in html
+        assert "/o-projekcie" not in html  # hidden for now (2026-10-22)
+        assert "/static/js/menu.js?v=" in html
+    assert client.get("/o-projekcie").status_code == 200  # the page itself stays
+
+
+def test_status_page_without_status_file(client):
+    r = client.get("/stan-danych")
+    assert r.status_code == 200 and "nie jest jeszcze dostępny" in r.get_data(as_text=True)
+    assert r.headers["Cache-Control"] == "no-cache"
+
+
+STATUS = {
+    "generated": "2026-10-14T09:40Z",
+    "run": {"workflow": "pipeline-hourly", "url": "https://github.com/o/r/actions/runs/1"},
+    "ranking": None,
+    "forecasts": {
+        "target": {"from": "2026-09-13", "to": "2026-10-12"},
+        "cells_total": 4313,
+        "min_days": 20,
+        "models": [
+            {"model": "ecmwf_ifs", "core": True, "cells_complete": 4313, "cells_min_days": 4313, "remaining_cost": 0},
+            {
+                "model": "ncep_aigfs025",
+                "core": False,
+                "cells_complete": 0,
+                "cells_min_days": 0,
+                "remaining_cost": 19400,
+            },
+        ],
+        "remaining_cost": 19400,
+        "daily_budget": 8000.0,
+    },
+    "budget": {
+        "usage": {"per_hour": 100, "per_day": 7900.4, "per_month": 67000},
+        "limits": {"per_minute": 600, "per_hour": 5000, "per_day": 10000, "per_month": 300000},
+    },
+    "observations": [
+        {"key": "imerg", "latest": "2026-10-12", "expected": "2026-10-12", "ok": True},
+        {"key": "modis_aqua", "latest": "2026-10-05", "expected": "2026-10-10", "ok": False},
+    ],
+    "pollers": [{"key": "imgw_meteo", "last": "2026-10-14T09:35Z", "polls_today": 115, "every_min": 5, "ok": True}],
+    "runs": [
+        {
+            "workflow": "pipeline-daily",
+            "event": "schedule",
+            "status": "completed",
+            "conclusion": "failure",
+            "started": "2026-10-14T05:41:02Z",
+            "updated": "x",
+            "url": "https://github.com/o/r/actions/runs/2",
+        }
+    ],
+}
+
+
+def test_status_page_renders_pipeline_state(app, client):
+    app.config["STATUS_PATH"].write_text(json.dumps(STATUS), encoding="utf-8")
+    html = client.get("/stan-danych").get_data(as_text=True)
+    assert "Aktualizacja: 14.10, 11:40 (20 min temu)" in html  # CEST
+    assert "Jeszcze nieopublikowany" in html
+    assert "NOAA AIGFS" in html and "dodatkowy" in html and "19 400" in html
+    assert "ok. 3 dni" in html  # 19 400 / 8 000 per day
+    assert "Zachmurzenie: satelita MODIS Aqua" in html and "opóźnienie" in html
+    assert "7 900 / 10 000" in html
+    assert "Obserwacje i ranking (codziennie)" in html and ">błąd</a>" in html
+    assert "style=" not in html  # CSP: style-src 'self' blocks inline styles
+
+
+def test_status_page_warns_when_stale(app, client):
+    app.config["STATUS_PATH"].write_text(json.dumps({**STATUS, "generated": "2026-10-14T05:00Z"}), encoding="utf-8")
+    assert "starsza niż 3 godziny" in client.get("/stan-danych").get_data(as_text=True)

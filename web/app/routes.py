@@ -1,4 +1,6 @@
-"""Routes (SPEC §7.4): /, /prognoza/<slug>/<lat>,<lon>/<tryb>, /api/forecast, /o-projekcie, /healthz."""
+"""Routes (SPEC §7.4): /, /prognoza/<slug>/<lat>,<lon>/<tryb>, /api/forecast, /stan-danych, /o-projekcie, /healthz.
+
+/o-projekcie is not linked from the pages for now (human decision, 2026-10-22), but stays reachable."""
 
 from __future__ import annotations
 
@@ -11,7 +13,7 @@ from lepszapogoda import grid
 from lepszapogoda import ranking as rankings
 from lepszapogoda.forecast import ForecastUnavailable
 from web.app import slug as slugs
-from web.app import view
+from web.app import status_view, view
 from web.app.i18n import pl
 
 bp = Blueprint("main", __name__)
@@ -40,7 +42,7 @@ def _place_name(slug: str) -> str:
 
 @bp.get("/")
 def index():
-    return render_template("index.html", T=pl.T, modes=pl.MODES)
+    return render_template("index.html", T=pl.T, modes=pl.MODES, nav="map")
 
 
 @bp.get("/prognoza/<slug>/<coords>/<mode>")
@@ -78,6 +80,7 @@ def forecast(slug: str, coords: str, mode: str):
         stale=fc.get("stale", False),
         fetched=fetched,
         n_arg=request.args.get("n", "")[:NAME_MAX],
+        nav="map",
     )
 
 
@@ -109,6 +112,17 @@ def cells_json():
         }
     )
     resp.headers["Cache-Control"] = "public, max-age=86400"
+    return resp
+
+
+@bp.get("/stan-danych")
+def status():
+    data = status_view.load(current_app.config["STATUS_PATH"])
+    now = datetime.fromtimestamp(current_app.config["CLOCK"](), UTC)
+    resp = current_app.make_response(
+        render_template("status.html", T=pl.T, s=status_view.build(data, now), nav="status")
+    )
+    resp.headers["Cache-Control"] = "no-cache"
     return resp
 
 

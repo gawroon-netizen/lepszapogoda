@@ -9,6 +9,8 @@ spike/data/
 
 # runtime (SPEC §10)
 web/data/rankings/
+web/data/rankings.tmp/
+web/data/status.json*
 web/var/
 web/tmp/
 
