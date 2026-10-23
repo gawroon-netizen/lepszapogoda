@@ -315,7 +315,7 @@ Podstawa: `docs/reports/etap-0b.md` (średnia modeli najlepsza na każdym wyprze
 
 - **Członkowie:** modele z rankingu komórki (bez rankingu: wszystkie modele z §4) dostępne dla danej godziny prognozy; gdy model kończy horyzont, wagi renormalizuje się na pozostałych. Model dodatkowy, który zbiera jeszcze dane, nie bierze udziału (od 2026-10-21).
 - **Temperatura:** wagi ∝ 1/MSE z ostatnich 30 dni, osobno dla grup wyprzedzeń 1–2, 3–4, 5–7 dni, liczone z obserwacji stacyjnych przypisanych do komórki (§8.2). Brak danych → równe wagi.
-- **Opad, zachmurzenie, wiatr:** równe wagi (ważenie nie poprawiło wyniku; do ponownej oceny w Etapie 3 na pełnym roku). Kierunek wiatru — średnia wektorowa u/v.
+- **Opad, zachmurzenie, wiatr:** równe wagi (ważenie nie poprawiło wyniku latem; ponowna ocena w teście wag, §13 Etap 3, start ok. 2026-12-22). Kierunek wiatru — średnia wektorowa u/v.
 - **Ikona dnia** z wartości uśrednionych, nie z najczęstszej ikony.
 - **Niepewność:** min–max między członkami, pokazywany jako pas na wykresach; „szansa opadu” = odsetek członków z opadem ≥ 1 mm w danym dniu.
 - **Zapis:** pole `blend` w JSON komórki/obszaru (§8.8): metoda, wagi per zmienna i grupa wyprzedzeń, okno, czas obliczenia. Wagi muszą być odtwarzalne z Parquet weryfikacji (§0 pkt 9).
@@ -396,6 +396,20 @@ Aplikacja Flask działa pod Passengerem na mydevil, `deploy.yml` wdraża po ziel
 
 **Etap 3 — beta.**
 Porównanie rankingu z ręczną kontrolą dla 20 lokalizacji; korekta wag jeśli trzeba (w DECISIONS); strona „O projekcie” z §8.6; monitoring limitu; raport końcowy.
+
+**Test wag średniej (Etap 3, start ok. 2026-12-22; dopisane 2026-10-23 na prośbę człowieka).** Sprawdza, czy „Najbardziej trafna” powinna ważyć modele także w opadzie i zachmurzeniu oraz czy w temperaturze więcej da korekta stałego błędu niż wagi. Powtórzenie testu z Etapu 0b (`docs/reports/etap-0b.md` §4, tylko lato), tym razem na jesieni i początku zimy, w siatce i na danych potoku.
+- **Dane:** prognozy archiwalne z R2 (od 2026-09-21, ok. 90 dni), IMERG, MODIS, stacje synoptyczne IMGW, a dla opadu dodatkowo deszczomierze ze stacji automatycznych (zbierane od 2026-10-21). Nowych pobrań nie trzeba.
+- **Metoda:** test kroczący, bez podglądania przyszłości. Wagi na dzień D liczone tylko z 30 dni przed D, a oceniana prognoza na D. Osobno dla wyprzedzeń 1–2, 3–4 i 5–7 dni.
+- **Warianty:**
+  1. równe wagi (obecny stan dla opadu i zachmurzenia);
+  2. wagi ∝ 1/MSE w kwadracie (obecny stan dla temperatury);
+  3. wagi złagodzone: ½ równe + ½ wg trafności;
+  4. wagi regionalne (kwadraty w promieniu ok. 50 km, stabilniejsze niż jeden kwadrat);
+  5. pominięcie modelu, który przez ostatnie 90 dni był najgorszy w ponad 70 % dni;
+  6. tylko temperatura: korekta średniego błędu modelu z 30 dni (jak prosty MOS), sama i razem z wagami.
+- **Miary:** opad ETS ≥ 1 mm i MAE (IMERG oraz deszczomierze), zachmurzenie trafność klas i odchylenie błędu, Tmax/Tmin MAE, a dodatkowo trafność ikony dnia (deszcz/bez deszczu).
+- **Kryterium przyjęcia:** wariant zastępuje obecny, gdy poprawia miarę o ≥ 2 % w co najmniej dwóch z trzech grup wyprzedzeń, w każdym miesiącu testu wychodzi co najmniej tak dobry jak obecny, a nigdzie nie pogarsza o więcej niż 1 %. W przeciwnym razie zostaje obecny stan (prostszy).
+- **Wynik:** skrypt w `spike/`, raport `docs/reports/test-wag.md`, decyzja w DECISIONS. Ewentualna zmiana trafia do `pipeline/verify/ranking.py` (`blend_weights`) i `lepszapogoda/blend.py`, z testem.
 
 **v2:** radar IMGW dla opadów, warstwa „kto wygrywa” na mapie, WeatherNext 3 (w GEE), wagi użytkownika, oś czasu „Chmury teraz”, Europa.
 
