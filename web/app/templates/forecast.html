@@ -55,7 +55,7 @@
         <span class="temps"><b>{{ d.tmax }}°</b> {{ d.tmin }}°</span>
         <span class="precip">
           {% if d.uncertain and d.precip_chance is not none %}{{ T.precip_chance.format(p=d.precip_chance) }}
-          {% else %}{{ '%.1f'|format(d.precip) }} mm{% endif %}
+          {% else %}{{ '%.1f'|format(d.precip) }} mm{% if d.night_precip %} {{ T.night_precip }}{% endif %}{% endif %}
         </span>
         {% if d.gust is not none %}<span class="gust">porywy {{ d.gust }} km/h</span>{% endif %}
         {% if d.storm %}<span class="storm">⚡ {{ T.storm_likely if d.storm == 'likely' else T.storm_possible }}</span>{% endif %}

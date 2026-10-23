@@ -1,7 +1,7 @@
 """Web app (SPEC §12 WWW, §12 d): routes, validation, security headers, SSR without JS, modes, blend, cache."""
 
 import json
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 
 import pytest
 
@@ -399,3 +399,30 @@ def test_status_page_names_a_run_of_an_invalid_workflow_file(app, client):
     app.config["STATUS_PATH"].write_text(json.dumps({**STATUS, "runs": [bad]}), encoding="utf-8")
     html = client.get("/stan-danych").get_data(as_text=True)
     assert "Błędny plik przebiegu" in html and ".github/workflows" not in html
+
+
+def one_day(precip_by_hour: dict[int, float], cloud_day: float, cloud_night: float = 95.0) -> dict:
+    # local hours 0..23 of 2026-10-14 (START is local midnight)
+    return {
+        "temperature_2m": [10.0] * 24,
+        "precipitation": [precip_by_hour.get(h, 0.0) for h in range(24)],
+        "snowfall": [0.0] * 24,
+        "cloud_cover": [cloud_day if 8 <= h <= 18 else cloud_night for h in range(24)],
+    }
+
+
+def test_rain_only_at_night_does_not_make_a_rainy_day_icon():
+    # Warsaw 2026-10-23: 0.2 mm at 2 a.m., clear sky all day
+    d = view.day_summary(
+        one_day({2: 0.2, 3: 0.05}, cloud_day=15.0), list(range(24)), TIMES[:24], date(2026, 10, 14), 0, None
+    )
+    assert d["icon"] == "slonecznie" and d["precip"] == 0.2 and d["night_precip"]
+
+
+def test_rain_in_the_day_still_shows():
+    d = view.day_summary(
+        one_day({13: 0.8, 14: 0.6}, cloud_day=90.0), list(range(24)), TIMES[:24], date(2026, 10, 14), 0, None
+    )
+    assert d["icon"] == "deszcz" and not d["night_precip"]
+    d = view.day_summary(one_day({22: 3.0}, cloud_day=30.0), list(range(24)), TIMES[:24], date(2026, 10, 14), 0, None)
+    assert d["icon"] == "malo-chmur" and d["night_precip"]  # evening rain after 21:00 counts as night

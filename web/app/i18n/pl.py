@@ -75,6 +75,7 @@ T = {
     "temp_none": "Temperatura poza rankingiem dla tej okolicy (brak stacji IMGW w promieniu 60 km lub za mało danych).",
     "uncertain": "mniej pewne",
     "precip_chance": "szansa opadu {p}%",
+    "night_precip": "w nocy",
     "storm_possible": "możliwa burza",
     "storm_likely": "prawdopodobna burza",
     "model_horizon": "{model} liczy prognozę tylko na {d} dni.",

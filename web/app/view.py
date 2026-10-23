@@ -14,6 +14,11 @@ TZ = ZoneInfo("Europe/Warsaw")
 DAYS = 7
 UNCERTAIN_FROM_DAY = 5  # days 5-7 shown as less certain (Etap 0b)
 SNOW_CM_PER_MM = 0.7  # Open-Meteo snowfall [cm] per mm of water
+# The day's icon describes the waking day: rain at 1-2 a.m. must not turn a sunny day into a rainy icon
+# (reported by the human, Warsaw 2026-10-23). Clouds use the bright hours, precipitation the waking hours.
+CLOUD_HOURS = range(8, 19)
+PRECIP_HOURS = range(7, 22)
+NIGHT_PRECIP_MIN = 0.2  # mm outside PRECIP_HOURS worth a note when the day itself stays dry
 
 
 def _day_indices(times: list[int]) -> dict[date, list[int]]:
@@ -62,10 +67,13 @@ def storm_level(cape_max: float, precip: float) -> str | None:
 def day_summary(series: dict, idx: list[int], times: list[int], d: date, k: int, models: dict | None) -> dict:
     temp = _vals(series, "temperature_2m", idx)
     precip = sum(_vals(series, "precipitation", idx))
-    snow_mm = sum(_vals(series, "snowfall", idx)) / SNOW_CM_PER_MM
-    # the day's icon describes daylight hours
-    day_hours = [i for i in idx if 8 <= datetime.fromtimestamp(times[i], TZ).hour <= 18]
-    cloud = _vals(series, "cloud_cover", day_hours or idx)
+    hour = {i: datetime.fromtimestamp(times[i], TZ).hour for i in idx}
+    bright = [i for i in idx if hour[i] in CLOUD_HOURS]
+    waking = [i for i in idx if hour[i] in PRECIP_HOURS]
+    cloud = _vals(series, "cloud_cover", bright or idx)
+    # a partial day (today after 21:00) falls back to all its hours
+    day_precip = sum(_vals(series, "precipitation", waking)) if waking else precip
+    day_snow_mm = sum(_vals(series, "snowfall", waking if waking else idx)) / SNOW_CM_PER_MM
     cape = _vals(series, "cape", idx)
     gust = _vals(series, "wind_gusts_10m", idx)
     cape_max, gust_max = (max(cape) if cape else 0.0), (max(gust) if gust else 0.0)
@@ -76,10 +84,11 @@ def day_summary(series: dict, idx: list[int], times: list[int], d: date, k: int,
         "tmax": round(max(temp)) if temp else None,
         "tmin": round(min(temp)) if temp else None,
         "precip": round(precip, 1),
+        "night_precip": day_precip < NIGHT_PRECIP_MIN and precip - day_precip >= NIGHT_PRECIP_MIN,
         "gust": round(gust_max) if gust else None,
         "icon": day_icon(
-            precip,
-            snow_mm / precip if precip > 0 else 0.0,
+            day_precip,
+            day_snow_mm / day_precip if day_precip > 0 else 0.0,
             sum(cloud) / len(cloud) if cloud else None,
             cape_max,
             gust_max,
