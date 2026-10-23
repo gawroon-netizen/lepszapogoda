@@ -426,3 +426,14 @@ def test_rain_in_the_day_still_shows():
     assert d["icon"] == "deszcz" and not d["night_precip"]
     d = view.day_summary(one_day({22: 3.0}, cloud_day=30.0), list(range(24)), TIMES[:24], date(2026, 10, 14), 0, None)
     assert d["icon"] == "malo-chmur" and d["night_precip"]  # evening rain after 21:00 counts as night
+
+
+def test_blend_rain_icon_needs_half_of_the_models():
+    dry = one_day({}, cloud_day=40.0)
+    wet = one_day({12: 1.5}, cloud_day=80.0)
+    blended = one_day({12: 0.5}, cloud_day=53.0)  # mean of 1 wet + 2 dry models
+    idx, d = list(range(24)), date(2026, 10, 14)
+    minority = view.day_summary(blended, idx, TIMES[:24], d, 0, {"a": wet, "b": dry, "c": dry})
+    assert minority["icon"] == "czesciowe" and minority["precip"] == 0.5
+    majority = view.day_summary(blended, idx, TIMES[:24], d, 0, {"a": wet, "b": wet, "c": dry})
+    assert majority["icon"] == "mzawka"

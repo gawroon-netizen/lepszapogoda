@@ -124,6 +124,9 @@ Format: data · kontekst · wybór · alternatywy.
     - satelity: same uzupełniają braki z 31 dni wstecz;
     - dobowe IMGW: liczone teraz dla całego 30-dniowego okna z danych godzinowych, które w R2 są;
     - stacje automatyczne: surowe odczyty z Workera leżą w R2 14 dni.
+- **Ikona dnia** (uwagi człowieka, 2026-10-23).
+  - **Opad do ikony liczymy z godzin 7–21,** a zachmurzenie, jak dotąd, z 8–18. Deszcz tylko w nocy nie zmienia ikony; zostaje w sumie dobowej z dopiskiem „w nocy”. Przykład: Warszawa 23.10 pokazywała „słaby deszcz” za 0,2 mm o 2 w nocy przy bezchmurnym dniu.
+  - **W średniej modeli ikona opadu wymaga, żeby co najmniej połowa modeli dawała ≥ 0,2 mm w ciągu dnia.** Średnia rozmazuje przelotny opad jednego modelu na wszystkie, a ikona deszczu przy szansie 20% myliła. Suma w milimetrach zostaje bez zmian.
 - **Bez migracji lokalnych danych do R2.** Kontekst: klucze R2 są tylko w sekretach GitHuba. Koszt: ~1 dzień budżetu na ponowne pobranie prognoz i kilka godzin pomiarów IMGW z lokalnego odpytywania. Dane lokalne w `data/` zostają jako kopia, nieużywana przez potok.
 - **Publiczne repozytorium, autor commitów z adresem noreply GitHuba, prywatna rozmowa (`docs/history/`) poza repozytorium** (decyzje człowieka 2026-10-12). Historia gita przepisana przed pierwszym pushem.
 - **Testy pakietu współdzielonego w `tests/`** (SPEC §10 przewidywał tylko `pipeline/tests` i `web/tests`).

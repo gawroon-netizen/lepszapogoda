@@ -19,6 +19,10 @@ SNOW_CM_PER_MM = 0.7  # Open-Meteo snowfall [cm] per mm of water
 CLOUD_HOURS = range(8, 19)
 PRECIP_HOURS = range(7, 22)
 NIGHT_PRECIP_MIN = 0.2  # mm outside PRECIP_HOURS worth a note when the day itself stays dry
+# Blend: the mean smears one model's shower over all of them, so a precipitation icon needs at least this share of
+# the models to give >= DRIZZLE_MM in the waking hours (2026-10-23, human decision)
+PRECIP_ICON_MIN_SHARE = 0.5
+DRIZZLE_MM = 0.2
 
 
 def _day_indices(times: list[int]) -> dict[date, list[int]]:
@@ -77,6 +81,16 @@ def day_summary(series: dict, idx: list[int], times: list[int], d: date, k: int,
     cape = _vals(series, "cape", idx)
     gust = _vals(series, "wind_gusts_10m", idx)
     cape_max, gust_max = (max(cape) if cape else 0.0), (max(gust) if gust else 0.0)
+    icon_precip = day_precip
+    if models:
+        hours = waking if waking else idx
+        wet = [
+            sum(_vals(m, "precipitation", hours)) >= DRIZZLE_MM
+            for m in models.values()
+            if _vals(m, "temperature_2m", idx)
+        ]
+        if wet and sum(wet) / len(wet) < PRECIP_ICON_MIN_SHARE:
+            icon_precip = 0.0  # a minority of models: the icon follows the clouds, the millimetres stay in the text
     out = {
         "date": d.isoformat(),
         "weekday": pl.WEEKDAYS[d.weekday()],
@@ -87,7 +101,7 @@ def day_summary(series: dict, idx: list[int], times: list[int], d: date, k: int,
         "night_precip": day_precip < NIGHT_PRECIP_MIN and precip - day_precip >= NIGHT_PRECIP_MIN,
         "gust": round(gust_max) if gust else None,
         "icon": day_icon(
-            day_precip,
+            icon_precip,
             day_snow_mm / day_precip if day_precip > 0 else 0.0,
             sum(cloud) / len(cloud) if cloud else None,
             cape_max,
