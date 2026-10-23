@@ -437,3 +437,10 @@ def test_blend_rain_icon_needs_half_of_the_models():
     assert minority["icon"] == "czesciowe" and minority["precip"] == 0.5
     majority = view.day_summary(blended, idx, TIMES[:24], d, 0, {"a": wet, "b": wet, "c": dry})
     assert majority["icon"] == "mzawka"
+
+
+def test_mostly_night_rain_is_noted():
+    d = view.day_summary(
+        one_day({1: 0.8, 2: 0.6, 10: 0.2}, cloud_day=40.0), list(range(24)), TIMES[:24], date(2026, 10, 14), 0, None
+    )
+    assert d["night_precip"] and d["icon"] == "mzawka"  # 0.2 mm by day still shows as drizzle

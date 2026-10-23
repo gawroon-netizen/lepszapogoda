@@ -18,7 +18,8 @@ SNOW_CM_PER_MM = 0.7  # Open-Meteo snowfall [cm] per mm of water
 # (reported by the human, Warsaw 2026-10-23). Clouds use the bright hours, precipitation the waking hours.
 CLOUD_HOURS = range(8, 19)
 PRECIP_HOURS = range(7, 22)
-NIGHT_PRECIP_MIN = 0.2  # mm outside PRECIP_HOURS worth a note when the day itself stays dry
+NIGHT_PRECIP_MIN = 0.2  # mm: below this a day's precipitation gets no "w nocy" note
+NIGHT_PRECIP_SHARE = 0.75  # "w nocy" when at least this share of the day's precipitation falls outside PRECIP_HOURS
 # Blend: the mean smears one model's shower over all of them, so a precipitation icon needs at least this share of
 # the models to give >= DRIZZLE_MM in the waking hours (2026-10-23, human decision)
 PRECIP_ICON_MIN_SHARE = 0.5
@@ -98,7 +99,7 @@ def day_summary(series: dict, idx: list[int], times: list[int], d: date, k: int,
         "tmax": round(max(temp)) if temp else None,
         "tmin": round(min(temp)) if temp else None,
         "precip": round(precip, 1),
-        "night_precip": day_precip < NIGHT_PRECIP_MIN and precip - day_precip >= NIGHT_PRECIP_MIN,
+        "night_precip": precip >= NIGHT_PRECIP_MIN and precip - day_precip >= NIGHT_PRECIP_SHARE * precip,
         "gust": round(gust_max) if gust else None,
         "icon": day_icon(
             icon_precip,
