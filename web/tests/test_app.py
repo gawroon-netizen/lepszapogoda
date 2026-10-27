@@ -444,3 +444,15 @@ def test_mostly_night_rain_is_noted():
         one_day({1: 0.8, 2: 0.6, 10: 0.2}, cloud_day=40.0), list(range(24)), TIMES[:24], date(2026, 10, 14), 0, None
     )
     assert d["night_precip"] and d["icon"] == "mzawka"  # 0.2 mm by day still shows as drizzle
+
+
+def test_ranking_shows_its_window_dates(app, client):
+    cell = grid.cell_id_for(52.23, 21.01)
+    write_cell(app, cell, [{"model": "ecmwf_ifs", "score": 100}, {"model": "gfs_seamless", "score": 0}])
+    path = app.config["RANKINGS_DIR"] / "cells" / f"{cell}.json"
+    j = json.loads(path.read_text(encoding="utf-8")) | {
+        "window": {"from": "2026-09-13", "to": "2026-10-12", "days": 30}
+    }
+    path.write_text(json.dumps(j), encoding="utf-8")
+    html = client.get("/prognoza/warszawa/52.230,21.010/najmniej-trafna").get_data(as_text=True)
+    assert "30 dni: 13.09–12.10" in html and "najmniej trafnie (13.09–12.10)" in html

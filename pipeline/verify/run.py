@@ -5,8 +5,8 @@
    -> verification/{cells,stations}/{date}.parquet,
 3. rankings and blend weights (pipeline.verify.ranking) -> rankings/cells/{cell_id}.json and rankings/meta.json.
 
-The whole window is recomputed every day: forecasts arrive up to 14 days late (rotation), so components of a past
-date can still change. Usage:
+The window ends at today - END_LAG_DAYS (config): forecasts arrive up to 14 days late per cell (rotation), and only
+there does every cell have them. The whole window is recomputed every day. Usage:
     python -m pipeline.verify.run [--end YYYY-MM-DD]
 """
 
@@ -25,8 +25,6 @@ from pipeline.ingest import imgw
 from pipeline.paths import DATA_DIR
 from pipeline.verify import aggregate, components, ranking
 from pipeline.verify import config as cfg
-
-OBS_LAG_DAYS = 2  # IMERG is complete for D-2
 
 
 def _read_days(folder: Path, days: list[date]) -> pd.DataFrame:
@@ -96,7 +94,9 @@ def write_rankings(cells: dict[str, dict], meta: dict, data_dir: Path) -> None:
 
 def main() -> None:
     p = argparse.ArgumentParser(description="Verification and ranking")
-    p.add_argument("--end", type=date.fromisoformat, default=datetime.now(UTC).date() - timedelta(days=OBS_LAG_DAYS))
+    p.add_argument(
+        "--end", type=date.fromisoformat, default=datetime.now(UTC).date() - timedelta(days=cfg.END_LAG_DAYS)
+    )
     a = p.parse_args()
     computed = datetime.now(UTC).strftime("%Y-%m-%dT%H:%MZ")
     cells, stations = compute_components(a.end, DATA_DIR)

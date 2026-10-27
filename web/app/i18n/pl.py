@@ -64,9 +64,10 @@ T = {
     ),
     "optimistic_intro": "{model} obiecuje na najbliższe 3 dni najcieplej i najsuszej.",
     "optimistic_rank": "W rankingu trafności dla tej okolicy jest {n}. z {m}.",
-    "least_intro": "{model} przewidywał w tej okolicy w ostatnich 30 dniach najmniej trafnie.",
+    "least_intro": "{model} przewidywał w tej okolicy najmniej trafnie ({window}).",
     "least_none": "Ranking trafności dla tej okolicy jeszcze powstaje, więc pokazujemy średnią modeli.",
-    "ranking_title": "Ranking trafności (ostatnie 30 dni)",
+    "ranking_title": "Ranking trafności",
+    "ranking_window": "30 dni: {window}",
     "ranking_none": (
         "Ranking dla tej okolicy jeszcze powstaje. "
         "Pierwsze wyniki pojawią się po zebraniu 20 dni porównań prognoz z pomiarami."

@@ -22,7 +22,7 @@
     {% if stale %}<p class="warn">{{ T.stale }}</p>{% endif %}
 
     <details class="ranking">
-      <summary>{{ T.ranking_title }}</summary>
+      <summary>{{ T.ranking_title }}{% if v.window %} <small class="note">({{ T.ranking_window.format(window=v.window) }})</small>{% endif %}</summary>
       {% if v.ranking %}
         <table>
           <thead><tr><th>#</th><th>Model</th><th>Wynik</th><th>Opady (ETS)</th><th>Chmury (trafność klas)</th><th>Temperatura (MAE)</th></tr></thead>

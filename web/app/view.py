@@ -132,6 +132,12 @@ def build(fc: dict, mode: str, cell: dict | None, now: int) -> dict:
     today = datetime.fromtimestamp(now, TZ).date()
     ranking = cell["accurate"] if cell else None
     rank_pos = {r["model"]: k + 1 for k, r in enumerate(ranking or [])}
+    w = (cell or {}).get("window") or {}
+    window = (
+        f"{date.fromisoformat(w['from']):%d.%m}–{date.fromisoformat(w['to']):%d.%m}"
+        if w.get("from") and w.get("to")
+        else ""
+    )
     info: dict = {"mode": mode, "model": None, "texts": [], "blend": False}
     members = models
 
@@ -146,7 +152,7 @@ def build(fc: dict, mode: str, cell: dict | None, now: int) -> dict:
         m = ranking[-1]["model"]
         if m in models:
             info["model"] = m
-            info["texts"].append(pl.T["least_intro"].format(model=pl.MODELS[m][0]))
+            info["texts"].append(pl.T["least_intro"].format(model=pl.MODELS[m][0], window=window or "30 dni"))
     elif mode == "najmniej-trafna":
         info["texts"].append(pl.T["least_none"])
 
@@ -194,6 +200,7 @@ def build(fc: dict, mode: str, cell: dict | None, now: int) -> dict:
         "days": days,
         "hourly": hourly,
         "ranking": ranking,
+        "window": window,
         # forecast models without a ranking entry here yet (an extra model collecting data)
         "unranked": [m for m in models if m not in rank_pos] if ranking else [],
         "temp_source": cell.get("temp_source") if cell else None,

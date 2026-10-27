@@ -2,6 +2,13 @@
 docs/DECISIONS.md."""
 
 WINDOW_DAYS = 30
+# The window ends where every cell has its forecasts. Each cell is refreshed once per ROTATION_DAYS (budget, see
+# pipeline.ingest.forecasts), so its newest stored day lags today - LAG_DAYS by up to ROTATION_DAYS - 1 days. A window
+# ending at D-2 left most cells below MIN_DAYS once the rotation spread out: 29 of 4313 cells ranked (2026-10-27).
+from pipeline.ingest.forecasts import LAG_DAYS as _FC_LAG  # noqa: E402
+from pipeline.ingest.forecasts import ROTATION_DAYS as _ROT  # noqa: E402
+
+END_LAG_DAYS = _FC_LAG + _ROT - 1  # 15
 MIN_DAYS = 20  # days with data per (cell, model) to enter the ranking (§8.4)
 RANK_LEADS = (1, 2, 3)  # 24/48/72 h, pooled (§8.3)
 from lepszapogoda.blend import LEAD_GROUPS  # noqa: E402, F401 - blend weight groups, shared with the web app (§8.10)

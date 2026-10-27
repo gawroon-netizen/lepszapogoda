@@ -209,6 +209,8 @@ Wiatr: brak obserwacji nad lądem — poza rankingiem.
 **Stacje automatyczne IMGW (zbierane od 2026-10-21, jeszcze nie w rankingu):** `api/data/meteo`, ok. 790 stacji, wartości 10-minutowe w UTC (temperatura ok. 315 stacji, opad ok. 700). Worker zapisuje odczyt co 5 minut, a `pipeline/ingest/imgw_meteo.py` liczy Tmax/Tmin oraz opad 06–06 UTC (dzień ważny przy ≥ 138/144 interwałów). Plan: gęstsza weryfikacja temperatury (stacja ≤ 20 km zamiast ≤ 60 km) i deszczomierze jako drugie źródło opadu obok IMERG, gdy będzie ≥ 20 dni danych i kontrola jakości deszczomierzy (DECISIONS 2026-10-21).
 
 ### 8.3 Metryki (okno 30 dni, wyprzedzenia 24/48/72 h uśrednione)
+
+**Okno kończy się na D−15** (od 2026-10-27, DECISIONS): rotacja pobierania prognoz (co 14 dni na kwadrat) sprawia, że dopiero tam każdy kwadrat ma komplet prognoz. Strona pokazuje daty okna.
 - Zachmurzenie: trafność klasy (pogodnie < 25 %, pochmurno > 75 %, pośrednie) jako miara główna oraz MAE frakcji [%] **po odjęciu biasu modelu z okna**. Powód (Etap 0a): różne definicje „zachmurzenia/usłonecznienia” w modelu i w obserwacji dają systematyczny bias rzędu dziesiątek procent, który zwykły MAE traktuje jak błąd prognozy i który sam rozstrzygał ranking. Bias raportujemy osobno.
 - Opady: ETS dla progu ≥ 1 mm/dobę (waga 0,7) i MAE sumy dobowej (waga 0,3).
 - Temperatura: MAE dobowej max i min [°C].

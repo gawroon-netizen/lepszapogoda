@@ -127,6 +127,13 @@ Format: data · kontekst · wybór · alternatywy.
 - **Ikona dnia** (uwagi człowieka, 2026-10-23).
   - **Opad do ikony liczymy z godzin 7–21,** a zachmurzenie, jak dotąd, z 8–18. Deszcz tylko w nocy nie zmienia ikony. Zostaje w sumie dobowej; gdy co najmniej 75% opadu dnia spada w nocy, suma dostaje dopisek „w nocy”. Przykład: Warszawa 23.10 pokazywała „słaby deszcz” za 0,2 mm o 2 w nocy przy bezchmurnym dniu.
   - **W średniej modeli ikona opadu wymaga, żeby co najmniej połowa modeli dawała ≥ 0,2 mm w ciągu dnia.** Średnia rozmazuje przelotny opad jednego modelu na wszystkie, a ikona deszczu przy szansie 20% myliła. Suma w milimetrach zostaje bez zmian.
+- **Okno rankingu kończy się na D−15, nie D−2** (2026-10-27).
+  - **Objaw:** pierwsza publikacja (24.10) miała 29 z 4313 kwadratów, kolejne spadały do 2. Bramka jakości słusznie je odrzucała.
+  - **Przyczyna:** rotacja pobierania odświeża każdy kwadrat raz na 14 dni, bo tak mieści się w limicie Open-Meteo. Ostatni pobrany dzień różni się więc między kwadratami o 0–13 dni. W oknie kończącym się na D−2 kwadrat przed swoim odświeżeniem miał tylko 16–18 dni prognoz, a ranking wymaga ≥ 20 dni dla każdego z pięciu modeli podstawowych naraz. W rozruchu wszystkie kwadraty były świeże, więc problem wyszedł dopiero, gdy rotacja się rozjechała (widać to było na stronie stanu).
+  - **Poprawka:** koniec okna = D − (opóźnienie IMERG 2 + rotacja 14 − 1) = D−15 (`END_LAG_DAYS` w `pipeline/verify/config.py`). Tam każdy kwadrat ma komplet prognoz, a satelity (MODIS do 7 dni opóźnienia) też zdążą.
+  - **Koszt:** ranking opisuje 30 dni zakończone ok. 2 tygodnie temu. Strona pokazuje daty okna zamiast „ostatnie 30 dni”.
+  - **Odrzucona alternatywa:** odświeżanie co 7 dni. Zapytanie na 7 i na 14 dni kosztuje tyle samo, więc stan ustalony podwoiłby się do ~7 500 wywołań na dobę, na granicy limitu potoku.
+  - **Przy okazji:** w oknie 13.09–12.10 brakuje temperatur IMGW z 1–12.10. Paczka październikowa IMGW jeszcze nie wyszła, a pomiary godzinowe zbieramy od 13.10. Do czasu uzupełnienia część kwadratów może mieć ranking bez temperatury.
 - **Bez migracji lokalnych danych do R2.** Kontekst: klucze R2 są tylko w sekretach GitHuba. Koszt: ~1 dzień budżetu na ponowne pobranie prognoz i kilka godzin pomiarów IMGW z lokalnego odpytywania. Dane lokalne w `data/` zostają jako kopia, nieużywana przez potok.
 - **Publiczne repozytorium, autor commitów z adresem noreply GitHuba, prywatna rozmowa (`docs/history/`) poza repozytorium** (decyzje człowieka 2026-10-12). Historia gita przepisana przed pierwszym pushem.
 - **Testy pakietu współdzielonego w `tests/`** (SPEC §10 przewidywał tylko `pipeline/tests` i `web/tests`).
