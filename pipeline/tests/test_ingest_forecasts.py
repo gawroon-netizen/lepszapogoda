@@ -149,3 +149,39 @@ def test_core_models_are_fetched_before_extra_ones(tmp_path):
     tasks = fc.plan(TODAY, CELLS[:200], [extra, "gfs_seamless", "ecmwf_ifs"], m)
     order = [t.model for t in tasks]
     assert order.index(extra) > max(i for i, x in enumerate(order) if x != extra)
+
+
+def test_runs_on_empty_machines_do_not_overwrite_each_other(tmp_path):
+    # CI: every run starts without the data files of earlier runs, then pushes its own to R2
+    cells = CELLS[:60]
+    r2 = tmp_path / "r2"
+    for k in range(2):
+        work = tmp_path / f"run{k}"
+        (work / "forecasts").mkdir(parents=True)
+        if (r2 / "manifest.json").exists():
+            (work / "forecasts" / "manifest.json").write_bytes((r2 / "manifest.json").read_bytes())
+        fc.run(TODAY, ["gfs_seamless", "ecmwf_ifs"][k : k + 1], FakeClient(), data_dir=work, cell_ids=cells)
+        for f in (work / "forecasts").rglob("*.parquet"):
+            dest = r2 / f.relative_to(work / "forecasts")
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            dest.write_bytes(f.read_bytes())
+        (r2 / "manifest.json").write_bytes((work / "forecasts" / "manifest.json").read_bytes())
+    names = [f.name for f in r2.rglob("*.parquet")]
+    assert len(names) == len(set(names)) and {f.parent.name for f in r2.rglob("*.parquet")} == {
+        "gfs_seamless",
+        "ecmwf_ifs",
+    }
+
+
+def test_rebuild_manifest_from_files_finds_lost_data(tmp_path, monkeypatch):
+    monkeypatch.setattr(fc, "FLUSH_EVERY", 1)  # one file per request: 50 + 10 cells
+    cells = CELLS[:60]
+    fc.run(TODAY, ["gfs_seamless"], FakeClient(), data_dir=tmp_path, cell_ids=cells)
+    files = sorted((tmp_path / "forecasts" / "gfs_seamless").glob("*.parquet"))
+    lost = pd.read_parquet(files[0])["cell_id"].unique()
+    files[0].unlink()  # data gone, manifest still lists it
+    m = fc.rebuild_manifest(tmp_path, ["gfs_seamless"])
+    assert all(m.ranges("gfs_seamless", c) == [] for c in lost)
+    kept = [c for c in cells if c not in set(lost)]
+    assert kept and all(m.ranges("gfs_seamless", c) == [fc.target_range(TODAY)] for c in kept)
+    assert fc.plan(TODAY, cells, ["gfs_seamless"], m)  # the lost cells are planned again

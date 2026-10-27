@@ -10,11 +10,15 @@ Budget-driven plan, self-healing after failed or partial runs:
 When the daily or monthly budget runs out the job stops cleanly; what was fetched is saved and the
 manifest updated, the rest is picked up the next day.
 
-Storage (local directory now, R2 later): {data}/forecasts/{model}/{run_date}_{nnn}.parquet, one row per
-(cell, valid hour, lead day) with temperature_2m, precipitation, cloud_cover and the model cell metadata.
+Storage: {data}/forecasts/{model}/{run_date}_{HHMMSS}_{run id}_{nnn}.parquet (synced with R2), one row per
+(cell, valid hour, lead day) with temperature_2m, precipitation, cloud_cover and the model cell metadata. The run
+id matters: every CI run starts with an empty directory, and with plain {run_date}_{nnn} names the runs of one day
+overwrote each other's files in R2 while the manifest kept their dates (2026-10-27: about half the data lost).
+`--rebuild-manifest` rebuilds the manifest from the data files actually present, so lost dates are fetched again.
 
 Usage:
     python -m pipeline.ingest.forecasts [--date YYYY-MM-DD] [--dry-run] [--max-requests N] [--models m1,m2]
+    python -m pipeline.ingest.forecasts --rebuild-manifest      # after `storage pull forecasts/`
 """
 
 from __future__ import annotations
@@ -22,6 +26,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import uuid
 from collections import defaultdict
 from dataclasses import dataclass
 from datetime import UTC, date, datetime, timedelta
@@ -86,6 +91,23 @@ class Manifest:
         tmp = self.path.with_suffix(".tmp")
         tmp.write_text(json.dumps(raw, separators=(",", ":")), encoding="utf-8")
         tmp.replace(self.path)
+
+
+def rebuild_manifest(data_dir: Path, models: list[str] | None = None) -> Manifest:
+    """Manifest of the dates actually stored in the data files (replaces the current one)."""
+    manifest = Manifest(data_dir / "forecasts" / "manifest.json.rebuild")  # empty: the path does not exist
+    for model in models or list(openmeteo.MODELS):
+        stored: dict[str, set[date]] = defaultdict(set)
+        for f in sorted((data_dir / "forecasts" / model).glob("*.parquet")):
+            df = pd.read_parquet(f, columns=["cell_id", "valid_time"])
+            pairs = df.assign(d=df["valid_time"].dt.date)[["cell_id", "d"]].drop_duplicates()
+            for cid, d in pairs.itertuples(index=False):
+                stored[cid].add(d)
+        for cid, days in stored.items():
+            for d in sorted(days):
+                manifest.add(model, cid, d, d)
+    manifest.path = data_dir / "forecasts" / "manifest.json"
+    return manifest
 
 
 # ---------------------------------------------------------------- plan
@@ -201,15 +223,16 @@ def run(
         return summary
     buffers: dict[str, list[pd.DataFrame]] = defaultdict(list)
     pending: list[tuple[str, str, date]] = []  # manifest entries, applied only after their data is on disk
+    run_tag = f"{today.isoformat()}_{datetime.now(UTC):%H%M%S}_{uuid.uuid4().hex[:6]}"  # unique across CI runs
 
     def flush() -> None:
         # Data first, manifest second: a crash in between means a refetch, never a silent gap
         for model, frames in buffers.items():
             out_dir = data_dir / "forecasts" / model
             out_dir.mkdir(parents=True, exist_ok=True)
-            k = len(list(out_dir.glob(f"{today.isoformat()}_*.parquet")))
+            k = len(list(out_dir.glob(f"{run_tag}_*.parquet")))
             df = pd.concat(frames, ignore_index=True)
-            df.to_parquet(out_dir / f"{today.isoformat()}_{k:03d}.parquet", index=False)
+            df.to_parquet(out_dir / f"{run_tag}_{k:03d}.parquet", index=False)
             summary["rows"] += len(df)
         buffers.clear()
         for model, cid, d in pending:
@@ -254,12 +277,32 @@ def main() -> None:
     p.add_argument("--safety", type=float, default=0.8, help="fraction of Open-Meteo limits this job may use")
     p.add_argument("--dry-run", action="store_true")
     p.add_argument(
+        "--rebuild-manifest",
+        action="store_true",
+        help="rebuild the manifest from the forecast files first (needs `storage pull forecasts/`)",
+    )
+    p.add_argument(
         "--max-wait",
         type=float,
         default=3_700,
         help="seconds to wait for a rate-limit window; in CI use a small value and let the next run continue",
     )
     a = p.parse_args()
+    if a.rebuild_manifest:
+        before = Manifest(DATA_DIR / "forecasts" / "manifest.json")
+        rebuilt = rebuild_manifest(DATA_DIR)
+        t_start, t_end = target_range(a.date)
+        cells = [c.cell_id for c in grid.poland_cells()]
+
+        def stored_days(man: Manifest, model: str) -> int:
+            return sum(
+                max(0, (min(e, t_end) - max(s, t_start)).days + 1) for c in cells for s, e in man.ranges(model, c)
+            )
+
+        for m in openmeteo.MODELS:
+            print(f"manifest {m}: cell-days in the window {stored_days(before, m)} -> {stored_days(rebuilt, m)}")
+        rebuilt.prune(t_start - timedelta(days=WINDOW_DAYS))
+        rebuilt.save()
     budget = openmeteo.Budget(ledger_path=DATA_DIR / "openmeteo_ledger.json", safety=a.safety, max_wait_s=a.max_wait)
     client = openmeteo.OpenMeteoClient(budget=budget)
     summary = run(a.date, a.models.split(","), client, max_requests=a.max_requests, dry_run=a.dry_run)

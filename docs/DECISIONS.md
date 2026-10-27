@@ -134,6 +134,11 @@ Format: data · kontekst · wybór · alternatywy.
   - **Koszt:** ranking opisuje 30 dni zakończone ok. 2 tygodnie temu. Strona pokazuje daty okna zamiast „ostatnie 30 dni”.
   - **Odrzucona alternatywa:** odświeżanie co 7 dni. Zapytanie na 7 i na 14 dni kosztuje tyle samo, więc stan ustalony podwoiłby się do ~7 500 wywołań na dobę, na granicy limitu potoku.
   - **Przy okazji:** w oknie 13.09–12.10 brakuje temperatur IMGW z 1–12.10. Paczka październikowa IMGW jeszcze nie wyszła, a pomiary godzinowe zbieramy od 13.10. Do czasu uzupełnienia część kwadratów może mieć ranking bez temperatury.
+- **Utrata części prognoz archiwalnych: pliki nadpisywane między przebiegami** (2026-10-27, wyszło przy badaniu rankingu z 13 kwadratami).
+  - **Przyczyna:** pliki prognoz miały nazwy `{data}_{nnn}.parquet`, a numer liczony był od zera w pustym katalogu przebiegu CI. Każdy przebieg godzinowy danego dnia nadpisywał w R2 pliki wcześniejszych, a manifest zachowywał ich daty jako pobrane. Przykład: dla GFS zostało 13 plików, po dwa na dzień. Składniki weryfikacji były tylko dla 1 513 (GFS) – 2 513 (IFS) z 4 313 kwadratów.
+  - **Poprawka:** nazwa `{data}_{HHMMSS}_{id przebiegu}_{nnn}.parquet` (test `test_runs_on_empty_machines_do_not_overwrite_each_other`).
+  - **Odzyskanie:** jednorazowa odbudowa manifestu z plików, które są w R2 (`--rebuild-manifest`, przełącznik `rebuild_manifest` w ręcznym uruchomieniu `pipeline-hourly`). Planista sam dopobierze brakujące daty w ramach limitu. Duplikaty godzin po ponownym pobraniu usuwa `aggregate.load_hourly`.
+  - **Koszt:** kilka dni budżetu Open-Meteo. Ranking dla całej Polski przesuwa się odpowiednio.
 - **Bez migracji lokalnych danych do R2.** Kontekst: klucze R2 są tylko w sekretach GitHuba. Koszt: ~1 dzień budżetu na ponowne pobranie prognoz i kilka godzin pomiarów IMGW z lokalnego odpytywania. Dane lokalne w `data/` zostają jako kopia, nieużywana przez potok.
 - **Publiczne repozytorium, autor commitów z adresem noreply GitHuba, prywatna rozmowa (`docs/history/`) poza repozytorium** (decyzje człowieka 2026-10-12). Historia gita przepisana przed pierwszym pushem.
 - **Testy pakietu współdzielonego w `tests/`** (SPEC §10 przewidywał tylko `pipeline/tests` i `web/tests`).
