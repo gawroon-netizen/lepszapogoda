@@ -139,6 +139,12 @@ Format: data · kontekst · wybór · alternatywy.
   - **Poprawka:** nazwa `{data}_{HHMMSS}_{id przebiegu}_{nnn}.parquet` (test `test_runs_on_empty_machines_do_not_overwrite_each_other`).
   - **Odzyskanie:** jednorazowa odbudowa manifestu z plików, które są w R2 (`--rebuild-manifest`, przełącznik `rebuild_manifest` w ręcznym uruchomieniu `pipeline-hourly`). Planista sam dopobierze brakujące daty w ramach limitu. Duplikaty godzin po ponownym pobraniu usuwa `aggregate.load_hourly`.
   - **Koszt:** kilka dni budżetu Open-Meteo. Ranking dla całej Polski przesuwa się odpowiednio.
+- **Zapas dla godzinowych pomiarów IMGW: Ogimet zamiast NOAA ISD** (decyzja człowieka „ISD na stałe jako zapas”, 2026-10-28).
+  - **Cel:** uzupełnić temperatury z 1–12.10. Bez nich temperatura nie weszłaby do rankingu przed ok. 16.11, bo 12-dniowa dziura przesuwa się z oknem i każda stacja ma w nim najwyżej 18 z wymaganych 20 dni.
+  - **ISD odpada:** ostatnie dane (NCEI, kopia na AWS, usługa Access Data) są z 24.08.2025. NOAA przestała go aktualizować. Meteostat (bulk) też stoi od listopada 2025.
+  - **Ogimet działa:** surowe depesze SYNOP z sieci WMO. Jedno zapytanie zwraca dobę dla bloku 12 (Polska, 95 stacji, w tym nasze). Sprawdzone: 60 z 60 stacji ma dokładnie te same temperatury co API IMGW w tej samej godzinie.
+  - **Zasada:** `pipeline/ingest/ogimet.py` codziennie pobiera tylko dni z lukami (< 95 % stacjo-godzin) z ostatnich 45 dni, z przerwą 5 s między zapytaniami. Bierze tylko temperaturę o pełnych godzinach. Wartości z API IMGW mają pierwszeństwo, Ogimet wypełnia braki.
+  - **Atrybucja:** dane pomiarowe nadal pochodzą z IMGW-PIB; Ogimet jest tylko pośrednikiem depesz.
 - **Bez migracji lokalnych danych do R2.** Kontekst: klucze R2 są tylko w sekretach GitHuba. Koszt: ~1 dzień budżetu na ponowne pobranie prognoz i kilka godzin pomiarów IMGW z lokalnego odpytywania. Dane lokalne w `data/` zostają jako kopia, nieużywana przez potok.
 - **Publiczne repozytorium, autor commitów z adresem noreply GitHuba, prywatna rozmowa (`docs/history/`) poza repozytorium** (decyzje człowieka 2026-10-12). Historia gita przepisana przed pierwszym pushem.
 - **Testy pakietu współdzielonego w `tests/`** (SPEC §10 przewidywał tylko `pipeline/tests` i `web/tests`).
