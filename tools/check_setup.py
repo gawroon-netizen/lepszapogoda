@@ -147,25 +147,38 @@ def check_gee() -> None:
 
 def check_weathernext() -> None:
     """WeatherNext 3 needs its own access grant (WeatherNext Data Request), per account: metadata is public, pixels
-    are not, so read one value."""
+    are not. Reads one value from runs of several dates (2026-11-02: the service account could read one run, but
+    other images live in a bucket it may not read), and the run-completeness query the ingest uses."""
+    from datetime import UTC, datetime
+
     import ee
 
     from pipeline.gee.auth import init_ee
+    from pipeline.ingest import weathernext
 
+    init_ee()
+    col = ee.ImageCollection(weathernext.COLLECTION)
+    failed = []
+    for day in ("2026-09-20", "2026-10-15", "2026-10-25", "2026-11-01"):
+        try:
+            img = col.filter(ee.Filter.eq("start_time", f"{day}T00:00:00Z")).filter(ee.Filter.eq("forecast_hour", 24))
+            v = (
+                img.first()
+                .select("temperature_2m_mean")
+                .reduceRegion(ee.Reducer.first(), ee.Geometry.Point(21.0, 52.2), 11132)
+            )
+            print(f"{day} 00 UTC +24 h, Warsaw: {v.getInfo()['temperature_2m_mean'] - 273.15:.1f} C")
+        except Exception as e:  # noqa: BLE001
+            failed.append(day)
+            print(f"{day}: {type(e).__name__}: {str(e).splitlines()[0][:200]}")
     try:
-        init_ee()
-        img = (
-            ee.ImageCollection("projects/gcp-public-data-weathernext/assets/weathernext_3_0_0_0p1deg")
-            .filter(ee.Filter.eq("start_time", "2026-10-15T00:00:00Z"))
-            .filter(ee.Filter.eq("forecast_hour", 24))
-            .first()
-        )
-        v = img.select("temperature_2m_mean").reduceRegion(ee.Reducer.first(), ee.Geometry.Point(21.0, 52.2), 11132)
-        t = v.getInfo()["temperature_2m_mean"]
+        starts = weathernext.candidate_runs(datetime.now(UTC).date(), 3)
+        print(f"complete runs of the last 3 days: {len(weathernext.complete_runs(starts))} of {len(starts)}")
     except Exception as e:  # noqa: BLE001
-        msg = str(e).split("\n")[0][:300]
-        fail(f"WeatherNext 3: {type(e).__name__}: {msg}")
-    print(f"WeatherNext 3 temperature at Warsaw, 2026-10-16 00 UTC: {t - 273.15:.1f} C")
+        failed.append("complete_runs")
+        print(f"complete_runs: {type(e).__name__}: {str(e).splitlines()[0][:200]}")
+    if failed:
+        fail(f"WeatherNext 3 not readable for: {', '.join(failed)}")
     print("OK")
 
 
