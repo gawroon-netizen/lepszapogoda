@@ -14,7 +14,8 @@ Szczegóły w SPEC §9 i §16.
 - [ ] *(opcjonalnie)* *Settings → General:* wyłączyć Wiki i Projects, włączyć „Automatically delete head branches” (§16 pkt 1).
 - [ ] *(opcjonalnie)* *Settings → Branches:* reguła dla `main` z wymaganym statusem `ci` (§16 pkt 1). Pushe agenta idą bezpośrednio na `main`, więc reguła musi na to pozwalać albo przechodzimy na pull requesty.
 - [ ] *(opcjonalnie)* Osobny projekt Cloud „lepszapogoda” zamiast automatycznego `gen-lang-client-…` z AI Studio.
-- [ ] **WeatherNext 3: wniosek o dostęp** (formularz „WeatherNext Data Request”). Konto Google z Earth Engine, w miarę możliwości także konto serwisowe `lepszapogoda-pipeline@gen-lang-client-0589028343.iam.gserviceaccount.com`. Szczegóły i link: `docs/reports/rozpoznanie-weathernext-3.md`.
+- [x] **WeatherNext 3: wniosek o dostęp** – przyznany 2026-11-02 dla konta człowieka.
+- [ ] **WeatherNext 3 dla konta serwisowego:** zgoda obejmuje tylko część obrazów dla `lepszapogoda-pipeline@gen-lang-client-0589028343.iam.gserviceaccount.com`. Poprosić weathernext@google.com o dopisanie tego konta (albo drugi formularz z tym adresem). Sprawdzenie: Actions → `setup-check`.
 
 ## Potrzebne do Etapu 2 (strona)
 

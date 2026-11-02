@@ -72,6 +72,7 @@ jobs:
         run: python -m pipeline.ingest.satellite
       - name: WeatherNext 3 forecasts (GEE, ranking only; the 45-day backfill spreads over a few runs)
         if: env.GEE_SERVICE_ACCOUNT_JSON != ''
+        continue-on-error: true  # an extra, ranking-only model must never stop verification and publication
         run: |
           python -m pipeline.storage pull forecasts/weathernext_3/
           python -m pipeline.ingest.weathernext

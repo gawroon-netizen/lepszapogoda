@@ -68,3 +68,19 @@ def test_run_skips_stored_runs_and_respects_the_limit(tmp_path, monkeypatch):
 def test_weathernext_is_verified_but_not_required():
     assert wn.MODEL in cfg.VERIFY_MODELS and wn.MODEL not in cfg.REQUIRED_MODELS
     assert pd.Timestamp(wn.candidate_runs(date(2026, 10, 12), 1)[-1]) == pd.Timestamp("2026-10-11T18:00Z")
+
+
+def test_unreadable_run_is_skipped_not_fatal(tmp_path, monkeypatch):
+    import ee
+
+    def fetch(t, fcs):
+        if t.hour == 6:
+            raise ee.EEException("Permission denied attempting to access 'projects/.../202609180600_202609200600'.")
+        return wn.rows_for_run(t, features())
+
+    monkeypatch.setattr(wn, "complete_runs", lambda starts: list(starts))
+    monkeypatch.setattr(wn, "_cell_collections", lambda cells: [])
+    monkeypatch.setattr(wn, "fetch_run", fetch)
+    out = wn.run(date(2026, 10, 11), days=1, max_runs=10, data_dir=tmp_path)
+    assert out["fetched"] == 3 and len(out["failed"]) == 1 and "Permission denied" in out["failed"][0]
+    assert not wn.run_file(tmp_path, datetime(2026, 10, 10, 6, tzinfo=UTC)).exists()  # retried next time

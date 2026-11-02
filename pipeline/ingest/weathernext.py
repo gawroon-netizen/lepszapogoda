@@ -161,12 +161,24 @@ def run(today: date, days: int = BACKFILL_DAYS, max_runs: int = MAX_RUNS, data_d
     ready = sorted(ready)[:max_runs]  # oldest first: the ranking window lies in the past
     fcs = _cell_collections(grid.poland_cells()) if ready else []
     out_dir(data_dir).mkdir(parents=True, exist_ok=True)
-    rows = 0
+    rows, denied = 0, []
     for t in ready:
-        df = fetch_run(t, fcs)
+        try:
+            df = fetch_run(t, fcs)
+        except ee.EEException as e:
+            # 2026-11-02: the service account could read only some images of a run (access still being granted);
+            # skip the run, it is tried again next time
+            denied.append(f"{t:%Y-%m-%dT%H}: {str(e).splitlines()[0][:120]}")
+            continue
         df.to_parquet(run_file(data_dir, t), index=False)
         rows += len(df)
-    return {"missing_runs": len(todo), "fetched": len(ready), "not_ready": len(todo) - len(ready), "rows": rows}
+    return {
+        "missing_runs": len(todo),
+        "fetched": len(ready) - len(denied),
+        "not_ready": len(todo) - len(ready),
+        "failed": denied[:5] + ([f"... and {len(denied) - 5} more"] if len(denied) > 5 else []),
+        "rows": rows,
+    }
 
 
 def main() -> None:
