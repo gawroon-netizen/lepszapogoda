@@ -35,3 +35,6 @@ jobs:
       - name: Earth Engine service account
         if: success() || failure()
         run: python -m tools.check_setup gee
+      - name: WeatherNext 3 access (service account)
+        if: success() || failure()
+        run: python -m tools.check_setup weathernext

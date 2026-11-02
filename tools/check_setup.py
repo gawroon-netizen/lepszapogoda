@@ -145,5 +145,36 @@ def check_gee() -> None:
     print("OK")
 
 
+def check_weathernext() -> None:
+    """WeatherNext 3 needs its own access grant (WeatherNext Data Request), per account: metadata is public, pixels
+    are not, so read one value."""
+    import ee
+
+    from pipeline.gee.auth import init_ee
+
+    try:
+        init_ee()
+        img = (
+            ee.ImageCollection("projects/gcp-public-data-weathernext/assets/weathernext_3_0_0_0p1deg")
+            .filter(ee.Filter.eq("start_time", "2026-10-15T00:00:00Z"))
+            .filter(ee.Filter.eq("forecast_hour", 24))
+            .first()
+        )
+        v = img.select("temperature_2m_mean").reduceRegion(ee.Reducer.first(), ee.Geometry.Point(21.0, 52.2), 11132)
+        t = v.getInfo()["temperature_2m_mean"]
+    except Exception as e:  # noqa: BLE001
+        msg = str(e).split("
+")[0][:300]
+        fail(f"WeatherNext 3: {type(e).__name__}: {msg}")
+    print(f"WeatherNext 3 temperature at Warsaw, 2026-10-16 00 UTC: {t - 273.15:.1f} C")
+    print("OK")
+
+
 if __name__ == "__main__":
-    {"secrets": check_secrets, "r2": check_r2, "r2-ro": check_r2_readonly, "gee": check_gee}[sys.argv[1]]()
+    {
+        "secrets": check_secrets,
+        "r2": check_r2,
+        "r2-ro": check_r2_readonly,
+        "gee": check_gee,
+        "weathernext": check_weathernext,
+    }[sys.argv[1]]()
