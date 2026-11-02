@@ -15,6 +15,7 @@ Szczegóły w SPEC §9 i §16.
 - [ ] *(opcjonalnie)* *Settings → Branches:* reguła dla `main` z wymaganym statusem `ci` (§16 pkt 1). Pushe agenta idą bezpośrednio na `main`, więc reguła musi na to pozwalać albo przechodzimy na pull requesty.
 - [ ] *(opcjonalnie)* Osobny projekt Cloud „lepszapogoda” zamiast automatycznego `gen-lang-client-…` z AI Studio.
 - [x] **WeatherNext 3: wniosek o dostęp** – przyznany 2026-11-02 dla konta człowieka.
+- [ ] **WeatherNext 3 na stronie (człowiek pisze do weathernext@google.com, 2026-11-02):** zgoda na pokazywanie prognozy WN3 albo włączenie jej do średniej modeli. Do tego czasu WN3 jest tylko w rankingu (DECISIONS 2026-11-02).
 - [ ] **WeatherNext 3 dla konta serwisowego:** zgoda obejmuje tylko część obrazów dla `lepszapogoda-pipeline@gen-lang-client-0589028343.iam.gserviceaccount.com`. Poprosić weathernext@google.com o dopisanie tego konta (albo drugi formularz z tym adresem). Sprawdzenie: Actions → `setup-check`.
 
 ## Potrzebne do Etapu 2 (strona)
