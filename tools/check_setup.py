@@ -159,18 +159,20 @@ def check_weathernext() -> None:
     init_ee()
     col = ee.ImageCollection(weathernext.COLLECTION)
     failed = []
-    for day in ("2026-09-20", "2026-10-15", "2026-10-25", "2026-11-01"):
+    # 2026-11-02: the service account read +24 h but not +52 h of the same run, so check the leads the ingest uses
+    probes = [("2026-09-18", h) for h in (24, 29, 48, 49, 52, 72, 77)] + [("2026-11-01", 24), ("2026-11-01", 72)]
+    for day, fh in probes:
         try:
-            img = col.filter(ee.Filter.eq("start_time", f"{day}T00:00:00Z")).filter(ee.Filter.eq("forecast_hour", 24))
+            img = col.filter(ee.Filter.eq("start_time", f"{day}T00:00:00Z")).filter(ee.Filter.eq("forecast_hour", fh))
             v = (
                 img.first()
                 .select("temperature_2m_mean")
                 .reduceRegion(ee.Reducer.first(), ee.Geometry.Point(21.0, 52.2), 11132)
             )
-            print(f"{day} 00 UTC +24 h, Warsaw: {v.getInfo()['temperature_2m_mean'] - 273.15:.1f} C")
+            print(f"{day} 00 UTC +{fh} h, Warsaw: {v.getInfo()['temperature_2m_mean'] - 273.15:.1f} C")
         except Exception as e:  # noqa: BLE001
-            failed.append(day)
-            print(f"{day}: {type(e).__name__}: {str(e).splitlines()[0][:200]}")
+            failed.append(f"{day}+{fh}h")
+            print(f"{day} +{fh} h: {type(e).__name__}: {str(e).splitlines()[0][:160]}")
     try:
         starts = weathernext.candidate_runs(datetime.now(UTC).date(), 3)
         print(f"complete runs of the last 3 days: {len(weathernext.complete_runs(starts))} of {len(starts)}")
