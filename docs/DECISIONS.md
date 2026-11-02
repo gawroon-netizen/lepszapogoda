@@ -145,6 +145,15 @@ Format: data · kontekst · wybór · alternatywy.
   - **Ogimet działa:** surowe depesze SYNOP z sieci WMO. Jedno zapytanie zwraca dobę dla bloku 12 (Polska, 95 stacji, w tym nasze). Sprawdzone: 60 z 60 stacji ma dokładnie te same temperatury co API IMGW w tej samej godzinie.
   - **Zasada:** `pipeline/ingest/ogimet.py` codziennie pobiera tylko dni z lukami (< 95 % stacjo-godzin) z ostatnich 45 dni, z przerwą 5 s między zapytaniami. Bierze tylko temperaturę o pełnych godzinach. Wartości z API IMGW mają pierwszeństwo, Ogimet wypełnia braki.
   - **Atrybucja:** dane pomiarowe nadal pochodzą z IMGW-PIB; Ogimet jest tylko pośrednikiem depesz.
+- **WeatherNext 3 w rankingu** (dostęp przyznany 2026-11-02, decyzja człowieka z rozpoznania). Prognozy z Earth Engine trafiają do tych samych plików i tej samej weryfikacji co modele z Open-Meteo (`forecasts/weathernext_3/`, jeden plik na przebieg).
+  - **Zgodność z resztą:**
+    - wyprzedzenie N liczone jak w Open-Meteo: przebiegi 00/06/12/18 UTC, godziny prognozy 24N…24N+5, tylko N = 1–3;
+    - średnia ensemble ważona powierzchnią kwadratu: piksele WN3 są przesunięte o pół piksela względem naszych kwadratów;
+    - opad `total_precipitation_1hr`, a nie wariant dopasowany do IMERG;
+    - wysokość do korekty temperatury: średni teren kwadratu (GMTED2010), bo WN3 nie podaje swojej.
+  - **Status:** model dodatkowy (nie blokuje publikacji), tylko do rankingu (licencja). Strona nie pobiera jego prognozy. „Najmniej trafna” przy WN3 na ostatnim miejscu pokazuje kolejny model od końca z adnotacją. Pod tabelą rankingu jest podanie źródła wymagane przez CC BY.
+  - **Koszt w Earth Engine:** ~25 s na przebieg (5 porcji × 1000 kwadratów), ~2 min na dobę danych. Rozruch 45 dni (180 przebiegów) rozłożony po 40 przebiegów na przebieg dzienny, czyli ok. 5 dni. Limit czasu przebiegu dziennego podniesiony do 90 min.
+  - **Uczciwość porównania (zaznaczone w opisie modelu):** opad WN3 kalibrowano m.in. do IMERG, czyli naszego wzorca. W opadach może mieć przewagę, dopóki nie dojdą deszczomierze ze stacji automatycznych.
 - **Bez migracji lokalnych danych do R2.** Kontekst: klucze R2 są tylko w sekretach GitHuba. Koszt: ~1 dzień budżetu na ponowne pobranie prognoz i kilka godzin pomiarów IMGW z lokalnego odpytywania. Dane lokalne w `data/` zostają jako kopia, nieużywana przez potok.
 - **Publiczne repozytorium, autor commitów z adresem noreply GitHuba, prywatna rozmowa (`docs/history/`) poza repozytorium** (decyzje człowieka 2026-10-12). Historia gita przepisana przed pierwszym pushem.
 - **Testy pakietu współdzielonego w `tests/`** (SPEC §10 przewidywał tylko `pipeline/tests` i `web/tests`).

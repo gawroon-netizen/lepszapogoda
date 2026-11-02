@@ -176,6 +176,23 @@ def ranking_status(meta: dict | None) -> dict | None:
     return {k: meta.get(k) for k in keys}
 
 
+def weathernext_status(s3, bucket: str, today: date) -> dict:
+    """Runs of WeatherNext 3 stored (one file per run, forecasts/weathernext_3/{YYYYMMDDTHH}.parquet)."""
+    from pipeline.ingest import weathernext
+
+    names = [k["Key"].rsplit("/", 1)[-1] for k in _keys(s3, bucket, f"forecasts/{weathernext.MODEL}/")]
+    starts = sorted(n[:11] for n in names if re.fullmatch(r"\d{8}T\d{2}\.parquet", n))
+    expected = weathernext.candidate_runs(today, weathernext.BACKFILL_DAYS)
+    have = set(starts)
+    return {
+        "latest_run": f"{starts[-1][:4]}-{starts[-1][4:6]}-{starts[-1][6:8]}T{starts[-1][9:11]}:00Z"
+        if starts
+        else None,
+        "runs_in_window": sum(1 for t in expected if t.strftime("%Y%m%dT%H") in have),
+        "runs_expected": len(expected),
+    }
+
+
 def build(s3, bucket: str, now: datetime) -> dict:
     today = now.date()
     with tempfile.TemporaryDirectory() as tmp:
@@ -204,6 +221,7 @@ def build(s3, bucket: str, now: datetime) -> dict:
         "budget": {"usage": budget.usage(), "limits": asdict(openmeteo.FREE_TIER), "pipeline_share": 0.8},
         "observations": observation_status(s3, bucket, today),
         "pollers": poller_status(s3, bucket, now),
+        "weathernext": weathernext_status(s3, bucket, today),
         "runs": github_runs(),
     }
 

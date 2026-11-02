@@ -49,6 +49,12 @@
     {% else %}
       <p class="small">Wszystkie prognozy w oknie pobrane; potok uzupełnia na bieżąco nowe dni.</p>
     {% endif %}
+    {% if s.weathernext %}
+      <p class="small"><b>Google WeatherNext 3</b> (Earth Engine, tylko do rankingu):
+        {{ s.weathernext.have }} z {{ s.weathernext.expected }} przebiegów z ostatnich 45 dni
+        <progress max="100" value="{{ s.weathernext.pct }}" aria-label="WeatherNext 3: {{ s.weathernext.pct }}%"></progress>,
+        najnowszy {{ s.weathernext.latest }}.</p>
+    {% endif %}
   </section>
 
   <section>

@@ -66,3 +66,10 @@ Dwie licencje, rozdzielone czasem, którego dotyczą dane:
 - Dostęp: https://developers.google.com/weathernext/guides/access-forecast
 - Warunki dla danych bieżących: https://storage.googleapis.com/weathernext-public/terms-of-use.pdf
 - Open-Meteo, definicja `previous_dayN`: https://open-meteo.com/en/docs/previous-runs-api
+
+## Wdrożenie (2026-11-02)
+
+- **Dostęp przyznany:** obejmuje konto człowieka i konto serwisowe potoku (`setup-check`: odczyt wartości z Actions).
+- **Wyrównanie siatek:** piksele WN3 (krawędzie na x,x5°) są przesunięte o pół piksela względem naszych kwadratów. Bierzemy średnią ważoną powierzchnią (`reduceRegions`, mean, skala 5 km).
+- **Pomiar kosztu:** 1000 kwadratów × 18 godzin prognozy × 3 zmienne + teren to 5,4 s. Cały przebieg to ok. 25 s.
+- **Implementacja:** `pipeline/ingest/weathernext.py`, krok w `pipeline-daily`. Strona traktuje model jako „tylko ranking”. Szczegóły i uzasadnienia: DECISIONS 2026-11-02.

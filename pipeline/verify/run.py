@@ -20,7 +20,6 @@ from pathlib import Path
 
 import pandas as pd
 
-from lepszapogoda import openmeteo
 from pipeline.ingest import imgw
 from pipeline.paths import DATA_DIR
 from pipeline.verify import aggregate, components, ranking
@@ -43,7 +42,7 @@ def compute_components(end: date, data_dir: Path) -> tuple[pd.DataFrame, pd.Data
     modis = {s: _read_days(data_dir / "obs" / s, days) for s in ("modis_terra", "modis_aqua")}
     temp_obs = _read_days(data_dir / "obs" / "imgw_daily", days)
     cell_parts, station_parts = [], []
-    for model in openmeteo.MODELS:
+    for model in cfg.VERIFY_MODELS:
         hourly = aggregate.load_hourly(data_dir, model, days[0], days[-1])
         if hourly.empty:
             continue

@@ -31,3 +31,8 @@ CLOUD_CLASS_WEIGHT = 0.5  # within cloud: class accuracy 0.5, error SD 0.5 (bias
 # compared only the ECMWF models, because the backfill fetches model by model). Extra models join when they
 # have enough data, so a newly added model does not block publication (2026-10-21).
 from lepszapogoda.openmeteo import CORE_MODELS as REQUIRED_MODELS  # noqa: E402, F401
+from lepszapogoda.openmeteo import MODELS as _OPENMETEO_MODELS  # noqa: E402
+
+# Verified and ranked: the Open-Meteo models plus WeatherNext 3 from Earth Engine (ranking only, never shown as a
+# forecast: licence, docs/reports/rozpoznanie-weathernext-3.md). WeatherNext is an extra model, not required.
+VERIFY_MODELS = (*_OPENMETEO_MODELS, "weathernext_3")

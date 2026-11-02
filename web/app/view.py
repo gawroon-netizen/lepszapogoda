@@ -149,10 +149,15 @@ def build(fc: dict, mode: str, cell: dict | None, now: int) -> dict:
             if m in rank_pos:
                 info["texts"].append(pl.T["optimistic_rank"].format(n=rank_pos[m], m=len(rank_pos)))
     elif mode == "najmniej-trafna" and ranking:
-        m = ranking[-1]["model"]
-        if m in models:
+        # ranking-only models (WeatherNext 3) have no forecast to show: take the worst one we may show
+        shown = [r["model"] for r in reversed(ranking) if r["model"] in models]
+        if shown:
+            m = shown[0]
             info["model"] = m
             info["texts"].append(pl.T["least_intro"].format(model=pl.MODELS[m][0], window=window or "30 dni"))
+            if ranking[-1]["model"] != m:
+                hidden = pl.MODELS.get(ranking[-1]["model"], (ranking[-1]["model"],))[0]
+                info["texts"].append(pl.T["least_hidden"].format(hidden=hidden))
     elif mode == "najmniej-trafna":
         info["texts"].append(pl.T["least_none"])
 
@@ -201,6 +206,7 @@ def build(fc: dict, mode: str, cell: dict | None, now: int) -> dict:
         "hourly": hourly,
         "ranking": ranking,
         "window": window,
+        "forecast_models": sorted(models),
         # forecast models without a ranking entry here yet (an extra model collecting data)
         "unranked": [m for m in models if m not in rank_pos] if ranking else [],
         "temp_source": cell.get("temp_source") if cell else None,

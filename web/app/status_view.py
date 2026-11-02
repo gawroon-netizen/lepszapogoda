@@ -132,6 +132,17 @@ def build(status: dict | None, now: datetime) -> dict:
         }
         for o in status.get("observations", [])
     ]
+    wn = status.get("weathernext")
+    out["weathernext"] = (
+        {
+            "latest": local(wn.get("latest_run")),
+            "have": wn.get("runs_in_window", 0),
+            "expected": wn.get("runs_expected", 0),
+            "pct": pct(wn.get("runs_in_window", 0), wn.get("runs_expected", 0)),
+        }
+        if wn
+        else None
+    )
     out["pollers"] = [
         {
             "label": pl.STATUS_SOURCES.get(p["key"], p["key"]),

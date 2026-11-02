@@ -16,6 +16,12 @@ MODELS = {
         "KNMI HARMONIE-AROME",
         "Model holenderskiej służby KNMI dla Europy w rozdzielczości 5,5 km; prognoza na ok. 2,5 dnia.",
     ),
+    "weathernext_3": (
+        "Google WeatherNext 3",
+        "Model AI Google DeepMind. Tylko w rankingu: licencja nie pozwala pokazywać jego prognoz. "
+        "Opad tego modelu kalibrowano m.in. do satelitów IMERG, którymi go sprawdzamy, "
+        "więc w opadach może mieć przewagę.",
+    ),
     "ncep_aigfs025": (
         "NOAA AIGFS",
         "Model amerykańskiej NOAA oparty na sztucznej inteligencji; startuje z tych samych danych co GFS.",
@@ -71,6 +77,15 @@ T = {
     "ranking_none": (
         "Ranking dla tej okolicy jeszcze powstaje. "
         "Pierwsze wyniki pojawią się po zebraniu 20 dni porównań prognoz z pomiarami."
+    ),
+    "ranking_only": "tylko ranking",
+    "ranking_only_title": "Ten model sprawdzamy, ale jego prognoz nie wolno nam pokazywać (licencja).",
+    "least_hidden": (
+        "Najmniej trafny był {hidden}, ale jego prognoz nie wolno nam pokazywać, więc pokazujemy kolejny od końca."
+    ),
+    "weathernext_credit": (
+        "WeatherNext 3: © 2026 DeepMind Technologies Limited's machine learning models used to create the "
+        "experimental data, licencja CC BY 4.0. Oceniamy wyłącznie prognozy z przeszłości."
     ),
     "unranked": "Bez oceny, bo zbieramy jeszcze dane: {models}. Nie wchodzą do prognozy łączonej.",
     "temp_none": "Temperatura poza rankingiem dla tej okolicy (brak stacji IMGW w promieniu 60 km lub za mało danych).",

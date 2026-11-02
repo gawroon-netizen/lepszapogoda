@@ -456,3 +456,18 @@ def test_ranking_shows_its_window_dates(app, client):
     path.write_text(json.dumps(j), encoding="utf-8")
     html = client.get("/prognoza/warszawa/52.230,21.010/najmniej-trafna").get_data(as_text=True)
     assert "30 dni: 13.09–12.10" in html and "najmniej trafnie (13.09–12.10)" in html
+
+
+def test_ranking_only_model_is_listed_but_never_shown(app, client):
+    cell = grid.cell_id_for(52.23, 21.01)
+    ranking = [
+        {"model": "ecmwf_ifs", "score": 100},
+        {"model": "gfs_seamless", "score": 40},
+        {"model": "weathernext_3", "score": 0},
+    ]
+    write_cell(app, cell, ranking)
+    html = client.get("/prognoza/warszawa/52.230,21.010/najmniej-trafna").get_data(as_text=True)
+    assert "Google WeatherNext 3" in html and "(tylko ranking)" in html and "CC BY 4.0" in html
+    assert "NOAA GFS przewidywał" in html and "nie wolno nam pokazywać" in html
+    trafna = client.get("/prognoza/warszawa/52.230,21.010/trafna").get_data(as_text=True)
+    assert "Prognoza łączy 2 modeli" in trafna  # IFS and GFS: WeatherNext has no forecast to blend
