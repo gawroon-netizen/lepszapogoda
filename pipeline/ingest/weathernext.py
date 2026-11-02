@@ -157,8 +157,8 @@ def fetch_run(start: datetime, fcs: list[ee.FeatureCollection]) -> pd.DataFrame:
 
 def run(today: date, days: int = BACKFILL_DAYS, max_runs: int = MAX_RUNS, data_dir: Path = DATA_DIR) -> dict:
     todo = [t for t in candidate_runs(today, days) if not run_file(data_dir, t).exists()]
-    ready = complete_runs(todo)
-    ready = sorted(ready)[:max_runs]  # oldest first: the ranking window lies in the past
+    available = sorted(complete_runs(todo))
+    ready = available[:max_runs]  # oldest first: the ranking window lies in the past
     fcs = _cell_collections(grid.poland_cells()) if ready else []
     out_dir(data_dir).mkdir(parents=True, exist_ok=True)
     rows, denied = 0, []
@@ -175,7 +175,8 @@ def run(today: date, days: int = BACKFILL_DAYS, max_runs: int = MAX_RUNS, data_d
     return {
         "missing_runs": len(todo),
         "fetched": len(ready) - len(denied),
-        "not_ready": len(todo) - len(ready),
+        "not_ready": len(todo) - len(available),
+        "left_for_next_run": len(available) - len(ready),
         "failed": denied[:5] + ([f"... and {len(denied) - 5} more"] if len(denied) > 5 else []),
         "rows": rows,
     }
