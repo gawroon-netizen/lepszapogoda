@@ -163,8 +163,7 @@ def check_weathernext() -> None:
         v = img.select("temperature_2m_mean").reduceRegion(ee.Reducer.first(), ee.Geometry.Point(21.0, 52.2), 11132)
         t = v.getInfo()["temperature_2m_mean"]
     except Exception as e:  # noqa: BLE001
-        msg = str(e).split("
-")[0][:300]
+        msg = str(e).split("\n")[0][:300]
         fail(f"WeatherNext 3: {type(e).__name__}: {msg}")
     print(f"WeatherNext 3 temperature at Warsaw, 2026-10-16 00 UTC: {t - 273.15:.1f} C")
     print("OK")
