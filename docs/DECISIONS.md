@@ -158,6 +158,10 @@ Format: data · kontekst · wybór · alternatywy.
   - **Stan:** konto człowieka czyta wszystkie godziny prognozy. Konto serwisowe potoku czyta +24/+29 h, a +48/+49/+72/+77 h już nie: raz „Permission denied” dla obrazu, raz brak uprawnienia do bucketu `weathernext3_statistics_spatial_ee_assets`. Zgoda z formularza najpewniej dotyczy konta Google człowieka.
   - **Zabezpieczenie:** krok WN3 w `pipeline-daily` ma `continue-on-error`, a nieczytelny przebieg jest pomijany i ponawiany następnego dnia. Model dodatkowy, tylko do rankingu, nie może zatrzymać weryfikacji ani publikacji. `setup-check` sprawdza każdą używaną godzinę prognozy.
   - **Do zrobienia przez człowieka:** dopisać konto serwisowe do zgody (HUMAN_TODO).
+  - **Obejście (decyzja człowieka, 2026-11-02, „nie chcę czekać na Google”):**
+    - **Tylko krok WN3** loguje się tokenem OAuth człowieka (sekret `GEE_USER_CREDENTIALS_JSON`). Reszta potoku zostaje na koncie serwisowym.
+    - **Zakres tokenu ograniczony** do `earthengine.readonly` i `devstorage.read_only`. Domyślny token `earthengine authenticate` daje też pełny dostęp do Google Cloud i całego Google Drive, a taki nie powinien leżeć w sekretach GitHuba.
+    - **Ryzyko:** sekret repozytorium widzą tylko przebiegi na `main`, nie forki. Token można w każdej chwili unieważnić (myaccount.google.com → Bezpieczeństwo → aplikacje z dostępem).
 - **Bez migracji lokalnych danych do R2.** Kontekst: klucze R2 są tylko w sekretach GitHuba. Koszt: ~1 dzień budżetu na ponowne pobranie prognoz i kilka godzin pomiarów IMGW z lokalnego odpytywania. Dane lokalne w `data/` zostają jako kopia, nieużywana przez potok.
 - **Publiczne repozytorium, autor commitów z adresem noreply GitHuba, prywatna rozmowa (`docs/history/`) poza repozytorium** (decyzje człowieka 2026-10-12). Historia gita przepisana przed pierwszym pushem.
 - **Testy pakietu współdzielonego w `tests/`** (SPEC §10 przewidywał tylko `pipeline/tests` i `web/tests`).

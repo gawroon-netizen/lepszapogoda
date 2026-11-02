@@ -184,6 +184,25 @@ def check_weathernext() -> None:
     print("OK")
 
 
+def check_weathernext_user() -> None:
+    """The human's read-only token (secret GEE_USER_CREDENTIALS_JSON) used by the WeatherNext step."""
+    import json
+    import os
+
+    raw = os.environ.get("GEE_USER_CREDENTIALS_JSON", "")
+    if not raw.strip():
+        print("GEE_USER_CREDENTIALS_JSON not set: WeatherNext uses the service account")
+        return
+    try:
+        scopes = json.loads(raw).get("scopes") or []
+    except ValueError:
+        fail("GEE_USER_CREDENTIALS_JSON is not JSON: paste the whole credentials file")
+    broad = [s for s in scopes if s.rsplit("/", 1)[-1] in ("cloud-platform", "drive", "devstorage.full_control")]
+    if broad:
+        print(f"WARNING: the token has broad scopes {broad}; regenerate it with the read-only ones")
+    check_weathernext()
+
+
 if __name__ == "__main__":
     {
         "secrets": check_secrets,
@@ -191,4 +210,5 @@ if __name__ == "__main__":
         "r2-ro": check_r2_readonly,
         "gee": check_gee,
         "weathernext": check_weathernext,
+        "weathernext-user": check_weathernext_user,
     }[sys.argv[1]]()

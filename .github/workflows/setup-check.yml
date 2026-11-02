@@ -38,3 +38,8 @@ jobs:
       - name: WeatherNext 3 access (service account)
         if: success() || failure()
         run: python -m tools.check_setup weathernext
+      - name: WeatherNext 3 access (human's read-only token, used by the WeatherNext step)
+        if: success() || failure()
+        env:
+          GEE_USER_CREDENTIALS_JSON: ${{ secrets.GEE_USER_CREDENTIALS_JSON }}
+        run: python -m tools.check_setup weathernext-user

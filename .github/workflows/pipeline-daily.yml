@@ -73,6 +73,9 @@ jobs:
       - name: WeatherNext 3 forecasts (GEE, ranking only; the 45-day backfill spreads over a few runs)
         if: env.GEE_SERVICE_ACCOUNT_JSON != ''
         continue-on-error: true  # an extra, ranking-only model must never stop verification and publication
+        env:
+          # WeatherNext access belongs to the human's account; read-only token, this step only (DECISIONS 2026-11-02)
+          GEE_USER_CREDENTIALS_JSON: ${{ secrets.GEE_USER_CREDENTIALS_JSON }}
         run: |
           python -m pipeline.storage pull forecasts/weathernext_3/
           python -m pipeline.ingest.weathernext
