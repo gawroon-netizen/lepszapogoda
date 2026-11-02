@@ -18,7 +18,7 @@ model_elevation: mean terrain height of the cell (GMTED2010), used for the stati
 
 One file per run, named after its start time: rerunning never overwrites other data, and the files themselves say
 which runs are done. Usage (needs `storage pull forecasts/weathernext_3/` first in CI):
-    python -m pipeline.ingest.weathernext [--days 45] [--max-runs 40]
+    python -m pipeline.ingest.weathernext [--days 45] [--max-runs 90]
 """
 
 from __future__ import annotations
@@ -45,7 +45,7 @@ BANDS = {"temperature_2m_mean": "t", "total_precipitation_1hr_mean": "p", "total
 DEM = ("USGS/GMTED2010_FULL", "mea")
 SCALE_M = 5000  # 0.1° pixels; ~4 samples per pixel quarter gives the area weights
 BACKFILL_DAYS = 45  # the ranking window reaches 44 days back (pipeline.verify.config)
-MAX_RUNS = 40  # per job: ~25 s per run, so the backfill spreads over a few daily jobs
+MAX_RUNS = 90  # per job: ~13 s per run in CI (~20 min), so the 45-day backfill takes two daily jobs
 COLUMNS = [
     "grid_version",
     "model",
