@@ -31,7 +31,7 @@
       Modele dodatkowe dołączają do rankingu, gdy uzbierają dane, i nie wstrzymują publikacji.</p>
     <div class="table-wrap">
     <table>
-      <thead><tr><th>Model</th><th>Kwadraty z ≥ {{ s.forecasts.min_days }} dniami</th><th>Do pobrania dziś</th></tr></thead>
+      <thead><tr><th>Model</th><th>Kwadraty z ≥ {{ s.forecasts.min_days }} dniami{% if s.forecasts.ranking_window %} w oknie rankingu ({{ s.forecasts.ranking_window }}){% endif %}</th><th>Do pobrania dziś</th></tr></thead>
       <tbody>
       {% for m in s.forecasts.models %}
         <tr>

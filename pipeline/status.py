@@ -73,12 +73,16 @@ def forecast_status(manifest: forecasts.Manifest, today: date) -> dict:
     remaining: dict[str, float] = {}
     for t in tasks:
         remaining[t.model] = remaining.get(t.model, 0.0) + t.cost
+    # readiness is counted in the ranking window (ending END_LAG_DAYS ago), not in the ingest window: forecasts
+    # lost before 2026-10-27 are only refetched within the ingest window (2026-11-03)
+    r_end = today - timedelta(days=vcfg.END_LAG_DAYS)
+    r_start = r_end - timedelta(days=vcfg.WINDOW_DAYS - 1)
     models = []
     for m in openmeteo.MODELS:
         complete = with_min = 0
         for cid in cells:
             rs = manifest.ranges(m, cid)
-            days = sum(max(0, (min(e, t_end) - max(s, t_start)).days + 1) for s, e in rs)
+            days = sum(max(0, (min(e, r_end) - max(s, r_start)).days + 1) for s, e in rs)
             complete += forecasts.missing_span(rs, t_start, t_end) is None
             with_min += days >= vcfg.MIN_DAYS
         models.append(
@@ -93,6 +97,7 @@ def forecast_status(manifest: forecasts.Manifest, today: date) -> dict:
     total = sum(remaining.values())
     return {
         "target": {"from": t_start.isoformat(), "to": t_end.isoformat()},
+        "ranking_window": {"from": r_start.isoformat(), "to": r_end.isoformat()},
         "cells_total": len(cells),
         "min_days": vcfg.MIN_DAYS,
         "models": models,

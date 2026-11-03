@@ -9,6 +9,7 @@ import pytest
 from lepszapogoda import grid, openmeteo, publication
 from pipeline import status
 from pipeline.ingest import forecasts
+from pipeline.verify import config as cfg
 
 NOW = datetime(2026, 10, 22, 8, 10, tzinfo=UTC)
 
@@ -46,13 +47,17 @@ def test_forecast_status_counts_cells_and_remaining_cost(tmp_path):
     m = forecasts.Manifest(tmp_path / "m.json")
     t_start, t_end = forecasts.target_range(NOW.date())
     cells = [c.cell_id for c in grid.poland_cells()]
+    r_end = NOW.date() - timedelta(days=cfg.END_LAG_DAYS)
     for cid in cells:
-        m.add("ecmwf_ifs", cid, t_start, t_end)  # complete
-        m.add("gfs_seamless", cid, t_start + timedelta(days=9), t_end)  # 21 days: enough to rank, not complete
+        # stored since long before the ranking window (ends D-15): ready
+        m.add("ecmwf_ifs", cid, r_end - timedelta(days=40), t_end)
+        # refetched only within the ingest window (from D-31): 17 days in the ranking window, not ready yet
+        m.add("gfs_seamless", cid, t_start, t_end)
     st = status.forecast_status(m, NOW.date())
     by = {x["model"]: x for x in st["models"]}
-    assert by["ecmwf_ifs"]["cells_complete"] == len(cells) and by["ecmwf_ifs"]["remaining_cost"] == 0
-    assert by["gfs_seamless"]["cells_complete"] == 0 and by["gfs_seamless"]["cells_min_days"] == len(cells)
+    assert st["ranking_window"]["to"] == r_end.isoformat()
+    assert by["ecmwf_ifs"]["cells_min_days"] == len(cells) and by["ecmwf_ifs"]["remaining_cost"] == 0
+    assert by["gfs_seamless"]["cells_complete"] == len(cells) and by["gfs_seamless"]["cells_min_days"] == 0
     assert by["icon_seamless"]["cells_min_days"] == 0 and by["icon_seamless"]["remaining_cost"] > 0
     assert by["ncep_aigfs025"]["core"] is False and by["ecmwf_ifs"]["core"] is True
     assert st["remaining_cost"] == pytest.approx(sum(x["remaining_cost"] for x in st["models"]), abs=len(st["models"]))

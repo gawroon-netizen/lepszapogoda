@@ -90,6 +90,9 @@ def build(status: dict | None, now: datetime) -> dict:
     total = fc.get("cells_total") or 0
     out["forecasts"] = {
         "window": f"{day(fc['target']['from'])}–{day(fc['target']['to'])}" if fc.get("target") else "–",
+        "ranking_window": (
+            f"{day(fc['ranking_window']['from'])}–{day(fc['ranking_window']['to'])}" if fc.get("ranking_window") else ""
+        ),
         "min_days": fc.get("min_days", 20),
         "cells_total": total,
         "models": [
