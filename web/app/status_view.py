@@ -14,7 +14,7 @@ from pathlib import Path
 from web.app.i18n import pl
 from web.app.view import TZ
 
-STALE_AFTER_H = 3  # the hourly job runs 4-7 times a day (GitHub schedule), so allow a gap
+STALE_AFTER_H = 10  # GitHub starts the "hourly" job only every 4-8 h (seen 2026-11-05), so allow a long gap
 
 
 def load(path: Path) -> dict | None:
@@ -70,6 +70,7 @@ def build(status: dict | None, now: datetime) -> dict:
         "generated": local(status.get("generated")),
         "generated_ago": ago(status.get("generated"), now),
         "stale": gen is None or (now - gen).total_seconds() > STALE_AFTER_H * 3600,
+        "stale_after_h": STALE_AFTER_H,
         "run_url": (status.get("run") or {}).get("url"),
     }
 

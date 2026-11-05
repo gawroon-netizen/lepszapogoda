@@ -382,8 +382,8 @@ def test_status_page_renders_pipeline_state(app, client):
 
 
 def test_status_page_warns_when_stale(app, client):
-    app.config["STATUS_PATH"].write_text(json.dumps({**STATUS, "generated": "2026-10-14T05:00Z"}), encoding="utf-8")
-    assert "starsza niż 3 godziny" in client.get("/stan-danych").get_data(as_text=True)
+    app.config["STATUS_PATH"].write_text(json.dumps({**STATUS, "generated": "2026-10-13T22:00Z"}), encoding="utf-8")
+    assert "starsza niż 10 godzin" in client.get("/stan-danych").get_data(as_text=True)
 
 
 def test_status_page_names_a_run_of_an_invalid_workflow_file(app, client):

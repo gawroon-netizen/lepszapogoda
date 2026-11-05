@@ -12,7 +12,7 @@
     Aktualizacja: {{ s.generated }} ({{ s.generated_ago }}){% if s.run_url %} · <a href="{{ s.run_url }}">przebieg w GitHub Actions</a>{% endif %}.
     Strona odświeża się po każdym przebiegu potoku, z opóźnieniem do 30 min.
   </p>
-  {% if s.stale %}<p class="warn">Ostatnia aktualizacja jest starsza niż 3 godziny: potok mógł się zatrzymać.</p>{% endif %}
+  {% if s.stale %}<p class="warn">Ostatnia aktualizacja jest starsza niż {{ s.stale_after_h }} godzin: potok mógł się zatrzymać.</p>{% endif %}
 
   <section>
     <h2>Ranking trafności</h2>
