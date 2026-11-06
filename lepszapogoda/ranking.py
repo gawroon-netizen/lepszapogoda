@@ -25,3 +25,11 @@ def load_meta(rankings_dir: Path) -> dict | None:
         return json.loads((rankings_dir / "meta.json").read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return None
+
+
+def ranked_cells(rankings_dir: Path) -> list[str]:
+    """Ids of the cells that have a published ranking (one file per ranked cell)."""
+    folder = rankings_dir / "cells"
+    if not folder.is_dir():
+        return []
+    return sorted(p.stem for p in folder.glob("*.json") if grid.is_valid_cell_id(p.stem))

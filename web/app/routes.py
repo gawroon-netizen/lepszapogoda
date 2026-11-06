@@ -126,6 +126,31 @@ def status():
     return resp
 
 
+_RANKED_CACHE: dict = {"key": None, "body": None}
+
+
+@bp.get("/dane/ranking.json")
+def ranked_json():
+    """Cells with a published ranking, for tinting them on the map. Changes with each publication (daily), so a
+    short cache; the list is rebuilt only when meta.json changes."""
+    rdir = current_app.config["RANKINGS_DIR"]
+    meta = rankings.load_meta(rdir) or {}
+    key = (str(rdir), meta.get("sha256"), meta.get("published"))
+    if _RANKED_CACHE["key"] != key:
+        _RANKED_CACHE.update(
+            key=key,
+            body={
+                "grid_version": grid.GRID_VERSION,
+                "published": meta.get("published"),
+                "window": meta.get("window"),
+                "cells": rankings.ranked_cells(rdir),
+            },
+        )
+    resp = jsonify(_RANKED_CACHE["body"])
+    resp.headers["Cache-Control"] = "public, max-age=3600"
+    return resp
+
+
 @bp.get("/o-projekcie")
 def about():
     return render_template("about.html", T=pl.T, models=pl.MODELS)

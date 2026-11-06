@@ -4,6 +4,7 @@
 //   Switching layers uses these prepared objects, so the labels never fall back to English.
 // - The verification grid (0.1° cells touching Poland, /dane/komorki.json) is drawn as squares from zoom 7.
 //   A click while the whole country is visible only zooms in; with the squares visible it selects a square.
+//   Squares with a published ranking (/dane/ranking.json) are tinted light blue at every zoom.
 // - The search field opens the forecast ("trafna"); a point outside the Polish cells is refused.
 (function () {
   "use strict";
@@ -64,15 +65,20 @@
   // ---------- grid ----------
   var cells = null; // {cell_id: feature index}
   var cellsGeo = null;
-  var cellsReady = fetch("/dane/komorki.json")
+  // the ranked list is optional: without it the map simply shows no tint
+  var rankedReady = fetch("/dane/ranking.json")
     .then(function (r) { return r.json(); })
-    .then(function (j) {
+    .then(function (j) { var s = {}; j.cells.forEach(function (id) { s[id] = true; }); return s; })
+    .catch(function () { return {}; });
+  var cellsReady = Promise.all([fetch("/dane/komorki.json").then(function (r) { return r.json(); }), rankedReady])
+    .then(function (res) {
+      var j = res[0], ranked = res[1];
       cells = {};
       var feats = j.cells.map(function (id, i) {
         cells[id] = i;
         var lat = parseInt(id.slice(0, 3), 10) / 10, lon = parseInt(id.slice(4), 10) / 10;
         return {
-          type: "Feature", id: i, properties: { cell: id },
+          type: "Feature", id: i, properties: { cell: id, ranked: ranked[id] === true },
           geometry: { type: "Polygon", coordinates: [[[lon, lat], [lon + STEP, lat], [lon + STEP, lat + STEP], [lon, lat + STEP], [lon, lat]]] },
         };
       });
@@ -133,6 +139,13 @@
   function addGrid() {
     if (!cellsGeo || map.getSource("cells")) return;
     map.addSource("cells", { type: "geojson", data: cellsGeo });
+    // below the labels, so town names stay crisp over the tint
+    var firstSymbol = (map.getStyle().layers || []).filter(function (l) { return l.type === "symbol"; })[0];
+    map.addLayer({ id: "cells-ranked", type: "fill", source: "cells", filter: ["==", ["get", "ranked"], true], paint: {
+      "fill-color": layer === "sat" ? "#9cc3ff" : "#1f6feb",
+      "fill-opacity": layer === "sat" ? 0.22 : 0.12,
+      "fill-outline-color": "rgba(0, 0, 0, 0)",
+    } }, firstSymbol ? firstSymbol.id : undefined);
     map.addLayer({ id: "cells-fill", type: "fill", source: "cells", minzoom: GRID_ZOOM, paint: {
       "fill-color": "#1f6feb",
       "fill-opacity": ["case", ["boolean", ["feature-state", "selected"], false], 0.28,

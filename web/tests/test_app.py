@@ -471,3 +471,14 @@ def test_ranking_only_model_is_listed_but_never_shown(app, client):
     assert "NOAA GFS przewidywał" in html and "nie wolno nam pokazywać" in html
     trafna = client.get("/prognoza/warszawa/52.230,21.010/trafna").get_data(as_text=True)
     assert "Prognoza łączy 2 modeli" in trafna  # IFS and GFS: WeatherNext has no forecast to blend
+
+
+def test_ranked_cells_json_for_the_map_tint(app, client):
+    assert client.get("/dane/ranking.json").get_json()["cells"] == []
+    cell = grid.cell_id_for(52.23, 21.01)
+    write_cell(app, cell, [{"model": "ecmwf_ifs", "score": 100}, {"model": "gfs_seamless", "score": 0}])
+    meta = {"published": "2026-11-05T13:42Z", "sha256": "abc", "window": {"from": "2026-09-22", "to": "2026-10-21"}}
+    (app.config["RANKINGS_DIR"] / "meta.json").write_text(json.dumps(meta), encoding="utf-8")
+    r = client.get("/dane/ranking.json")
+    assert r.get_json()["cells"] == [cell] and r.get_json()["published"] == "2026-11-05T13:42Z"
+    assert r.headers["Cache-Control"] == "public, max-age=3600"
